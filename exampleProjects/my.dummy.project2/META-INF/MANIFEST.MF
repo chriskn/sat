@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Project2
+Bundle-SymbolicName: my.dummy.project2
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: my.dummy.project2
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: my.dummy.project2.api
+Require-Bundle: my.dummy.project3
+Import-Package: my.dummy.project4.api
