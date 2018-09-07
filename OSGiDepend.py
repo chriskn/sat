@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os,re,sys,pyyed
+import os,re,sys,pyyed,argparse
 
 outputHeader = ["Name", "Version", "Number of Dependencies", "Exported Packages", "Imported Packages", "Required Bundles", "Path to Bundle"]
 csvSeparator = "\t"
 listSeparator = ", " 
-ignoredPathSegments = ["bin", "target", "examples", "test_projects", "test", "tests"]
-
+defaultIgnoredPathSegments = ["bin", "target", "examples", "test"]
 white = "#FFFFFF"
 red = "#FF0000"
 green = "#00DB43"
-
+version = '%(prog)s 1.0'
 minNodeSize = 50
 maxNodeSize = 200
-nodeId = 0
+
 idForNames = dict()
 namesForId = dict()
-
+ignoredPathSegments = []
+nodeId = 0
 time = 0 
 
-def scanForBundles(directory):
+def scanForBundles(directory, ignoredPathSegments):
     bundels = set()
     for dirpath, dirNames, files in os.walk(directory):
         ignored = any(ignoredSegment in dirpath for ignoredSegment in ignoredPathSegments)
@@ -70,33 +70,27 @@ def trim(str):
 def splitEntries(entry, entryName):
     return re.split(r",(?!\d)", entry.replace(entryName, ""))
 
-def writeCsvOutput(fileName, bundles):
-    with open(fileName, 'w') as outputFile:
-        outputFile.write(csvSeparator.join(outputHeader)+"\n")       
-        for bundle in bundles:
-            outputFile.write(csvSeparator.join([bundle.name, bundle.version, str(bundle.numberOfDependencies), listSeparator.join(bundle.exportedPackages), listSeparator.join(bundle.importedPackages), listSeparator.join(bundle.requiredBundles), bundle.path])+"\n")
-
-def writeGraphMlOutput(fileName, graph):
-    with open(fileName, 'w') as outputFile:
-        outputFile.write(graph.get_graph())
-
 def createDependencyGraph(bundles, bundlesForExports):
     graph = pyyed.Graph()
     bundleNames = [bundle.name for bundle in bundles]
     numDependencies = [bundle.numberOfDependencies for bundle in bundles]
     numDependenciesForBundle = dict(zip(bundleNames, numDependencies))
     for bundle in bundles:
-        nodeSize = interpolateLinear(bundle.numberOfDependencies, max(numDependencies))
-        addNode(bundle.name, graph, width=str(nodeSize), height=str(nodeSize))
-        for reqBundle in bundle.requiredBundles:
-            if reqBundle in bundleNames: 
-                nodeSize = interpolateLinear(numDependenciesForBundle[reqBundle], max(numDependencies))
-                addNode(reqBundle, graph, width=str(nodeSize), height=str(nodeSize))
-            elif addNode(reqBundle, graph, color=white): 
-                print ("Bundle %s is not contained in workspace." % reqBundle)
-            graph.add_edge(idForNames[bundle.name], idForNames[reqBundle], label="requires")
-        for importedPackage in bundle.importedPackages:
-            addEdgeForPackageImport(bundle.name, importedPackage, bundlesForExports, numDependenciesForBundle, graph)
+        ignored = any(ignoredSegment in bundle.path for ignoredSegment in ignoredPathSegments)
+        if not ignored:
+            nodeSize = interpolateLinear(bundle.numberOfDependencies, max(numDependencies))
+            addNode(bundle.name, graph, width=str(nodeSize), height=str(nodeSize))
+            for reqBundle in bundle.requiredBundles:
+                ignored = any(ignoredSegment in reqBundle for ignoredSegment in ignoredPathSegments)
+                if not ignored:
+                    if reqBundle in bundleNames: 
+                        nodeSize = interpolateLinear(numDependenciesForBundle[reqBundle], max(numDependencies))
+                        addNode(reqBundle, graph, width=str(nodeSize), height=str(nodeSize))
+                    elif addNode(reqBundle, graph, color=white): 
+                        print ("Bundle %s is not contained in workspace." % reqBundle)
+                    graph.add_edge(idForNames[bundle.name], idForNames[reqBundle], label="requires")
+            for importedPackage in bundle.importedPackages:
+                addEdgeForPackageImport(bundle.name, importedPackage, bundlesForExports, numDependenciesForBundle, graph)
     return graph
 
 def interpolateLinear(numDependencies, maxNumDependencies):
@@ -107,13 +101,17 @@ def interpolateLinear(numDependencies, maxNumDependencies):
 def addEdgeForPackageImport(sourceBundle, importedPackage, bundlesForExports, numDependenciesForBundle, graph):
     if importedPackage in bundlesForExports:
         exportingBundle = bundlesForExports[importedPackage]
-        nodeSize = interpolateLinear(numDependenciesForBundle[exportingBundle], max(list(numDependenciesForBundle.values())))
-        addNode(exportingBundle, graph, width=str(nodeSize), height=str(nodeSize))
-        graph.add_edge(idForNames[sourceBundle], idForNames[exportingBundle], label="imports "+importedPackage)
+        ignored = any(ignoredSegment in exportingBundle.path for ignoredSegment in ignoredPathSegments)
+        if not ignored: 
+            nodeSize = interpolateLinear(numDependenciesForBundle[exportingBundle.name], max(list(numDependenciesForBundle.values())))
+            addNode(exportingBundle.name, graph, width=str(nodeSize), height=str(nodeSize))
+            graph.add_edge(idForNames[sourceBundle], idForNames[exportingBundle.name], label="imports "+importedPackage)
     else:
-        if addNode(importedPackage, graph, color=white, shape="rectangle"):
-            print ("Exporting bundle not found for import %s. Created package node instead"% importedPackage)
-        graph.add_edge(idForNames[sourceBundle], idForNames[importedPackage], label="imports")
+        ignored = any(ignoredSegment in importedPackage for ignoredSegment in ignoredPathSegments)
+        if not ignored: 
+            if addNode(importedPackage, graph, color=white, shape="rectangle"):
+                print ("Exporting bundle not found for import %s. Created package node instead"% importedPackage)
+            graph.add_edge(idForNames[sourceBundle], idForNames[importedPackage], label="imports")
 
 def addNode(bundleName, graph, shape="ellipse", width="50", height="50", color=green):
     global nodeId
@@ -129,7 +127,7 @@ def mapBundlesOnExports(bundles):
     bundlesForExports = {}
     for bundle in bundles:
         for export in bundle.exportedPackages:
-            bundlesForExports[export] = bundle.name
+            bundlesForExports[export] = bundle
     return bundlesForExports
 
 def findCyclesRecursive(graph, node, low, disc, stackMember, st,cycles):
@@ -180,6 +178,23 @@ def markCycles(cycles, graph):
                 if fromNode in cycle and toNode in cycle:
                     setattr(edge, "color", red)
 
+def writeCyclesToTxt(path, cylces, graph):
+    with open(path, 'w') as outputFile:
+        for cycle in cycles: 
+            cycleList = listSeparator.join(sorted([graph.nodes[str(nodeId)].label for nodeId in cycle]))
+            outputFile.write(cycleList+"\n")
+
+def writeBundlesToCsv(path, bundles):
+   with open(path, 'w') as outputFile:
+        outputFile.write(csvSeparator.join(outputHeader)+"\n")
+        for bundle in sorted(sorted(bundles, key=lambda x: x.name),key=lambda x: x.numberOfDependencies, reverse=True):
+            outputFile.write(csvSeparator.join([bundle.name, bundle.version, str(bundle.numberOfDependencies), listSeparator.join(bundle.exportedPackages), listSeparator.join(bundle.importedPackages), listSeparator.join(bundle.requiredBundles), bundle.path])+"\n")
+
+def writeGraphToGraphMl(path, graph):
+    with open(path, 'w') as outputFile:
+        outputFile.write(graph.get_graph())
+
+
 class Bundle:
     def __init__(self, path, name, version, exportedPackages, importedPackages, requiredBundles, numberOfDependencies):
         self.path = path.strip(" ")
@@ -192,17 +207,23 @@ class Bundle:
     def __repr__(self):
         return " ".join([self.path, self.name])
     def __lt__(self, other):
-        return self.name < other.name
+        return self.numberOfDependencies < other.numberOfDependencies and self.name < other.name
     def __hash__(self):
         return (self.name.lower()+self.version).__hash__()
     def __eq__(self, other):
         return self.name.lower() == other.name.lower() and self.version == other.version
 
 if __name__ == '__main__':
-    workingDir = sys.argv[1] if len(sys.argv) > 1 else os.getcwd()
-    print("Ignoring directory path which contain one of the following strings %s" % listSeparator.join(ignoredPathSegments))
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-w', dest='workingDir', default=os.getcwd(), help='Root folder for recursive analysis. Default is the script location')
+    parser.add_argument('-i', dest='ignoredPathSegments', default=defaultIgnoredPathSegments, help="List of ignored sub path segements of the root location. Default is "+listSeparator.join(defaultIgnoredPathSegments)+". Provide empty list to include all paths", nargs='*' )
+    parser.add_argument('-v','--version', action='version', version=version)
+    args = parser.parse_args()
+    workingDir = args.workingDir
+    ignoredPathSegments = args.ignoredPathSegments
+    print("Ignoring directory path which contain one of the following strings %s" % ignoredPathSegments)
     print("Scanning for bundles in directory %s..." % workingDir)
-    bundlePaths = scanForBundles(workingDir)
+    bundlePaths = scanForBundles(workingDir, ignoredPathSegments)
     bundles = [parseBundle(bundle) for bundle in bundlePaths]
     print("Found %d bundle(s)"%len(bundles))
     print("Creating dependency graph...")
@@ -213,5 +234,7 @@ if __name__ == '__main__':
     cycles = findCycles(graph)
     markCycles(cycles, graph)
     print("Found %d cycle(s)" % len(cycles))
-    writeGraphMlOutput(os.path.join(workingDir,"dependencies.graphml"), graph)
-    writeCsvOutput(os.path.join(workingDir,"bundles.csv"), bundles)
+    print("Writing output to %s" % str(workingDir))
+    writeCyclesToTxt(os.path.join(workingDir,"bundle_cycles.txt"), cycles, graph)
+    writeBundlesToCsv(os.path.join(workingDir,"bundles.csv"), bundles)
+    writeGraphToGraphMl(os.path.join(workingDir,"dependencies.graphml"), graph)
