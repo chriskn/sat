@@ -1,5 +1,18 @@
 package my.dummy.project1.api;
 
-public class Dummy {
+import org.eclipse.core.commands.*;
+import org.eclipse.core.commands.AbstractHandler;
 
+interface IDummy{
+	
+}
+
+public class Dummy {
+	
+	public class InnerDummy{
+		
+	}
+	
+	
+	
 }

@@ -12,7 +12,7 @@ class BundleParser:
 
     def parseBundles(self):
         bundlePaths = self._scanForBundles()
-        bundles = [self._parseBundle(bundle) for bundle in bundlePaths]
+        bundles = [self._parseBundle(bundlPath) for bundlPath in bundlePaths]
         return bundles
 
     def _scanForBundles(self):

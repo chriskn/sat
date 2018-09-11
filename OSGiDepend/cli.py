@@ -13,9 +13,9 @@ class Cli:
     
     def __init__(self):
         self.parser =  argparse.ArgumentParser()
-        self.parser.add_argument('-w', dest='workingDir', default=os.getcwd(), help='Root folder for recursive analysis. Default is the script location')
+        self.parser.add_argument('-w', dest='workingDir', default=os.getcwd(), help='Root folder for recursive analysis. Default is script location')
         self.parser.add_argument('-i', dest='ignoredPathSegments', default=defaultIgnoredPathSegments, nargs='*' ,
-            help="List of ignored sub path segements of the root location. Default is "+", ".join(defaultIgnoredPathSegments)+". Provide empty list to include all paths"
+            help="List of ignored path segements. Default is "+", ".join(defaultIgnoredPathSegments)+". Provide empty list to include all paths"
         )
         self.parser.add_argument('-v','--version', action='version', version=version)
 
