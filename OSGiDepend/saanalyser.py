@@ -23,7 +23,7 @@ def buildHCouplingHeatmap(packages, title):
     sns.clustermap(df, annot=True, fmt="d")#, cmap=colorPalette)
     plt.show()
 '''
-ANALYSERS = [ProjectAnalyser()]
+ANALYSERS = [BundleAnalyser(),ProjectAnalyser()]
 
 if __name__ == '__main__':
     cli = Cli()

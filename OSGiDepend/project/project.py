@@ -6,6 +6,8 @@ class Project:
         self.name = name
         self.location = location
         self.sourcePackages = sourcePackages
+    def __lt__(self,other):
+        return self.name < other.name
     
     def getImports(self):
         imports = []

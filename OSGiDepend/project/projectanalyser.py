@@ -25,6 +25,18 @@ class ProjectAnalyser:
     def writeResults(self, outputFolder):
         self._writePackageCouplingHeatmap(outputFolder)
         self._writeProjectCouplingHeatmap(outputFolder)
+        '''
+        packages = []
+        for p in self._projects:
+            packages.extend(p.sourcePackages)
+        numPackageDeps = []
+        numPackageLoc = []
+        for p in packages:
+            numPackageDeps.append(len(p.getImports()))
+            numPackageLoc.append(sum([source.loc for source in p.sourceFiles]))
+        sns.distplot(numPackageLoc)
+        plt.show()
+        '''
 
     def _writePackageCouplingHeatmap(self,outputFolder):
         print("Creating package coupling heatmap...")
@@ -83,7 +95,7 @@ class ProjectAnalyser:
         matrix_height_in = matrix_height_pt / dpi
 
         # compute the required figure height 
-        entryOffset = +numberOfEntries * 0.2
+        entryOffset = numberOfEntries * 0.2
         figure_height = matrix_height_in + entryOffset
 
         cmap = plt.get_cmap('autumn_r',10)
