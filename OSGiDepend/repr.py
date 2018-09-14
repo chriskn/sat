@@ -2,16 +2,15 @@ import pyyed
 
 class Graph: 
 
-    _graph = pyyed.Graph() 
-    _nodeId = 0
-    _time = 0
-    _idForNames = dict()
-    _namesForId = dict()
     _GREEN = "#00DB43"
     _RED = "#FF0000"
 
     def __init__(self):
-        pass
+        self._graph = pyyed.Graph() 
+        self._nodeId = 0
+        self._time = 0
+        self._idForNames = dict()
+        self._namesForId = dict()
 
     def addNode(self, label , shape="ellipse", width="50", height="50", color=_GREEN):
         if label not in self._idForNames:
@@ -75,6 +74,8 @@ class Graph:
                     toNode = int(getattr(edge, "node2"))
                     if fromNode in cycle and toNode in cycle:
                         setattr(edge, "color", self._RED)
+    
+    
 
     def getNodes(self): return self._graph.nodes
 

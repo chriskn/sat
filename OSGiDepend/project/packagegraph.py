@@ -1,7 +1,6 @@
 from repr import Graph
 from project.project import Package
 from copy import deepcopy
-import pyyed
 
 class PackageGraph(Graph):
 
@@ -19,19 +18,17 @@ class PackageGraph(Graph):
     
     def getCycleGraph(self, cycles):
         graph = PackageGraph()
-        cycleNodes = []
         for cycle in cycles:
             for nodeLabel in cycle:
                 nodeId = self._idForNames[nodeLabel]
                 node = self._graph.nodes[nodeId]
-                cycleNodes.append(node)
-                nodeIdsInGraph = [node.node_name for node in graph._graph.nodes.values()]
-                if  nodeId not in nodeIdsInGraph:
-                    graph.addNode(node.node_name, shape=node.shape, width=node.geom["width"], height=node.geom["height"], color=node.shape_fill) 
+                graph.addNode(node.label, shape=node.shape, width=node.geom["width"], height=node.geom["height"], color=node.shape_fill) 
         for edge in self._graph.edges.values():
-            fromNode = self._namesForId[int(getattr(edge, "node1"))]
-            toNode = self._namesForId[int(getattr(edge, "node2"))]
+            fromNode = getattr(edge, "node1")
+            toNode = getattr(edge, "node2")
+            fromNodeLabel = self._namesForId[int(fromNode)]
+            toNodeLabel = self._namesForId[int(toNode)]
             label =  getattr(edge, "label")
-            if fromNode in cycle and toNode in cycle:
-                graph.addEdge(fromNode, toNode, label)
+            if fromNodeLabel in cycle and toNodeLabel in cycle:
+                graph.addEdge(fromNodeLabel, toNodeLabel, label)
         return graph
