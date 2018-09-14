@@ -38,15 +38,4 @@ class SourceFile:
         self.concreteClasses = concreteClasses
         self.abstractClasses = abstractClasses
         self.interfaces = interfaces
-'''
-packages = [
-    Package("a", ["a","b","c","f","f"]),
-    Package("b", ["b","c","a","f","e"]),
-    Package("c", ["b","c","f","a"]),
-    Package("d", ["b","c","c","f","f"]),
-    Package("e", ["b","c","f","f"]),
-    Package("f", ["b","c","c","f"]),
-    Package("g", ["b","c","f"]),
-    Package("h", ["b","c","h"]),
-]
-'''
+

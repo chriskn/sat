@@ -5,14 +5,13 @@ from bundle.bundle import Bundle
 from repr import Graph
 
 class BundleGraph(Graph):
-
-    _graph = Graph()
     
     _WHITE = "#FFFFFF"
     _MIN_NODE_SIZE = 50
     _MAX_NODE_SIZE = 200
     
     def __init__(self, bundles, bundlesForExports, ignoredPathSegments):
+        Graph.__init__(self)
         self.bundles = bundles
         self.bundlesForExports = bundlesForExports
         self.ignoredPathSegments = ignoredPathSegments
@@ -23,19 +22,17 @@ class BundleGraph(Graph):
         numDependencies = [bundle.numberOfDependencies for bundle in self.bundles]
         numDependenciesForBundle = dict(zip(bundleNames, numDependencies))
         for bundle in self.bundles:
-            ignored = any(ignoredSegment in bundle.path for ignoredSegment in self.ignoredPathSegments)
-            if not ignored:
-                nodeSize = self._interpolateLinear(bundle.numberOfDependencies, max(numDependencies))
-                self.addNode(bundle.name, width=str(nodeSize), height=str(nodeSize))
-                for reqBundle in bundle.requiredBundles:
-                    ignored = any(ignoredSegment in reqBundle for ignoredSegment in self.ignoredPathSegments)
-                    if not ignored:
-                        if reqBundle in bundleNames: 
-                            nodeSize = self._interpolateLinear(numDependenciesForBundle[reqBundle], max(numDependencies))
-                            self.addNode(reqBundle, width=str(nodeSize), height=str(nodeSize))
-                        elif self.addNode(reqBundle, color=self._WHITE): 
-                            print ("Bundle %s is not contained in workspace." % reqBundle)
-                        self._graph.addEdge(bundle.name, reqBundle, label="requires")
+            nodeSize = self._interpolateLinear(bundle.numberOfDependencies, max(numDependencies))
+            self.addNode(bundle.name, width=str(nodeSize), height=str(nodeSize))
+            for reqBundle in bundle.requiredBundles:
+                ignored = any(ignoredSegment in reqBundle for ignoredSegment in self.ignoredPathSegments)
+                if not ignored:
+                    if reqBundle in bundleNames: 
+                        nodeSize = self._interpolateLinear(numDependenciesForBundle[reqBundle], max(numDependencies))
+                        self.addNode(reqBundle, width=str(nodeSize), height=str(nodeSize))
+                    elif self.addNode(reqBundle, color=self._WHITE): 
+                        print ("Bundle %s is not contained in workspace." % reqBundle)
+                    self.addEdge(bundle.name, reqBundle, label="requires")
                 for importedPackage in bundle.importedPackages:
                     self._addEdgeForPackageImport(bundle.name, importedPackage, self.bundlesForExports, numDependenciesForBundle)
 
@@ -51,10 +48,10 @@ class BundleGraph(Graph):
             if not ignored: 
                 nodeSize = self._interpolateLinear(numDependenciesForBundle[exportingBundle.name], max(list(numDependenciesForBundle.values())))
                 self.addNode(exportingBundle.name, width=str(nodeSize), height=str(nodeSize))
-                self._graph.addEdge(sourceBundle, exportingBundle.name, label="imports "+importedPackage)
+                self.addEdge(sourceBundle, exportingBundle.name, label="imports "+importedPackage)
         else:
             ignored = any(ignoredSegment in importedPackage for ignoredSegment in self.ignoredPathSegments)
             if not ignored: 
                 if self.addNode(importedPackage, color=self._WHITE, shape="rectangle"):
                     print ("Exporting bundle not found for import %s. Created package node instead"% importedPackage)
-                self._graph.addEdge(sourceBundle, importedPackage, label="imports")
+                self.addEdge(sourceBundle, importedPackage, label="imports")

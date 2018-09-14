@@ -13,6 +13,9 @@ from javalang.tree import InterfaceDeclaration
 
 
 class ProjectParser:    
+
+    classNamePattern = re.compile('.*\.[A-Z].*')
+
     def __init__(self, directory, ignoredPathSegments):
         self.directory = directory
         self.ignoredPathSegments = ignoredPathSegments
@@ -73,11 +76,11 @@ class ProjectParser:
         ast = javalang.parse.parse(fileContent)
         packageImports = set()
         for imp in ast.imports:
-            if imp.wildcard:
-                packageImports.add(imp.path)
-            else:
+            if self.classNamePattern.match(imp.path):
                 package = re.split(r'\.[A-Z]',imp.path, maxsplit=1)[0]
                 packageImports.add(package)
+            else:
+                packageImports.add(imp.path)
         concreteClasses = [type.name for type in ast.types if isinstance(type, ClassDeclaration) and 'abstract' not in type.modifiers]
         abstractClasses = [type.name for type in ast.types if isinstance(type, ClassDeclaration) and 'abstract' in type.modifiers]
         interfaces = [type.name for type in ast.types if isinstance(type, InterfaceDeclaration)]

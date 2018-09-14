@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from project.projectparser import ProjectParser
+from project.packagegraph import PackageGraph 
 import numpy as np
 import pandas as pd
 import os
-
 import matplotlib.pyplot as plt
 import seaborn as sns 
 sns.set()
@@ -14,17 +14,33 @@ sns.set()
 class ProjectAnalyser:
 
     _projects = None
+    _packageGraph = None 
+    _cyclePackageGraph = None 
 
     def analyse(self, workingDir, ignoredPathSegments): 
         print("Analysing projects...") 
         parser = ProjectParser(workingDir, ignoredPathSegments)
         projects = parser.parseProjects()
         self._projects = projects
+        packages = []
+        for p in self._projects:
+            packages.extend(p.sourcePackages)
+        packageGraph = PackageGraph(packages)
+        cycles = packageGraph.getCycles()
+        packageGraph.markCycles(cycles)
+        
+        self._packageGraph = packageGraph
+        self._cyclePackageGraph =  packageGraph.getCycleGraph(cycles)   
+        
         print("Analysed %d projects" %len(projects)) 
-    
-    def writeResults(self, outputFolder):
-        self._writePackageCouplingHeatmap(outputFolder)
-        self._writeProjectCouplingHeatmap(outputFolder)
+
+    def writeResults(self, outputDir):
+        #self._writePackageCouplingHeatmap(outputDir)
+        #self._writeProjectCouplingHeatmap(outputDir)
+        self._writeGraphToGraphMl(os.path.join(outputDir,"package_dependencies.graphml"), self._packageGraph)
+        self._writeGraphToGraphMl(os.path.join(outputDir,"cyclic_package_dependencies.graphml"), self._cyclePackageGraph)
+
+
         '''
         packages = []
         for p in self._projects:
@@ -110,7 +126,12 @@ class ProjectAnalyser:
         sns.heatmap(dataFrame, square=True, fmt="d", ax=ax, 
             xticklabels=True, yticklabels=True,
             annot_kws={"size": 8}, annot=True,
+            cbar_kws={"shrink": 0.5}, 
             cmap=cmap, vmin=1, vmax=vmax,
-            cbar_kws={"shrink": 0.5}, linewidths=0.5, linecolor="grey"
-        )#, linewidth=.5, cmap=colorPalette)
+            linewidths=0.5, linecolor="grey"
+        )
         return fig 
+
+    def _writeGraphToGraphMl(self, path, graph):
+        with open(path, 'w') as outputFile:
+            outputFile.write(graph.serialize())
