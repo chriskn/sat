@@ -48,7 +48,7 @@ class BundleAnalyser:
     def _writeCyclesToTxt(self, path):
         with open(path, 'w') as outputFile:
             for cycle in self._cycles: 
-                cycleList = self._LIST_SEPARATOR.join(sorted([self._graph.getNodes()[str(nodeId)].label for nodeId in cycle]))
+                cycleList = self._LIST_SEPARATOR.join(sorted([nodeLabel for nodeLabel in cycle]))
                 outputFile.write(cycleList+"\n")
 
     def _writeBundlesToCsv(self, path):

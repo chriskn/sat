@@ -2,59 +2,72 @@
 # -*- coding: utf-8 -*-
 
 from project.projectparser import ProjectParser
-from project.packagegraph import PackageGraph 
+from project.projectgraph import ProjectGraph 
 import numpy as np
 import pandas as pd
 import os
-import matplotlib.pyplot as plt
-import seaborn as sns 
-sns.set()
-
+import plot
 
 class ProjectAnalyser:
 
     _projects = None
-    _packageGraph = None 
-    _cyclePackageGraph = None 
+    _projectGraph = None 
+    _cycleProjectGraph = None 
+    _projectCouplingMap = None
 
     def analyse(self, workingDir, ignoredPathSegments): 
         print("Analysing projects...") 
         parser = ProjectParser(workingDir, ignoredPathSegments)
         projects = parser.parseProjects()
         self._projects = projects
+        print("Creating project coupling graph")
+        projectGraph = ProjectGraph(projects)
+        print("Analysing project cycles")
+        cycles = projectGraph.getCycles()
+        projectGraph.markCycles(cycles)
+        self._projectGraph = projectGraph
+        self._cycleProjectGraph =  projectGraph.getCycleGraph(cycles)
+        '''
         packages = []
         for p in self._projects:
             packages.extend(p.sourcePackages)
         packageGraph = PackageGraph(packages)
         cycles = packageGraph.getCycles()
         packageGraph.markCycles(cycles)
-        
         self._packageGraph = packageGraph
         self._cyclePackageGraph =  packageGraph.getCycleGraph(cycles)   
-        
+        '''
+        print("Creating project coupling map")
+        self._projectCouplingMap = self._createProjectCouplingDataFrame(projects)
         print("Analysed %d projects" %len(projects)) 
 
     def writeResults(self, outputDir):
-        #self._writePackageCouplingHeatmap(outputDir)
-        #self._writeProjectCouplingHeatmap(outputDir)
-        self._writeGraphToGraphMl(os.path.join(outputDir,"package_dependencies.graphml"), self._packageGraph)
-        self._writeGraphToGraphMl(os.path.join(outputDir,"cyclic_package_dependencies.graphml"), self._cyclePackageGraph)
+        print("Writing project analysis results")
+        plot.plotHeatmap(self._projectCouplingMap, "Project Coupling", outputDir, "project_coupling_heatmap.pdf")
+        self._writeGraphToGraphMl(os.path.join(outputDir,"project_dependencies.graphml"), self._projectGraph)
+        self._writeGraphToGraphMl(os.path.join(outputDir,"cyclic_project_dependencies.graphml"), self._cycleProjectGraph)
 
+    def _createProjectCouplingDataFrame(self, projects):
+        pNames = []
+        data = []
+        for project in reversed(projects):
+            pImports = project.getImports()
+            pNames.append(project.name)
+            projData = []
+            for oProject in projects:
+                projDeps = 0
+                for oPackage in oProject.sourcePackages:
+                    occurences = pImports.count(oPackage.name)
+                    projDeps += occurences
+                projData.append(projDeps)    
+            data.append(projData)
+        return pd.DataFrame(data=data, index=pNames, columns=list(reversed(pNames)))
 
-        '''
-        packages = []
-        for p in self._projects:
-            packages.extend(p.sourcePackages)
-        numPackageDeps = []
-        numPackageLoc = []
-        for p in packages:
-            numPackageDeps.append(len(p.getImports()))
-            numPackageLoc.append(sum([source.loc for source in p.sourceFiles]))
-        sns.distplot(numPackageLoc)
-        plt.show()
-        '''
-
-    def _writePackageCouplingHeatmap(self,outputFolder):
+    def _writeGraphToGraphMl(self, path, graph):
+        with open(path, 'w') as outputFile:
+            outputFile.write(graph.serialize())
+'''
+    def _createPackageCouplingHeatmap(self,outputFolder):
         print("Creating package coupling heatmap...")
         packages = []
         for p in self._projects:
@@ -67,7 +80,6 @@ class ProjectAnalyser:
         print("Wrote coupling heatmap to %s" %heatmapPath)
 
     def _writeProjectCouplingHeatmap(self, outputFolder):
-        print("Creating project coupling heatmap...")
         heatmapFig = self._buildPCouplingHeatmap(self._projects, "Project Coupling")
         heatmapPath = os.path.join(outputFolder,"project_coupling_heatmap.pdf")
         print("Writing coupling heatmap...")
@@ -82,56 +94,4 @@ class ProjectAnalyser:
             data.append([package.getImports().count(pName) for pName in names])
         df = pd.DataFrame(data=data, index=list(reversed(names)), columns=names)
         return self._buildHeatMap(df, title)
-
-    def _buildPCouplingHeatmap(self, projects, title):
-        names = []
-        data = []
-        for project in reversed(projects):
-            pImports = project.getImports()
-            names.append(project.name)
-            projData = []
-            for oProject in projects:
-                projDeps = 0
-                for oPackage in oProject.sourcePackages:
-                    occurences = pImports.count(oPackage.name)
-                    projDeps += occurences
-                projData.append(projDeps)    
-            data.append(projData)
-        df = pd.DataFrame(data=data, index=names, columns=list(reversed(names)))
-        return self._buildHeatMap(df, title)
-       
-    def _buildHeatMap(self, dataFrame, title):
-        dpi = 72.27
-        fontsize_pt = plt.rcParams['ytick.labelsize']
-        numberOfEntries = dataFrame.shape[0]
-        twentyPercent = int(round(numberOfEntries * 0.1))
-        maxTwentyPercent = sorted(dataFrame.values.flatten())[-twentyPercent:]
-        vmax = min(maxTwentyPercent)
-        matrix_height_pt = fontsize_pt * numberOfEntries
-        matrix_height_in = matrix_height_pt / dpi
-
-        # compute the required figure height 
-        entryOffset = numberOfEntries * 0.2
-        figure_height = matrix_height_in + entryOffset
-
-        cmap = plt.get_cmap('autumn_r',10)
-        cmap.set_under('white')
-        cmap.set_over('black')
-
-        # build the figure instance with the desired height
-        fig, ax = plt.subplots(
-            figsize=(figure_height,figure_height), 
-        )
-        ax.set_title(title)
-        sns.heatmap(dataFrame, square=True, fmt="d", ax=ax, 
-            xticklabels=True, yticklabels=True,
-            annot_kws={"size": 8}, annot=True,
-            cbar_kws={"shrink": 0.5}, 
-            cmap=cmap, vmin=1, vmax=vmax,
-            linewidths=0.5, linecolor="grey"
-        )
-        return fig 
-
-    def _writeGraphToGraphMl(self, path, graph):
-        with open(path, 'w') as outputFile:
-            outputFile.write(graph.serialize())
+'''

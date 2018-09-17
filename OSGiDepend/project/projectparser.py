@@ -12,7 +12,7 @@ from javalang.tree import ClassDeclaration
 from javalang.tree import InterfaceDeclaration
 
 
-class ProjectParser:    
+class ProjectParser:
 
     classNamePattern = re.compile('.*\.[A-Z].*')
 
@@ -96,15 +96,4 @@ class ProjectParser:
             if classpath.get('kind') == "src":
                 sourceFolders.append(classpath.get('path'))
         return sourceFolders
-        '''
-        content = None 
-        with open(classpathFilePath,'r') as f:
-            content = f.read()
-        lines = content.splitlines()
-        for line in lines:
-            stripped = line.strip(" ").strip("\t")
-            if "classpathentry" in stripped and 'kind="src"' in stripped:
-                print(stripped)
-                stripped."*[@id='{0}']//"
-        '''
 

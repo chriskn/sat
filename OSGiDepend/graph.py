@@ -4,6 +4,8 @@ class Graph:
 
     _GREEN = "#00DB43"
     _RED = "#FF0000"
+    _MIN_NODE_SIZE = 50
+    _MAX_NODE_SIZE = 200
 
     def __init__(self):
         self._graph = pyyed.Graph() 
@@ -84,3 +86,8 @@ class Graph:
     def serialize(self): return self._graph.get_graph()
 
     def containsNode(self, label): return label in self._idForNames
+
+    def interpolateLinear(self, numDependencies, maxNumDependencies):
+        divisor = maxNumDependencies if maxNumDependencies > 0 else 1
+        result = (numDependencies / divisor) * (self._MAX_NODE_SIZE - self._MIN_NODE_SIZE) + self._MIN_NODE_SIZE
+        return str(round(result,0))

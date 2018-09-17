@@ -2,13 +2,11 @@
 # -*- coding: utf-8 -*-
 
 from bundle.bundle import Bundle
-from repr import Graph
+from graph import Graph
 
 class BundleGraph(Graph):
     
     _WHITE = "#FFFFFF"
-    _MIN_NODE_SIZE = 50
-    _MAX_NODE_SIZE = 200
     
     def __init__(self, bundles, bundlesForExports, ignoredPathSegments):
         Graph.__init__(self)
@@ -22,32 +20,27 @@ class BundleGraph(Graph):
         numDependencies = [bundle.numberOfDependencies for bundle in self.bundles]
         numDependenciesForBundle = dict(zip(bundleNames, numDependencies))
         for bundle in self.bundles:
-            nodeSize = self._interpolateLinear(bundle.numberOfDependencies, max(numDependencies))
-            self.addNode(bundle.name, width=str(nodeSize), height=str(nodeSize))
+            nodeSize = self.interpolateLinear(bundle.numberOfDependencies, max(numDependencies))
+            self.addNode(bundle.name, width=nodeSize, height=nodeSize)
             for reqBundle in bundle.requiredBundles:
                 ignored = any(ignoredSegment in reqBundle for ignoredSegment in self.ignoredPathSegments)
                 if not ignored:
                     if reqBundle in bundleNames: 
-                        nodeSize = self._interpolateLinear(numDependenciesForBundle[reqBundle], max(numDependencies))
-                        self.addNode(reqBundle, width=str(nodeSize), height=str(nodeSize))
+                        nodeSize = self.interpolateLinear(numDependenciesForBundle[reqBundle], max(numDependencies))
+                        self.addNode(reqBundle, width=nodeSize, height=nodeSize)
                     elif self.addNode(reqBundle, color=self._WHITE): 
                         print ("Bundle %s is not contained in workspace." % reqBundle)
                     self.addEdge(bundle.name, reqBundle, label="requires")
                 for importedPackage in bundle.importedPackages:
                     self._addEdgeForPackageImport(bundle.name, importedPackage, self.bundlesForExports, numDependenciesForBundle)
 
-    def _interpolateLinear(self, numDependencies, maxNumDependencies):
-        divisor = maxNumDependencies if maxNumDependencies > 0 else 1
-        result = (numDependencies / divisor) * (self._MAX_NODE_SIZE - self._MIN_NODE_SIZE) + self._MIN_NODE_SIZE
-        return round(result,0)
-
     def _addEdgeForPackageImport(self, sourceBundle, importedPackage, bundlesForExports, numDependenciesForBundle):
         if importedPackage in bundlesForExports:
             exportingBundle = bundlesForExports[importedPackage]
             ignored = any(ignoredSegment in exportingBundle.path for ignoredSegment in self.ignoredPathSegments)
             if not ignored: 
-                nodeSize = self._interpolateLinear(numDependenciesForBundle[exportingBundle.name], max(list(numDependenciesForBundle.values())))
-                self.addNode(exportingBundle.name, width=str(nodeSize), height=str(nodeSize))
+                nodeSize = self.interpolateLinear(numDependenciesForBundle[exportingBundle.name], max(list(numDependenciesForBundle.values())))
+                self.addNode(exportingBundle.name, width=nodeSize, height=nodeSize)
                 self.addEdge(sourceBundle, exportingBundle.name, label="imports "+importedPackage)
         else:
             ignored = any(ignoredSegment in importedPackage for ignoredSegment in self.ignoredPathSegments)
