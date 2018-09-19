@@ -3,22 +3,17 @@
 
 import os,re
 from project.project import Project
-from project.project import Package
-from project.project import SourceFile
+from package.packageparser import PackageParser
+
 import xml.etree.ElementTree
-import javalang
-from javalang.tree import Import
-from javalang.tree import ClassDeclaration
-from javalang.tree import InterfaceDeclaration
 
 
 class ProjectParser:
 
-    classNamePattern = re.compile('.*\.[A-Z].*')
-
     def __init__(self, directory, ignoredPathSegments):
         self.directory = directory
         self.ignoredPathSegments = ignoredPathSegments
+        self.packageParser = PackageParser()
 
     def parseProjects(self):
         projetcPaths = self._scanForProjects()
@@ -39,55 +34,9 @@ class ProjectParser:
         classpathFilePath = os.path.join(projectPath,".classpath")
         relativeSourceFolders = self._parseClasspath(classpathFilePath)
         sourceFolders = [os.path.join(projectPath, s) for s in relativeSourceFolders]
-        javaSourcePackages = self._parseJavaSourcePackages(sourceFolders)
+        javaSourcePackages = self.packageParser.parsePackages(sourceFolders)
         project = Project(os.path.basename(projectPath), projectPath, javaSourcePackages)
         return project
-
-    def _parseJavaSourcePackages(self, sourceFolders):
-        sourcePackages = []
-        for sourceFolder in sourceFolders:
-            for dirPath, dirName, files in os.walk(sourceFolder):
-                javaFileNames = [file for file in files if file.endswith(".java")]
-                if javaFileNames: 
-                    packageName = os.path.normpath(dirPath.replace(sourceFolder,""))
-                    packageName = ".".join(packageName.strip(os.sep).split(os.sep))
-                    sourceFiles = []
-                    for javaFile in javaFileNames:
-                        sourceFile = self._parseJavaSourceFile(os.path.join(dirPath,javaFile))
-                        if sourceFile:
-                            sourceFiles.append(sourceFile)
-                        
-                    newPackage = Package(packageName, dirPath, sourceFiles)
-                    sourcePackages.append(newPackage)
-        #for sP in sourcePackages:
-         #   for sF in sP.sourceFiles:
-          #      sourceFiles = self._parseJavaSourceFile(os.path.join(sP.location,sF))
-           #     sP.sourceFiles = sourceFiles
-        return sourcePackages
-
-    def _parseJavaSourceFile(self,file):
-        fileContent = None
-        try: 
-            with open(file,'r', encoding='utf-8') as f:
-                fileContent = f.read()
-        except FileNotFoundError:
-             print("Could not find file %s" %file)
-             return
-        ast = javalang.parse.parse(fileContent)
-        packageImports = set()
-        for imp in ast.imports:
-            if self.classNamePattern.match(imp.path):
-                package = re.split(r'\.[A-Z]',imp.path, maxsplit=1)[0]
-                packageImports.add(package)
-            else:
-                packageImports.add(imp.path)
-        concreteClasses = [type.name for type in ast.types if isinstance(type, ClassDeclaration) and 'abstract' not in type.modifiers]
-        abstractClasses = [type.name for type in ast.types if isinstance(type, ClassDeclaration) and 'abstract' in type.modifiers]
-        interfaces = [type.name for type in ast.types if isinstance(type, InterfaceDeclaration)]
-        filename, extension = os.path.splitext(os.path.basename(file))
-        nonEmptyLines = [line for line in fileContent.splitlines() if line.strip()]
-        loc = len(nonEmptyLines)
-        return SourceFile(filename, extension[1:], packageImports, loc, concreteClasses, abstractClasses, interfaces)
 
     def _parseClasspath(self, classpathFilePath):
         sourceFolders = []
