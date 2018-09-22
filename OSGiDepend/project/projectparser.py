@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os,re
-from project.project import Project
+from domain import Project
 from package.packageparser import PackageParser
 
 import xml.etree.ElementTree

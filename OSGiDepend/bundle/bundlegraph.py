@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from bundle.bundle import Bundle
+from domain import Bundle
 from graph import Graph
+import logging
 
 class BundleGraph(Graph):
     
@@ -10,6 +11,7 @@ class BundleGraph(Graph):
     
     def __init__(self, bundles, bundlesForExports, ignoredPathSegments):
         Graph.__init__(self)
+        self.logger = logging.getLogger(self.__class__.__name__)
         self.bundles = bundles
         self.bundlesForExports = bundlesForExports
         self.ignoredPathSegments = ignoredPathSegments
@@ -29,7 +31,7 @@ class BundleGraph(Graph):
                         nodeSize = self.interpolateLinear(numDependenciesForBundle[reqBundle], max(numDependencies))
                         self.addNode(reqBundle, width=nodeSize, height=nodeSize)
                     elif self.addNode(reqBundle, color=self._WHITE): 
-                        print ("Bundle %s is not contained in workspace." % reqBundle)
+                        self.logger.info("Bundle %s is not contained in workspace." % reqBundle)
                     self.addEdge(bundle.name, reqBundle, label="requires")
                 for importedPackage in bundle.importedPackages:
                     self._addEdgeForPackageImport(bundle.name, importedPackage, self.bundlesForExports, numDependenciesForBundle)
@@ -46,5 +48,5 @@ class BundleGraph(Graph):
             ignored = any(ignoredSegment in importedPackage for ignoredSegment in self.ignoredPathSegments)
             if not ignored: 
                 if self.addNode(importedPackage, color=self._WHITE, shape="rectangle"):
-                    print ("Exporting bundle not found for import %s. Created package node instead"% importedPackage)
+                    self.logger.info("Exporting bundle not found for import %s. Created package node instead"% importedPackage)
                 self.addEdge(sourceBundle, importedPackage, label="imports")

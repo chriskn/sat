@@ -1,37 +1,42 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from analysis.analysis import Analysis
 from bundle.bundleparser import BundleParser 
 from bundle.bundlegraph import BundleGraph
-from bundle. bundle import Bundle 
+from domain import Bundle 
 import os 
 
-class BundleAnalyser:
+class BundleAnalyser(Analysis):
 
     _OUTPUT_HEADER = ["Name", "Version", "Number of Dependencies", "Exported Packages", "Imported Packages", "Required Bundles", "Path to Bundle"]
     _CSV_SEPARATOR = "\t"
     _LIST_SEPARATOR = ", " 
+
+    def getName(self):
+        return "bundleDeps"
     
-    _cycles = None
-    _graph = None
-    _bundles = None
+    def getDescription(self):
+        return "Analysis OSGi bundle dependencies"
+
+    def loadData(self, workingDir, ignoredPathSegments):
+        self.logger.info("Loading bundle data...")
+        bundleParser = BundleParser(workingDir, ignoredPathSegments)
+        self._bundles = bundleParser.parseBundles()
+        self._bundlesForExports = self._mapBundlesOnExports(self._bundles)
+        self.logger.info("Found %d bundle(s)" % len(self._bundles))
 
     def analyse(self, workingDir, ignoredPathSegments):     
-        bundleParser = BundleParser(workingDir, ignoredPathSegments)
-        bundles = bundleParser.parseBundles()
-        bundlesForExports = self._mapBundlesOnExports(bundles)
-        print("Found %d bundle(s)" % len(bundles))
-        print("Creating dependency graph...")
-        graph = BundleGraph(bundles, bundlesForExports, ignoredPathSegments)
-        print("Created dependency graph containing %d node(s) and %d edge(s)" % (len(graph.getNodes()), len(graph.getEdges())))
-        print("Searching for cycles...")
+        self.logger.info("Creating dependency graph...")
+        graph = BundleGraph(self._bundles, self._bundlesForExports, ignoredPathSegments)
+        self.logger.info("Created dependency graph containing %d node(s) and %d edge(s)" % (len(graph.getNodes()), len(graph.getEdges())))
+        self.logger.info("Searching for cycles...")
         cycles = graph.getCycles()
         graph.markCycles(cycles)
-        print("Found %d cycle(s)" % len(cycles))
-        print("Writing output to %s" % str(workingDir))
+        self.logger.info("Found %d cycle(s)" % len(cycles))
+        self.logger.info("Writing output to %s" % str(workingDir))
         self._cycles = cycles
         self._graph = graph
-        self._bundles = bundles
 
     def writeResults(self, outputDir):
         self._writeCyclesToTxt(os.path.join(outputDir,"bundle_cycles.txt"))

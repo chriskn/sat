@@ -1,24 +1,28 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from project.project import SourceFile
-import javalang, os, re
+from domain import SourceFile
 from javalang.tree import Import
 from javalang.tree import ClassDeclaration
 from javalang.tree import InterfaceDeclaration
+from javalang.parser import JavaSyntaxError
+import javalang, os, re, logging
 
 
-classNamePattern = re.compile('.*\.[A-Z].*')
+classNamePattern = re.compile(r'.*\.[A-Z].*')
+logger = logging.getLogger(__name__)
 
 def parseJavaSourceFile(file):
         fileContent = None
         try: 
-            with open(file,'r', encoding='utf-8') as f:
-                fileContent = f.read()
-        except FileNotFoundError:
-             print("Could not find file %s" %file)
-             return
-        ast = javalang.parse.parse(fileContent)
+            with open(file,'r', encoding='utf-8') as f: fileContent = f.read()
+            ast = javalang.parse.parse(fileContent)
+        except FileNotFoundError as error:
+            logger.warn(str(error))
+            return
+        except JavaSyntaxError:
+            logger.warn("Could not parse java file %s" % file)
+            return
         packageImports = set()
         for imp in ast.imports:
             if classNamePattern.match(imp.path):

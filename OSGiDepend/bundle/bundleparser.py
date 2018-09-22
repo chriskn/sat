@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from bundle.bundle import Bundle
+from domain import Bundle
 import os,re
 
 class BundleParser:

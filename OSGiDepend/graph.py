@@ -72,12 +72,10 @@ class Graph:
                 node = self._graph.nodes[self._idForNames[nodeLabel]]
                 setattr(node, "shape_fill", self._RED)
                 for edge in self._graph.edges.values():
-                    fromNode = int(getattr(edge, "node1"))
-                    toNode = int(getattr(edge, "node2"))
+                    fromNode = self._namesForId[int(getattr(edge, "node1"))]
+                    toNode = self._namesForId[int(getattr(edge, "node2"))]
                     if fromNode in cycle and toNode in cycle:
                         setattr(edge, "color", self._RED)
-    
-    
 
     def getNodes(self): return self._graph.nodes
 

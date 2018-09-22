@@ -3,7 +3,7 @@
 
 import os
 import lang.java as javaParser
-from project.project import Package
+from domain import Package
 
 class PackageParser: 
 

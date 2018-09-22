@@ -1,6 +1,8 @@
-from repr import Graph
-from project.project import Package
-from copy import deepcopy
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from graph import Graph
+from domain import Package
 
 class PackageGraph(Graph):
 
