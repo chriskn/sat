@@ -8,3 +8,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: my.dummy.project4.api
 Require-Bundle: my.dummy.project5,
  org.eclipse.xtext
+Import-Package: my.dummy.project1.api

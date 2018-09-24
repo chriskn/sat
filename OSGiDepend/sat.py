@@ -22,7 +22,7 @@ if __name__ == '__main__':
     workingDir, ignoredPathSegments, analysers = cli.parse()
     logger.info("Ignoring directory paths containing one of the following strings %s" % ignoredPathSegments)
     logger.info("Using directory %s as working directory" % workingDir)
-    logger.info("Running the following analysers: %s" % ", ".join(analysers))
+    logger.info("Running the following analysis: %s" % ", ".join(analysers))
     for analyserName in analysers: 
         analyser = ANALYSERS_BY_NAME[analyserName]
         analyser.loadData(workingDir, ignoredPathSegments)    
