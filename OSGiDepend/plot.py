@@ -32,10 +32,34 @@ def plotHeatmap(dataFrame, title, folder, fileName):
         cmap=colorMap, vmin=1, vmax=vmax,
         linewidths=0.5, linecolor="grey"
     )
-    _writeHeatMap(fig, folder, fileName)
+    _writeFigure(fig, folder, fileName)
 
-def _writeHeatMap(heatmapFig, folder, fileName):
-    heatmapPath = os.path.join(folder, fileName)
-    heatmapFig.savefig(heatmapPath, bbox_inches = 'tight')
-    plt.close(heatmapFig)
+def plotStackedBarChart(data, yLabel, folder, fileName):
+    column0 = data[data.columns[0]].values
+    column1 = data[data.columns[1]].values
+    total = column0 + column1
+    data["total"] = total
+    # Set general plot properties
+    sns.set_style("white")
+    sns.set_context({"figure.figsize": (24, 10)})
+    # Plot 1 - background - "total" (top) series
+    sns.barplot(x = data.index, y = data.total, color = "red")
+    # Plot 2 - overlay - "bottom" series
+    bottom_plot = sns.barplot(x = data.index, y = column0, color = "green")
+    topbar = plt.Rectangle((0,0),1,1,fc="red", edgecolor = 'none')
+    bottombar = plt.Rectangle((0,0),1,1,fc='green',  edgecolor = 'none')
+    l = plt.legend([bottombar, topbar], [data.columns[0], 'Total'], loc=1, ncol=2, prop={'size':16})
+    l.draw_frame(False)
+    # Optional - Make plot look nicer
+    sns.despine(left=True)
+    for label in bottom_plot.get_xticklabels():
+        if len(label._text) > 60:
+            label._text = "..."+label._text[-60:]
+    bottom_plot.set_xticklabels(bottom_plot.get_xticklabels(), rotation=90)
+    bottom_plot.set_ylabel(yLabel)
+    _writeFigure(bottom_plot.get_figure(),folder, fileName)
 
+def _writeFigure(figure, folder, fileName):
+    path = os.path.join(folder, fileName)
+    figure.savefig(path, bbox_inches = 'tight')
+    plt.close(figure)
