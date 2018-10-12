@@ -48,9 +48,9 @@ def plot_stacked_barchart(data, ylabel, title, folder, file_name):
     sns.barplot(x=data.index, y=data.total, color="red")
     # Plot 2 - overlay - "bottom" series
     bottom_plot = sns.barplot(x=data.index, y=column0, color="green")
-    topbar = plt.Rectangle((0, 0), 1, 1, fc="red", edgecolor='none')
-    bottombar = plt.Rectangle((0, 0), 1, 1, fc='green',  edgecolor='none')
-    legend = plt.legend([bottombar, topbar], [data.columns[0],
+    top_bar = plt.Rectangle((0, 0), 1, 1, fc="red", edgecolor='none')
+    bottom_bar = plt.Rectangle((0, 0), 1, 1, fc='green',  edgecolor='none')
+    legend = plt.legend([bottom_bar, top_bar], [data.columns[0],
                                          'Total'], loc=1, ncol=2, prop={'size': 16})
     legend.draw_frame(False)
     bottom_plot.set_ylabel(ylabel)

@@ -39,7 +39,7 @@ class PlainJavaAnalyser(Analysis):
         self._cycleProjectGraph = self._projectGraph.cycle_graph(
             self._projectCycles)
         self._logger.info("Creating project coupling map")
-        self._projectCouplingMap = self.__project_coupling_data_frame(
+        self._projectCouplingMap = self._project_coupling_data_frame(
             self._projects)
 
         self._logger.info("Creating package coupling graph")
@@ -47,7 +47,7 @@ class PlainJavaAnalyser(Analysis):
         self._logger.info("Analysing package cycles")
         self._packageCycles = self._packageGraph.cycles()
         self._packageGraph.mark_cycles(self._packageCycles)
-        self._cyclePackageGraph = self._packageGraph.get_cycle_graph(
+        self._cyclePackageGraph = self._packageGraph.cycle_graph(
             self._packageCycles)
         self._logger.info("Creating package coupling map")
         self._packageCouplingMap = self._createPackageCouplingDataFrame(
@@ -78,10 +78,9 @@ class PlainJavaAnalyser(Analysis):
             outputDir, "cyclic_package_dependencies.graphml"), self._cyclePackageGraph)
         self._writeCyclesToTxt(os.path.join(
             outputDir, "package_cycles.txt"), self._packageCycles)
-        self._write_graphml(os.path.join(
-            outputDir, "classdiagramm.graphml"), self._classDiagramm)
+        self._write_graphml(os.path.join(outputDir, "classdiagramm.graphml"), self._classDiagramm)
 
-    def __project_coupling_data_frame(self, projects):
+    def _project_coupling_data_frame(self, projects):
         proj_names = []
         data = []
         for project in reversed(projects):

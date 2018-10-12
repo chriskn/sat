@@ -21,7 +21,7 @@ classNamePattern = re.compile(r'.*\.[A-Z].*')
 logger = logging.getLogger(__name__)
 
 
-def parse_java_sourcefile(file):
+def parse_java_sourcefile(file, packagename=""):
     file_content = None
     try:
         with open(file, 'r', encoding='utf-8') as f:
@@ -40,13 +40,13 @@ def parse_java_sourcefile(file):
             package_imports.add(package)
         else:
             package_imports.add(imp.path)
-    concrete_classes = [parse_class(type) for type in ast.types if isinstance(
+    concrete_classes = [parse_class(type, packagename) for type in ast.types if isinstance(
         type, ClassDeclaration) and 'abstract' not in type.modifiers]
-    abstract_classes = [parse_class(type) for type in ast.types if isinstance(
+    abstract_classes = [parse_class(type, packagename, "abstract") for type in ast.types if isinstance(
         type, ClassDeclaration) and 'abstract' in type.modifiers]
-    interfaces = [parse_interface(type) for type in ast.types if isinstance(
+    interfaces = [parse_interface(type, packagename) for type in ast.types if isinstance(
         type, InterfaceDeclaration)]
-    enums = [parse_enum(type)
+    enums = [parse_enum(type, packagename)
              for type in ast.types if isinstance(type, EnumDeclaration)]
     filename, extension = os.path.splitext(os.path.basename(file))
     non_empty_lines = [
@@ -55,44 +55,52 @@ def parse_java_sourcefile(file):
     return SourceFile(filename, extension[1:], package_imports, loc, concrete_classes, abstract_classes, interfaces, enums)
 
 
-def parse_enum(enum):
+def parse_enum(enum, packagename=""):
     name = enum.name
     constants = [constant.name for constant in enum.body.constants]
     modifiers = enum.modifiers
-    return Enum(name, constants, modifiers)
+    return Enum(name, _getFQN(packagename, name), constants, modifiers)
 
 
-def parse_interface(interface):
+def parse_interface(interface, packagename=""):
     name = interface.name
     extends = interface.extends
     modifiers = interface.modifiers
-    attributes = [parse_attribute(attribute)
-                  for attribute in filter_attributes(interface.body)]
-    methods = [parse_method(methode)
-               for methode in filter_methods(interface.body)]
-    return Interface(name, methods, attributes, extends, modifiers)
+    attributes = [_parse_attribute(attribute)
+                  for attribute in _filter_attributes(interface.body)]
+    methods = [_parse_method(methode)
+               for methode in _filter_methods(interface.body)]
+    return Interface(name, _getFQN(packagename, name), methods, attributes, extends, modifiers)
 
 
-def parse_class(clazz):
+def parse_class(clazz, packagename="", stereotype=""):
     modifiers = clazz.modifiers
     implements = clazz.implements
     extends = clazz.extends
     name = clazz.name
-    attributes = [parse_attribute(attribute)
-                  for attribute in filter_attributes(clazz.body)]
-    methods = [parse_method(methode) for methode in filter_methods(clazz.body)]
-    return Class(name, methods, attributes, implements, extends, modifiers)
+    attributes = [_parse_attribute(attribute)
+                  for attribute in _filter_attributes(clazz.body)]
+    methods = [_parse_method(methode)
+               for methode in _filter_methods(clazz.body)]
+    return Class(name, _getFQN(packagename, name), methods, attributes, implements, extends, modifiers, stereotype)
 
 
-def filter_methods(body):
+def _getFQN(packagename, name):
+    if packagename:
+        return packagename+"."+name
+    else:
+        return name
+
+
+def _filter_methods(body):
     return list(filter(lambda type: isinstance(type, ConstructorDeclaration) or isinstance(type, MethodDeclaration), body))
 
 
-def filter_attributes(body):
+def _filter_attributes(body):
     return list(filter(lambda type: isinstance(type, FieldDeclaration) or isinstance(type, EnumDeclaration), body))
 
 
-def parse_attribute(attribute):
+def _parse_attribute(attribute):
     if isinstance(attribute, EnumDeclaration):
         return parse_enum(attribute)
     type_name = attribute.type.name
@@ -101,17 +109,17 @@ def parse_attribute(attribute):
     return Declaration(name, type_name, modifiers)
 
 
-def parse_method(method):
+def _parse_method(method):
     modifiers = method.modifiers
     name = method.name
     returnType = ""
     if type(method) == MethodDeclaration:
         returnType = method.return_type.name if method.return_type else ""
-    parameter = [parse_parameter(param) for param in method.parameters]
+    parameter = [_parse_parameter(param) for param in method.parameters]
     return Method(name, returnType, modifiers, parameter)
 
 
-def parse_parameter(param):
+def _parse_parameter(param):
     modifiers = param.modifiers
     name = param.name
     type_name = param.type.name

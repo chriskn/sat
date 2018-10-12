@@ -8,6 +8,24 @@ class Graph:
     _MIN_NODE_SIZE = 50
     _MAX_NODE_SIZE = 200
 
+    @staticmethod
+    def cycle_graph(new_graph, old_graph, cycles):
+        for cycle in cycles:
+            for node_label in cycle:
+                node_id = old_graph._id_for_name[node_label]
+                node = old_graph.nodes()[node_id]
+                new_graph.add_node(node.label, shape=node.shape,
+                                   width=node.geom["width"], height=node.geom["height"], shape_fill=node.shape_fill)
+            for edge in old_graph.edges().values():
+                from_node = getattr(edge, "node1")
+                to_node = getattr(edge, "node2")
+                from_node_label = old_graph._name_for_id[int(from_node)]
+                to_node_label = old_graph._name_for_id[int(to_node)]
+                label = getattr(edge, "label")
+                if from_node_label in cycle and to_node_label in cycle:
+                    new_graph.add_edge(from_node_label, to_node_label, label)
+        return new_graph
+
     def __init__(self):
         self._graph = pyyed.Graph()
         self._node_id = 0
@@ -15,12 +33,18 @@ class Graph:
         self._id_for_name = dict()
         self._name_for_id = dict()
 
-    def add_node(self, label, shape="ellipse", width="50", height="50", color=_GREEN):
+    def add_node(self, label, package_group=None, shape="rectangle", width="50", height="50", shape_fill=_GREEN, node_type="ShapeNode", UML=False):
         if label not in self._id_for_name:
-            self._id_for_name[label] = self._node_id
-            self._name_for_id[self._node_id] = label
-            self._graph.add_node(self._node_id, label=label,
-                                shape=shape, width=width, height=height, shape_fill=color)
+            if package_group:
+                self._id_for_name[label] = self._node_id
+                self._name_for_id[self._node_id] = label
+                package_group.add_node(self._node_id,  label=label,
+                                    shape=shape, width=width, height=height, shape_fill=shape_fill, node_type=node_type, UML=UML)
+            else:    
+                self._id_for_name[label] = self._node_id
+                self._name_for_id[self._node_id] = label
+                self._graph.add_node(self._node_id, label=label,
+                                    shape=shape, width=width, height=height, shape_fill=shape_fill, node_type=node_type, UML=UML)
             self._node_id += 1
             return True
         return False

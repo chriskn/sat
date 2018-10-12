@@ -12,8 +12,9 @@ import os.path
 
 _LINES_CHANGED_PATTERN = re.compile(r"\d+\t\d+\t*")
 
+
 class GitChanges(Analysis):
-    
+
     _changes = []
     _changes_per_file = []
 
@@ -56,5 +57,6 @@ class GitChanges(Analysis):
             data.append([change.lines_added, change.lines_removed])
         df = pd.DataFrame(data=data, index=filenames[0:25], columns=[
                           "Added", "Removed"])
-        plot.plot_stacked_barchart(df, "Number of changed lines",
-                                 "Number of changed lines for most changed files", outputDir, "most_changed_files.pdf")
+        if not df.empty:
+            plot.plot_stacked_barchart(df, "Number of changed lines",
+                                       "Number of changed lines for most changed files", outputDir, "most_changed_files.pdf")

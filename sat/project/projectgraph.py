@@ -21,17 +21,5 @@ class ProjectGraph(Graph):
 
     def cycle_graph(self, cycles):
         graph = ProjectGraph()
-        for cycle in cycles:
-            for node_label in cycle:
-                node_id = self._id_for_name[node_label]
-                node = self._graph.nodes[node_id]
-                graph.add_node(node.label, shape=node.shape, width=node.geom["width"], height=node.geom["height"], color=node.shape_fill) 
-            for edge in self._graph.edges.values():
-                from_node = getattr(edge, "node1")
-                to_node = getattr(edge, "node2")
-                from_node_label = self._name_for_id[int(from_node)]
-                to_node_label = self._name_for_id[int(to_node)]
-                label =  getattr(edge, "label")
-                if from_node_label in cycle and to_node_label in cycle:
-                    graph.add_edge(from_node_label, to_node_label, label)
+        Graph.cycle_graph(graph, self , cycles)
         return graph

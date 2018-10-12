@@ -36,7 +36,7 @@ class BundleGraph(Graph):
                             num_dependencies_for_bundle[req_bundle], max(num_dependencies))
                         self.add_node(req_bundle, width=node_size,
                                       height=node_size)
-                    elif self.add_node(req_bundle, color=self._WHITE):
+                    elif self.add_node(req_bundle, shape_fill=self._WHITE):
                         self._logger.info(
                             "Bundle %s is not contained in workspace." % req_bundle)
                     self.add_edge(bundle.name, req_bundle, label="requires")
@@ -60,7 +60,7 @@ class BundleGraph(Graph):
             ignored = any(
                 ignoredSegment in importedPackage for ignoredSegment in self._ignored_path_segments)
             if not ignored:
-                if self.add_node(importedPackage, color=self._WHITE, shape="rectangle"):
+                if self.add_node(importedPackage, shape_fill=self._WHITE, shape="rectangle"):
                     self._logger.info(
                         "Exporting bundle not found for import %s. Created package node instead" % importedPackage)
                 self.add_edge(sourceBundle, importedPackage, label="imports")

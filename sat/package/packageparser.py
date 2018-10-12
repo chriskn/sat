@@ -5,7 +5,8 @@ import os
 import lang.java as javaParser
 from domain import Package
 
-class PackageParser: 
+
+class PackageParser:
 
     def parse_packages(self, sourcefolders):
         sourcepackages = []
@@ -18,11 +19,13 @@ class PackageParser:
         for dirpath, dirname, files in os.walk(sourcefolder):
             java_filenames = [file for file in files if file.endswith(".java")]
             if java_filenames:
-                packagename = os.path.normpath(dirpath.replace(sourcefolder,""))
+                packagename = os.path.normpath(
+                    dirpath.replace(sourcefolder, ""))
                 packagename = ".".join(packagename.strip(os.sep).split(os.sep))
                 sourcefiles = []
                 for java_file in java_filenames:
-                    sourcefile = javaParser.parse_java_sourcefile(os.path.join(dirpath,java_file))
+                    sourcefile = javaParser.parse_java_sourcefile(
+                        os.path.join(dirpath, java_file), packagename)
                     if sourcefile:
                         sourcefiles.append(sourcefile)
                 new_package = Package(packagename, dirpath, sourcefiles)

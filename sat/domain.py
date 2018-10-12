@@ -70,32 +70,39 @@ class SourceFile:
 
 class Interface():
 
-    def __init__(self, name, methods, attributes, extends, modifiers):
+    def __init__(self, name, fqn, methods, attributes, extends, modifiers):
         self.name = name
+        self.fqn = fqn
         self.methods = methods
         self.attributes = attributes
         self.extends = extends
         self.modifiers = modifiers
+        self.stereotype = "interface"
 
 
 class Enum():
 
-    def __init__(self, name, constants, modifiers):
+    def __init__(self, name, fqn, constants, modifiers):
         self.name = name
+        self.fqn = fqn
         self.constants = constants
         self.modifiers = modifiers
         self.typename = "enum"
+        self.stereotype = "enum"
 
 
 class Class():
 
-    def __init__(self, name, methods, attributes, implements, extends, modifiers):
+    def __init__(self, name, fqn, methods, attributes, implements, extends, modifiers, stereotype=""):
         self.name = name
+        self.fqn = fqn
         self.methods = methods
         self.attributes = attributes
         self.implements = implements
         self.extends = extends
         self.modifiers = modifiers
+        self.stereotype = stereotype
+
 
 
 class Method():
