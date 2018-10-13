@@ -36,15 +36,16 @@ class Graph:
     def add_node(self, label, package_group=None, shape="rectangle", width="50", height="50", shape_fill=_GREEN, node_type="ShapeNode", UML=False):
         if label not in self._id_for_name:
             if package_group:
-                self._id_for_name[label] = self._node_id
-                self._name_for_id[self._node_id] = label
+                fqn = package_group.label+"."+label
                 package_group.add_node(self._node_id,  label=label,
                                     shape=shape, width=width, height=height, shape_fill=shape_fill, node_type=node_type, UML=UML)
+                self._id_for_name[fqn] = self._node_id
+                self._name_for_id[self._node_id] = fqn
             else:    
-                self._id_for_name[label] = self._node_id
-                self._name_for_id[self._node_id] = label
                 self._graph.add_node(self._node_id, label=label,
                                     shape=shape, width=width, height=height, shape_fill=shape_fill, node_type=node_type, UML=UML)
+                self._id_for_name[label] = self._node_id
+                self._name_for_id[self._node_id] = label
             self._node_id += 1
             return True
         return False

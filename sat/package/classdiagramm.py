@@ -19,7 +19,6 @@ class ClassDiagramm(Graph):
         self._elements_by_fqn = dict()
         for tle in toplevel_elements:
             self._elements_by_fqn[tle.fqn] = tle
-        print(self._elements_by_fqn)
         for package in packages:
             self._add_package(package)
         toplevel_element_names = [tle.name for tle in toplevel_elements]
@@ -28,8 +27,14 @@ class ClassDiagramm(Graph):
             external_deps_in_graph = [
                 external_dep for external_dep in external_deps if external_dep in toplevel_element_names]
             for external_dep in external_deps_in_graph:
-                if toplevel_element_names.count(external_dep) == 1:
-                    self.add_edge(tle.name, external_dep)
+                fqns = [key for key,val in self._elements_by_fqn.items() if val.name == external_dep]
+                if len(fqns) == 1:
+                    self.add_edge(tle.fqn, fqns[0])
+                elif len(fqns) > 1:
+                    print(fqns)
+
+                    
+
 
     def _collect_top_level_elements(self, packages):
         elements = []
