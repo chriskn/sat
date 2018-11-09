@@ -9,9 +9,10 @@ import numpy as np
 import pandas as pd
 import os
 import plot
+import re
 from package.classdiagramm import ClassDiagramm
 
-
+_CLASS_IMPORT_PATTERN = re.compile(r'.*\.[A-Z].*')
 _LIST_SEPARATOR = ", "
 
 
@@ -66,7 +67,7 @@ class PlainJavaAnalyser(Analysis):
             outputDir, "project_dependencies.graphml"), self._projectGraph)
         self._write_graphml(os.path.join(
             outputDir, "cyclic_project_dependencies.graphml"), self._cycleProjectGraph)
-        self._writeCyclesToTxt(os.path.join(
+        self._write_cycles_to_txt(os.path.join(
             outputDir, "project_cycles.txt"), self._projectCycles)
 
         self._logger.info("Writing package analysis results")
@@ -76,7 +77,7 @@ class PlainJavaAnalyser(Analysis):
             outputDir, "package_dependencies.graphml"), self._packageGraph)
         self._write_graphml(os.path.join(
             outputDir, "cyclic_package_dependencies.graphml"), self._cyclePackageGraph)
-        self._writeCyclesToTxt(os.path.join(
+        self._write_cycles_to_txt(os.path.join(
             outputDir, "package_cycles.txt"), self._packageCycles)
         self._write_graphml(os.path.join(outputDir, "classdiagramm.graphml"), self._classDiagramm)
 
@@ -84,7 +85,7 @@ class PlainJavaAnalyser(Analysis):
         proj_names = []
         data = []
         for project in reversed(projects):
-            proj_imports = project.imports()
+            proj_imports = [self._to_package_import(imp) for imp in project.imports()]
             proj_names.append(project.name)
             proj_data = []
             for other_project in projects:
@@ -100,11 +101,17 @@ class PlainJavaAnalyser(Analysis):
         with open(path, 'w') as output_file:
             output_file.write(graph.serialize())
 
-    def _writeCyclesToTxt(self, path, cycles):
+    def _write_cycles_to_txt(self, path, cycles):
         with open(path, 'w') as output_file:
             for cycle in cycles:
                 cycle_list = _LIST_SEPARATOR.join(sorted(cycle))
                 output_file.write(cycle_list+"\n")
+    
+    def _to_package_import(self, import_):
+        if _CLASS_IMPORT_PATTERN.match(import_):
+            return re.split(r'\.[A-Z]', import_, maxsplit=1)[0]
+        else:
+           return import_
 
     def _createPackageCouplingDataFrame(self, packages):
         names = [p.name for p in packages]

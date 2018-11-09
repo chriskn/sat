@@ -50,9 +50,9 @@ class Graph:
             return True
         return False
 
-    def add_edge(self, source, target, label=""):
+    def add_edge(self, source, target, label="", line_type="line", arrowhead="standard"):
         self._graph.add_edge(
-            self._id_for_name[source], self._id_for_name[target], label=label)
+            self._id_for_name[source], self._id_for_name[target], label=label, line_type=line_type, arrowhead=arrowhead)
 
     def add_group(self, label, shape="rectangle", fill="#ffd35b"):
         return self._graph.add_group(label, label=label, shape=shape, fill=fill)

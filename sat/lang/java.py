@@ -17,7 +17,6 @@ import re
 import logging
 
 
-classNamePattern = re.compile(r'.*\.[A-Z].*')
 logger = logging.getLogger(__name__)
 
 
@@ -34,12 +33,7 @@ def parse_java_sourcefile(file, packagename=""):
         logger.warn("Could not parse java file %s" % file)
         return
     package_imports = set()
-    for imp in ast.imports:
-        if classNamePattern.match(imp.path):
-            package = re.split(r'\.[A-Z]', imp.path, maxsplit=1)[0]
-            package_imports.add(package)
-        else:
-            package_imports.add(imp.path)
+    [package_imports.add(imp.path) for imp in ast.imports]
     concrete_classes = [parse_class(type, packagename) for type in ast.types if isinstance(
         type, ClassDeclaration) and 'abstract' not in type.modifiers]
     abstract_classes = [parse_class(type, packagename, "abstract") for type in ast.types if isinstance(
@@ -64,7 +58,7 @@ def parse_enum(enum, packagename=""):
 
 def parse_interface(interface, packagename=""):
     name = interface.name
-    extends = interface.extends
+    extends = interface.extends.name if interface.extends else ""
     modifiers = interface.modifiers
     attributes = [_parse_attribute(attribute)
                   for attribute in _filter_attributes(interface.body)]
@@ -75,8 +69,8 @@ def parse_interface(interface, packagename=""):
 
 def parse_class(clazz, packagename="", stereotype=""):
     modifiers = clazz.modifiers
-    implements = clazz.implements
-    extends = clazz.extends
+    implements = [impl.name for impl in clazz.implements] if clazz.implements else []
+    extends = clazz.extends.name if clazz.extends else ""
     name = clazz.name
     attributes = [_parse_attribute(attribute)
                   for attribute in _filter_attributes(clazz.body)]

@@ -3,48 +3,71 @@
 import pyyed
 from domain import Interface
 from domain import Enum
+from domain import Class
 from graph import Graph
 import textwrap
+import logging
 
-BUILD_IN_TYPES = ["int", "boolean", "String", "double", "float"]
+
+BUILD_IN_TYPES = ["int", "boolean", "String", "double", "float", "byte"]
+logger = logging.getLogger(__name__)
 
 
 class ClassDiagramm(Graph):
 
-    _INTERFACE_STEREOTYPE = "interface"
-
     def __init__(self, packages):
         Graph.__init__(self)
-        toplevel_elements = self._collect_top_level_elements(packages)
-        self._elements_by_fqn = dict()
-        for tle in toplevel_elements:
-            self._elements_by_fqn[tle.fqn] = tle
+        (top_level_elements, self._imports_for_fqn) = self._collect_top_level_elements(
+            packages)
+        self._elements_by_fqn = {tle.fqn: tle for tle in top_level_elements}
         for package in packages:
             self._add_package(package)
-        toplevel_element_names = [tle.name for tle in toplevel_elements]
-        for tle in toplevel_elements:
+        for tle in top_level_elements:
             external_deps = set(self._filter_external_types(tle))
-            external_deps_in_graph = [
-                external_dep for external_dep in external_deps if external_dep in toplevel_element_names]
-            for external_dep in external_deps_in_graph:
-                fqns = [key for key,val in self._elements_by_fqn.items() if val.name == external_dep]
-                if len(fqns) == 1:
-                    self.add_edge(tle.fqn, fqns[0])
-                elif len(fqns) > 1:
-                    print(fqns)
+            # if type_ in simple_names
+            [self._add_dependency(tle, type_) for type_ in external_deps]
+            if type(tle) == Class:
+                if tle.extends:
+                    self._add_dependency(tle, tle.extends, arrowhead="white_delta")
+                for interface in tle.implements:
+                    self._add_dependency(tle, interface, line_type="dotted", arrowhead="white_delta")
+            if type(tle) == Interface:
+                if tle.extends:
+                    self._add_dependency(tle, tle.extends, arrowhead="white_delta")
 
-                    
+
+    def _add_dependency(self, tle, dependency, line_type="line", arrowhead="standard"):
+        possible_fqns_for_dependency = [
+            key for key, val in self._elements_by_fqn.items() if val.name == dependency]
+        if len(possible_fqns_for_dependency) == 1:
+            self.add_edge(tle.fqn, possible_fqns_for_dependency[0], line_type=line_type, arrowhead=arrowhead)
+        elif len(possible_fqns_for_dependency) > 1:
+            imports_for_node = self._imports_for_fqn[tle.fqn]
+            fqn_deps = imports_for_node.intersection(
+                possible_fqns_for_dependency)
+            if len(fqn_deps) == 1:
+                self.add_edge(tle.fqn, list(fqn_deps)[0], line_type=line_type, arrowhead=arrowhead)
+            else:
+                logger.warn("Can't find dependency from node %s to possible alternatives: %s" % (
+                    tle.fqn, ",".join(fqn_deps)))
+        else:
+            logger.warn("Can't find dependency from node %s to possible alternatives: %s" % (tle.fqn, dependency))
 
 
     def _collect_top_level_elements(self, packages):
-        elements = []
+        imports_for_fqn = dict()
+        topLevelElements = []
         for package in packages:
             for sourcefile in package.sourcefiles:
-                elements.extend(sourcefile.concrete_classes)
-                elements.extend(sourcefile.abstract_classes)
-                elements.extend(sourcefile.interfaces)
-                elements.extend(sourcefile.enums)
-        return elements
+                elementsForFile = []
+                elementsForFile.extend(sourcefile.concrete_classes)
+                elementsForFile.extend(sourcefile.abstract_classes)
+                elementsForFile.extend(sourcefile.interfaces)
+                elementsForFile.extend(sourcefile.enums)
+                imports_for_fqn.update(
+                    {elementForFile.fqn: sourcefile.imports for elementForFile in elementsForFile})
+                topLevelElements.extend(elementsForFile)
+        return (topLevelElements, imports_for_fqn)
 
     def _filter_external_types(self, class_):
         if not type(class_) is Enum:
@@ -113,8 +136,8 @@ class ClassDiagramm(Graph):
             " ") for param in method.parameters]
         modifiers = [self._visibility(modifier)
                      for modifier in method.modifiers]
-        static = self.getStaticPrefix(method.modifiers)
-        abstract = self.getAbstractPrefix(method.modifiers)
+        static = self._static_prefix(method.modifiers)
+        abstract = self._abstract_prefix(method.modifiers)
         method_str = "{0}{1} {2}{3}({4}): {5}".format(abstract, static, "".join(
             modifiers), method.name, ", ".join(params), method.return_type_name)
         return method_str
@@ -122,8 +145,8 @@ class ClassDiagramm(Graph):
     def _declaration_to_string(self, attribute):
         modifiers = "".join([self._visibility(modifier)
                              for modifier in attribute.modifiers])
-        static = self.getStaticPrefix(attribute.modifiers)
-        abstract = self.getAbstractPrefix(attribute.modifiers)
+        static = self._static_prefix(attribute.modifiers)
+        abstract = self._abstract_prefix(attribute.modifiers)
         return "{0}{1} {2}{3}: {4}".format(abstract, static, modifiers, attribute.name, attribute.typename)
 
     def _visibility(self, modifier):
@@ -134,8 +157,8 @@ class ClassDiagramm(Graph):
         }
         return visibilitySwitch.get(modifier, "")
 
-    def getStaticPrefix(self, modifiers):
+    def _static_prefix(self, modifiers):
         return "s" if "static" in modifiers else " "
 
-    def getAbstractPrefix(self, modifiers):
+    def _abstract_prefix(self, modifiers):
         return "a" if "abstract" in modifiers else " "
