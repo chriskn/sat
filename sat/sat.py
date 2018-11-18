@@ -18,8 +18,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO,
 ANALYSERS = [PlainJavaAnalyser(), ProjectAnalyser(),
              BundleAnalyser(), GitChanges()]
 ANALYSERS_BY_NAME = dict()
-for analyser in ANALYSERS:
-    ANALYSERS_BY_NAME[analyser.name()] = analyser
+for analyser in ANALYSERS: ANALYSERS_BY_NAME[analyser.name()] = analyser
 
 _OUTPUT_FOLDER_NAME = datetime.datetime.now().strftime("%d%m%y_%H-%M-%S")
 

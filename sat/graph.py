@@ -33,7 +33,7 @@ class Graph:
         self._id_for_name = dict()
         self._name_for_id = dict()
 
-    def add_node(self, label, package_group=None, shape="rectangle", width="50", height="50", shape_fill=_GREEN, node_type="ShapeNode", UML=False):
+    def add_node(self, label,package_group=None, shape="rectangle", width="50", height="50", shape_fill=_GREEN, node_type="ShapeNode", UML=False):
         if label not in self._id_for_name:
             if package_group:
                 fqn = package_group.label+"."+label
@@ -51,11 +51,16 @@ class Graph:
         return False
 
     def add_edge(self, source, target, label="", line_type="line", arrowhead="standard"):
-        self._graph.add_edge(
-            self._id_for_name[source], self._id_for_name[target], label=label, line_type=line_type, arrowhead=arrowhead)
+        source_id = self._id_for_name[source]
+        target_id = self._id_for_name[target]
+        self._graph.add_edge(source_id, target_id, label=label, line_type=line_type, arrowhead=arrowhead)
 
     def add_group(self, label, shape="rectangle", fill="#ffd35b"):
-        return self._graph.add_group(label, label=label, shape=shape, fill=fill)
+        self._id_for_name[label] = self._node_id
+        self._name_for_id[self._node_id] = label
+        group = self._graph.add_group(str(self._node_id), label=label, shape=shape, fill=fill)
+        self._node_id += 1
+        return group
 
     def cycles(self):
         cycles = self._do_trajan()
@@ -132,8 +137,6 @@ class Graph:
     def edges(self): return self._graph.edges
 
     def serialize(self): return self._graph.get_graph()
-
-    def contains_node(self, label): return label in self._id_for_name
 
     def interpolate_node_size(self, numDependencies, maxNumDependencies):
         divisor = maxNumDependencies if maxNumDependencies > 0 else 1

@@ -32,7 +32,7 @@ class PlainJavaAnalyser(Analysis):
             self._packages.extend(p.source_packages)
 
     def analyse(self, ignoredPathSegments):
-        self._logger.info("Creating project coupling graph")
+        self._logger.info("Creating project dependency graph")
         self._projectGraph = ProjectGraph(self._projects)
         self._logger.info("Analysing project cycles")
         self._projectCycles = self._projectGraph.cycles()
@@ -40,10 +40,11 @@ class PlainJavaAnalyser(Analysis):
         self._cycleProjectGraph = self._projectGraph.cycle_graph(
             self._projectCycles)
         self._logger.info("Creating project coupling map")
+        self._logger.info("Analysed %d projects" % len(self._projects))
         self._projectCouplingMap = self._project_coupling_data_frame(
             self._projects)
 
-        self._logger.info("Creating package coupling graph")
+        self._logger.info("Creating package dependency graph")
         self._packageGraph = PackageGraph(self._packages)
         self._logger.info("Analysing package cycles")
         self._packageCycles = self._packageGraph.cycles()
@@ -55,30 +56,28 @@ class PlainJavaAnalyser(Analysis):
             self._packages)
         self._logger.info("Creating class diagramm")
         self._classDiagramm = ClassDiagramm(self._packages)
-
-        self._logger.info("Analysed %d projects" % len(self._projects))
         self._logger.info("Analysed %d packages" % len(self._packages))
 
     def write_results(self, outputDir):
         self._logger.info("Writing project analysis results")
-        plot.plot_heatmap(self._projectCouplingMap, "Project Coupling",
-                          outputDir, "project_coupling_heatmap.pdf")
         self._write_graphml(os.path.join(
             outputDir, "project_dependencies.graphml"), self._projectGraph)
         self._write_graphml(os.path.join(
             outputDir, "cyclic_project_dependencies.graphml"), self._cycleProjectGraph)
         self._write_cycles_to_txt(os.path.join(
             outputDir, "project_cycles.txt"), self._projectCycles)
-
+        plot.plot_heatmap(self._projectCouplingMap, "Project Coupling",
+                          outputDir, "project_coupling_heatmap.pdf")
+ 
         self._logger.info("Writing package analysis results")
-        plot.plot_heatmap(self._packageCouplingMap, "Package Coupling",
-                          outputDir, "package_coupling_heatmap.pdf")
+        self._write_cycles_to_txt(os.path.join(
+            outputDir, "package_cycles.txt"), self._packageCycles)
         self._write_graphml(os.path.join(
             outputDir, "package_dependencies.graphml"), self._packageGraph)
         self._write_graphml(os.path.join(
             outputDir, "cyclic_package_dependencies.graphml"), self._cyclePackageGraph)
-        self._write_cycles_to_txt(os.path.join(
-            outputDir, "package_cycles.txt"), self._packageCycles)
+        plot.plot_heatmap(self._packageCouplingMap, "Package Coupling",
+                          outputDir, "package_coupling_heatmap.pdf")
         self._write_graphml(os.path.join(outputDir, "classdiagramm.graphml"), self._classDiagramm)
 
     def _project_coupling_data_frame(self, projects):
@@ -117,5 +116,6 @@ class PlainJavaAnalyser(Analysis):
         names = [p.name for p in packages]
         data = []
         for package in reversed(packages):
-            data.append([package.imports().count(pName) for pName in names])
+            package_imps = [self._to_package_import(imp) for imp in package.imports()]
+            data.append([package_imps.count(pName) for pName in names])
         return pd.DataFrame(data=data, index=list(reversed(names)), columns=names)

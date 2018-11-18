@@ -28,31 +28,34 @@ class ClassDiagramm(Graph):
             [self._add_dependency(tle, type_) for type_ in external_deps]
             if type(tle) == Class:
                 if tle.extends:
-                    self._add_dependency(tle, tle.extends, arrowhead="white_delta")
+                    self._add_dependency(
+                        tle, tle.extends, arrowhead="white_delta")
                 for interface in tle.implements:
-                    self._add_dependency(tle, interface, line_type="dotted", arrowhead="white_delta")
+                    self._add_dependency(
+                        tle, interface, line_type="dotted", arrowhead="white_delta")
             if type(tle) == Interface:
                 if tle.extends:
-                    self._add_dependency(tle, tle.extends, arrowhead="white_delta")
-
+                    self._add_dependency(
+                        tle, tle.extends, arrowhead="white_delta")
 
     def _add_dependency(self, tle, dependency, line_type="line", arrowhead="standard"):
         possible_fqns_for_dependency = [
             key for key, val in self._elements_by_fqn.items() if val.name == dependency]
         if len(possible_fqns_for_dependency) == 1:
-            self.add_edge(tle.fqn, possible_fqns_for_dependency[0], line_type=line_type, arrowhead=arrowhead)
+            self.add_edge(
+                tle.fqn, possible_fqns_for_dependency[0], line_type=line_type, arrowhead=arrowhead)
         elif len(possible_fqns_for_dependency) > 1:
             imports_for_node = self._imports_for_fqn[tle.fqn]
             fqn_deps = imports_for_node.intersection(
                 possible_fqns_for_dependency)
             if len(fqn_deps) == 1:
-                self.add_edge(tle.fqn, list(fqn_deps)[0], line_type=line_type, arrowhead=arrowhead)
-            else:
-                logger.warn("Can't find dependency from node %s to possible alternatives: %s" % (
+                self.add_edge(tle.fqn, list(fqn_deps)[
+                              0], line_type=line_type, arrowhead=arrowhead)
+            elif len(fqn_deps) > 0:
+                logger.warn("Multiple alternative dependencies from node %s to possible alternatives: %s" % (
                     tle.fqn, ",".join(fqn_deps)))
-        else:
-            logger.warn("Can't find dependency from node %s to possible alternatives: %s" % (tle.fqn, dependency))
-
+        #else:
+            #logger.warn("Can't find dependency from node %s to possible alternatives: %s" % (tle.fqn, dependency))
 
     def _collect_top_level_elements(self, packages):
         imports_for_fqn = dict()
@@ -90,8 +93,7 @@ class ClassDiagramm(Graph):
         return parents
 
     def _add_package(self, package):
-        package_group = self.add_group(
-            package.name, shape="rectangle", fill="#ffd35b")
+        package_group = self.add_group(package.name, shape="rectangle", fill="#ffd35b")
         for sourcefile in package.sourcefiles:
             for con_class in sourcefile.concrete_classes:
                 self._add_class(con_class, package_group)
@@ -150,12 +152,12 @@ class ClassDiagramm(Graph):
         return "{0}{1} {2}{3}: {4}".format(abstract, static, modifiers, attribute.name, attribute.typename)
 
     def _visibility(self, modifier):
-        visibilitySwitch = {
+        visibility_switch = {
             "public": "+",
             "private": "-",
             "protected": "~"
         }
-        return visibilitySwitch.get(modifier, "")
+        return visibility_switch.get(modifier, "")
 
     def _static_prefix(self, modifiers):
         return "s" if "static" in modifiers else " "

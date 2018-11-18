@@ -16,9 +16,7 @@ import os
 import re
 import logging
 
-
 logger = logging.getLogger(__name__)
-
 
 def parse_java_sourcefile(file, packagename=""):
     file_content = None
@@ -58,7 +56,7 @@ def parse_enum(enum, packagename=""):
 
 def parse_interface(interface, packagename=""):
     name = interface.name
-    extends = interface.extends.name if interface.extends else ""
+    extends = [interface.name for interface in interface.extends] if interface.extends else ""
     modifiers = interface.modifiers
     attributes = [_parse_attribute(attribute)
                   for attribute in _filter_attributes(interface.body)]

@@ -49,7 +49,7 @@ class ProjectAnalyser(Analysis):
         proj_name = []
         data = []
         for project in reversed(projects):
-            proj_imports = project.imports()
+            proj_imports = project.imports
             proj_name.append(project.name)
             proj_data = []
             for o_project in projects:

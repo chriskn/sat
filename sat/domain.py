@@ -18,7 +18,6 @@ class Project:
             imports.extend(package.imports())
         return imports
 
-
 class Bundle:
 
     def __init__(self, path, name, version, exported_packages, imported_packages, required_bundles, num_dependencies):
@@ -42,9 +41,9 @@ class Bundle:
 
 class Package:
 
-    def __init__(self, name, location, sourcefiles):
+    def __init__(self, name, path, sourcefiles):
         self.name = name
-        self.location = location
+        self.path = path
         self.sourcefiles = sourcefiles
 
     def imports(self):

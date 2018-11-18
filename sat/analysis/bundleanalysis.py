@@ -31,8 +31,7 @@ class BundleAnalyser(Analysis):
         self._logger.info("Creating dependency graph...")
         graph = BundleGraph(
             self._bundles, self._bundlesForExports, ignoredPathSegments)
-        self._logger.info("Created dependency graph containing %d node(s) and %d edge(s)" % (
-            len(graph.nodes()), len(graph.edges())))
+        self._logger.info("Created dependency graph")
         self._logger.info("Searching for cycles...")
         cycles = graph.cycles()
         graph.mark_cycles(cycles)
