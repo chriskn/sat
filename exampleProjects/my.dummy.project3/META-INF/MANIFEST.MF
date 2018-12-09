@@ -6,4 +6,3 @@ Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: my.dummy.project3
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: my.dummy.project1
-

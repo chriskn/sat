@@ -1,5 +1,7 @@
 package my.dummy.project2.api;
 
-public class ClassInSplitPackage {
+import my.dummy.project1.api.IDummy;
+
+public class ClassInSplitPackage implements IDummy {
 
 }

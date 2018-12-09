@@ -13,12 +13,14 @@ class PackageGraph(Graph):
     def __init__(self, packages=[]):
         Graph.__init__(self)
         _packages = packages
+        numdeps = [len(p.imports()) for p in packages]
+        max_numdeps = max(numdeps) if len (numdeps)> 0  else 1 
         for package in packages:
-            self.add_node(package.name)    
+            node_size = self.interpolate_node_size(len(package.imports()), max_numdeps)
+            self.add_node(package.name,  width=node_size, height=node_size)    
         for package in packages:
             for imp in package.imports():
                 import_name = imp
-                #import_path = re.split(":", imp)[0]
                 if self._CLASS_IMPORT_PATTERN.match(import_name):
                     import_name = re.split(r'\.[A-Z]', imp, maxsplit=1)[0]
                 if import_name in self._id_for_name:

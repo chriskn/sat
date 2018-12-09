@@ -98,14 +98,14 @@ class ClassDiagramm(Graph):
             for con_class in sourcefile.concrete_classes:
                 self._add_class(con_class, package_group)
             for abstr_class in sourcefile.abstract_classes:
-                self.add_abstract_class(abstr_class, package_group)
+                self._add_abstract_class(abstr_class, package_group)
             for interface in sourcefile.interfaces:
                 self._add_interface(interface, package_group)
             for enum in sourcefile.enums:
                 self._add_enum(enum, package_group)
 
     def _add_interface(self, interface, packageGroup):
-        uml = self._UML(interface)
+        uml = self._uml(interface)
         self.add_node(interface.name, packageGroup, node_type="UMLClassNode",
                       shape_fill="#FFFFFF", UML=uml)
 
@@ -115,17 +115,17 @@ class ClassDiagramm(Graph):
         self.add_node(enum.name, package_group, node_type="UMLClassNode",
                       shape_fill="#FFFFFF", UML=uml)
 
-    def add_abstract_class(self, clazz, package_group):
-        uml = self._UML(clazz)
+    def _add_abstract_class(self, clazz, package_group):
+        uml = self._uml(clazz)
         self.add_node(clazz.name, package_group, node_type="UMLClassNode",
                       shape_fill="#FFFFFF", UML=uml)
 
     def _add_class(self, clazz, package_group):
-        uml = self._UML(clazz)
+        uml = self._uml(clazz)
         self.add_node(
             clazz.name, package_group, node_type="UMLClassNode", shape_fill="#FFFFFF", UML=uml)
 
-    def _UML(self, type):
+    def _uml(self, type):
         attributes = [self._declaration_to_string(
             attribute) for attribute in type.attributes]
         methods = [self._method_to_String(method) for method in type.methods]

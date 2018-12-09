@@ -10,4 +10,5 @@ Export-Package: my.dummy.project1.api,
  my.dummy.project2.api
 Import-Package: org.eclipse.core.commands,
  my.dummy.project2.impl
-Require-Bundle: org.eclipse.ui
+Require-Bundle: org.eclipse.ui,
+ my.dummy.project4

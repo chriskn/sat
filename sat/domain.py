@@ -103,7 +103,6 @@ class Class():
         self.stereotype = stereotype
 
 
-
 class Method():
 
     def __init__(self, name, return_type_name, modifiers, parameters):
