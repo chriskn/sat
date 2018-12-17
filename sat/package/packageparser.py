@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-import lang.java as javaParser
 from domain import Package
+import source.sourcerepo as repo
 
 
 class PackageParser:
@@ -22,12 +22,7 @@ class PackageParser:
                 packagename = os.path.normpath(
                     dirpath.replace(sourcefolder, ""))
                 packagename = ".".join(packagename.strip(os.sep).split(os.sep))
-                sourcefiles = []
-                for java_file in java_filenames:
-                    sourcefile = javaParser.parse_java_sourcefile(
-                        os.path.join(dirpath, java_file), packagename)
-                    if sourcefile:
-                        sourcefiles.append(sourcefile)
+                sourcefiles = repo.sourcefiles(java_filenames, dirpath, packagename)
                 new_package = Package(packagename, dirpath, sourcefiles)
                 source_packages.append(new_package)
         return source_packages

@@ -53,7 +53,6 @@ class Package:
                 imports.append(imp)
         return imports
 
-
 class SourceFile:
 
     def __init__(self, name, language, imports, loc, concrete_classes, abstract_classes, interfaces, enums):
@@ -65,6 +64,14 @@ class SourceFile:
         self.abstract_classes = abstract_classes
         self.interfaces = interfaces
         self.enums = enums
+
+    def toplevelelements(self):
+        tles = []
+        tles.extend(self.concrete_classes)
+        tles.extend(self.abstract_classes)
+        tles.extend(self.interfaces)
+        tles.extend(self.enums)
+        return tles
 
 
 class Interface():

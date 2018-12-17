@@ -62,14 +62,10 @@ class ClassDiagramm(Graph):
         topLevelElements = []
         for package in packages:
             for sourcefile in package.sourcefiles:
-                elementsForFile = []
-                elementsForFile.extend(sourcefile.concrete_classes)
-                elementsForFile.extend(sourcefile.abstract_classes)
-                elementsForFile.extend(sourcefile.interfaces)
-                elementsForFile.extend(sourcefile.enums)
+                tles_for_file = sourcefile.toplevelelements()
                 imports_for_fqn.update(
-                    {elementForFile.fqn: sourcefile.imports for elementForFile in elementsForFile})
-                topLevelElements.extend(elementsForFile)
+                    {tle.fqn: sourcefile.imports for tle in tles_for_file})
+                topLevelElements.extend(tles_for_file)
         return (topLevelElements, imports_for_fqn)
 
     def _filter_external_types(self, class_):
