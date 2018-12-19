@@ -13,20 +13,23 @@ import os.path
 _LINES_CHANGED_PATTERN = re.compile(r"\d+\t\d+\t*")
 
 
-class GitChanges(Analysis):
-
-    _changes = []
-    _changes_per_file = []
-
+class FileChanges(Analysis):
+    
     @staticmethod
     def name():
-        return "gitChanges"
+        return "gitfiles"
 
-    def load_data(self, workingDir, ignoredPathSegments):
-        self._workingDir = workingDir
-        result = subprocess.run('git log --numstat --oneline --shortstat --after="2017-26-09" -- ' +
-                                workingDir, stdout=subprocess.PIPE, cwd=workingDir, shell=True)
-        lines = result.stdout.splitlines()
+    def __init__(self, since):
+        self._since = since
+        self._changes = []
+        self._changes_per_file = []
+
+    def load_data(self, workingdir, ignored_path_segments):
+        self._workingDir = workingdir
+        command = 'git log --numstat --oneline --shortstat --after="' + \
+            self._since+'" -- ' + workingdir
+        result = self._run_git_command(command, workingdir)
+        lines = result.splitlines()
         for line in lines:
             decoded = line.decode('utf-8')
             if _LINES_CHANGED_PATTERN.match(decoded):
@@ -34,7 +37,23 @@ class GitChanges(Analysis):
                 self._changes.append(
                     Change(int(split[0]), int(split[1]), split[2]))
 
+    def _run_git_command(self, command, workingdir):
+        self._logger.info("Running git command: %s", command)
+        try:
+            result = subprocess.run(
+                command, stdout=subprocess.PIPE, cwd=workingdir, shell=True)
+        except OSError as ose:
+            self._logger.warn("Error while executing git command: "+str(ose))
+            return ""
+        except subprocess.CalledProcessError as pe:
+            self._logger.warn("Error while executing git command: "+pe.output)
+            return ""
+        return result.stdout
+
     def analyse(self, ignoredPathSegments):
+        if not self._changes:
+            self._logger.warn("No changes found. No output will be written.")
+            return
         filenames = set([change.filename for change in self._changes])
         for filename in filenames:
             lines_added = 0

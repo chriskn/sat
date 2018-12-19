@@ -4,3 +4,6 @@
 /.vscode
 /OSGiDepend/__pycache__/*.pyc
 *.pyc
+/build/lib/sat
+/exampleprojects/my.dummy.project4/bin
+/exampleprojects/my.dummy.project4/src/my/dummy/project4/util
