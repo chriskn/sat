@@ -3,8 +3,8 @@
 
 from analysis.analysis import Analysis
 from domain import Change
+import git.changerepo as repo
 
-import subprocess
 import re
 import plot
 import pandas as pd
@@ -26,56 +26,34 @@ class FileChanges(Analysis):
 
     def load_data(self, workingdir, ignored_path_segments):
         self._workingDir = workingdir
-        command = 'git log --numstat --oneline --shortstat --after="' + \
-            self._since+'" -- ' + workingdir
-        result = self._run_git_command(command, workingdir)
-        lines = result.splitlines()
-        for line in lines:
-            decoded = line.decode('utf-8')
-            if _LINES_CHANGED_PATTERN.match(decoded):
-                split = decoded.split("\t")
-                self._changes.append(
-                    Change(int(split[0]), int(split[1]), split[2]))
-
-    def _run_git_command(self, command, workingdir):
-        self._logger.info("Running git command: %s", command)
-        try:
-            result = subprocess.run(
-                command, stdout=subprocess.PIPE, cwd=workingdir, shell=True)
-        except OSError as ose:
-            self._logger.warn("Error while executing git command: "+str(ose))
-            return ""
-        except subprocess.CalledProcessError as pe:
-            self._logger.warn("Error while executing git command: "+pe.output)
-            return ""
-        return result.stdout
+        self._changes = repo.get_file_changes(workingdir, self._since)
 
     def analyse(self, ignoredPathSegments):
         if not self._changes:
             self._logger.warn("No changes found. No output will be written.")
             return
-        filenames = set([change.filename for change in self._changes])
-        for filename in filenames:
+        filepaths = set([change.filepath for change in self._changes])
+        for filepath in filepaths:
             lines_added = 0
             lines_removed = 0
             for change in self._changes:
-                if change.filename == filename:
+                if change.filepath == filepath:
                     lines_added += change.lines_added
                     lines_removed += change.lines_removed
             self._changes_per_file.append(
-                Change(lines_added, lines_removed, filename))
+                Change(lines_added, lines_removed, filepath))
         # Filter for existing files
-        #self.changesPerFile[:] = [change for change in self.changesPerFile if os.path.isfile(os.path.join(self._workingDir,change.fileName))]
+        #self.changesPerFile[:] = [change for change in self.changesPerFile if os.path.isfile(os.path.join(self._workingDir,change.filepath))]
         self._changes_per_file.sort(
             key=lambda c: c.lines_added+c.lines_removed, reverse=True)
 
     def write_results(self, outputDir):
-        filenames = [change.filename for change in self._changes_per_file]
+        filepaths = [change.filepath for change in self._changes_per_file]
         data = []
         for change in self._changes_per_file[0:25]:
             data.append([change.lines_added, change.lines_removed])
-        df = pd.DataFrame(data=data, index=filenames[0:25], columns=[
+        df = pd.DataFrame(data=data, index=filepaths[0:25], columns=[
                           "Added", "Removed"])
         if not df.empty:
             plot.plot_stacked_barchart(df, "Number of changed lines",
-                                       "Number of changed lines for most changed files", outputDir, "most_changed_files.pdf")
+                                       "Number of changed lines for most changed files since "+self._since, outputDir, "most_changed_files.pdf")

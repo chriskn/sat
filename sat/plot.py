@@ -2,7 +2,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import logging
 import seaborn as sns
+import squarify
 import os
+import numpy as np
+
 sns.set()
 DPI = 72.27
 
@@ -18,14 +21,14 @@ def plot_heatmap(data_frame, title, folder, file_name):
         return
     fontsize_pt = plt.rcParams['ytick.labelsize']
     # compute the required figure height
-    matrix_height_pt = fontsize_pt * number_of_entries *1.02
+    matrix_height_pt = fontsize_pt * number_of_entries * 1.02
     matrix_height_in = matrix_height_pt / DPI
     entry_offset = number_of_entries * 0.2
     figure_size = int(round(matrix_height_in + entry_offset))
     # colors
     color_map = plt.get_cmap('autumn_r', 10)
-    #color_map.set_under('white')
-    #color_map.set_over('black')
+    # color_map.set_under('white')
+    # color_map.set_over('black')
    # ten_percent = int(round(number_of_entries * 0.1))
     #max_ten_percent = sorted(data_frame.values.flatten())[-ten_percent:]
     #vmax = min(max_ten_percent)
@@ -37,11 +40,42 @@ def plot_heatmap(data_frame, title, folder, file_name):
                 xticklabels=True, yticklabels=True,
                 annot_kws={"size": 8}, annot=True,
                 cbar_kws={"shrink": 0.5},
-                cmap=color_map,  
-                #vmin=1, vmax=vmax,
+                cmap=color_map,
+                # vmin=1, vmax=vmax,
                 linewidths=0.5, linecolor="grey"
                 )
     _writeFigure(fig, folder, file_name)
+
+
+def plot_treemap(labels, values, title, folder, file_name):
+    width = 700.
+    height = 433.
+    # the sum of the values must equal the total area to be laid out
+    # i.e., sum(values) == width * height
+    norm_values = squarify.normalize_sizes(values, width, height)
+    # colors
+    color_map = plt.get_cmap('autumn_r', len(labels))
+    colors = [color_map(i) for i in range(len(norm_values))][::-1]
+    # plot
+    #squarify.plot(sizes=norm_values, label=labels, color=colors)
+    plt.title(title)
+    # make plot
+    fig = plt.figure(figsize=(12, 10))
+    ax = fig.add_subplot(111)
+    ax = squarify.plot(sizes=norm_values, color=colors,
+                       label=labels, ax=ax, alpha=.7)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_title(title, fontsize=16)
+
+    # color bar
+    # create dummy invisible image with a color map
+    img_data = np.array(values)
+    img_data = np.expand_dims(img_data, axis=0)
+    img = plt.imshow(img_data, cmap=color_map)
+    img.set_visible(False)
+    fig.colorbar(img, orientation="vertical", shrink=.96)
+    _writeFigure(plt.gcf(), folder, file_name)
 
 
 def plot_stacked_barchart(data, ylabel, title, folder, file_name):

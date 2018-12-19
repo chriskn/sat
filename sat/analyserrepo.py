@@ -5,10 +5,11 @@ from analysis.bundleanalysis import BundleAnalyser
 from analysis.projectanalysis import ProjectAnalyser
 from analysis.plainjavaanalysis import PlainJavaAnalyser
 from git.filechanges import FileChanges
+from git.packagechanges import PackageChanges
 
 
 _DEPS_ANALYSER_CLASSES = [PlainJavaAnalyser, ProjectAnalyser, BundleAnalyser]
-_CHANGE_ANALYSER_CLASSES = [FileChanges]
+_CHANGE_ANALYSER_CLASSES = [FileChanges, PackageChanges]
 
 _DEPS_ANALYSER_CLS_BY_NAME = {
     analyser.name(): analyser for analyser in _DEPS_ANALYSER_CLASSES}

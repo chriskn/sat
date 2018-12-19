@@ -17,16 +17,16 @@ _OUTPUT_FOLDER_NAME = datetime.datetime.now().strftime("%d%m%y_%H-%M-%S")
 def run_deps_analysers(analysernames, deps_analysers_by_name, workingdir, ignored_path_segments, outputdir):
     for analyser_name in analysernames:
         analyser = deps_analysers_by_name[analyser_name]()
-    analyser.load_data(workingdir, ignored_path_segments)
-    analyser.analyse(ignored_path_segments)
-    analyser.write_results(outputdir)
+        analyser.load_data(workingdir, ignored_path_segments)
+        analyser.analyse(ignored_path_segments)
+        analyser.write_results(outputdir)
 
 def run_change_analysers(analysernames, change_analysers_by_name, workingdir, ignored_path_segments, outputdir, since):
     for analyser_name in analysernames:
         analyser = change_analysers_by_name[analyser_name](since)
-    analyser.load_data(workingdir, ignored_path_segments)
-    analyser.analyse(ignored_path_segments)
-    analyser.write_results(outputdir)
+        analyser.load_data(workingdir, ignored_path_segments)
+        analyser.analyse(ignored_path_segments)
+        analyser.write_results(outputdir)
 
 if __name__ == '__main__':
     logger = logging.getLogger("SAT")
