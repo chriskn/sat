@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Project5
+Bundle-SymbolicName: my.dummy.project5
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: my.dummy.project5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: my.dummy.project5.domain

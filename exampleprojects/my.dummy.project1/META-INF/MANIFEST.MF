@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Project1
+Bundle-SymbolicName: my.dummy.project1
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Christoph Knauf
+Automatic-Module-Name: my.dummy.project1
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: my.dummy.project1.api,
+ my.dummy.project2.api
+Import-Package: org.eclipse.core.commands,
+ my.dummy.project2.impl
+Require-Bundle: org.eclipse.ui,
+ my.dummy.project4
