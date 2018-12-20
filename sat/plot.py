@@ -5,18 +5,21 @@ import seaborn as sns
 import squarify
 import os
 import numpy as np
+from collections import OrderedDict
+
 
 sns.set()
 DPI = 72.27
 
-logger = logging.getLogger(__name__)
+_LOGGER = logging.getLogger(__name__)
 _MAX_HEATMAP_ENTRIES = 200
+_MAX_TREEMAP_ENTRIES = 25
 
 
 def plot_heatmap(data_frame, title, folder, file_name):
     number_of_entries = data_frame.shape[0]
     if number_of_entries > _MAX_HEATMAP_ENTRIES:
-        logger.warn("Number of entries is %d an exceeds limit of %d. Will skip creation of heatmap" % (
+        _LOGGER.warn("Number of entries is %d and exceeds limit of %d for heatmaps. Will skip creation of heatmap" % (
             number_of_entries, _MAX_HEATMAP_ENTRIES))
         return
     fontsize_pt = plt.rcParams['ytick.labelsize']
@@ -30,8 +33,8 @@ def plot_heatmap(data_frame, title, folder, file_name):
     # color_map.set_under('white')
     # color_map.set_over('black')
    # ten_percent = int(round(number_of_entries * 0.1))
-    #max_ten_percent = sorted(data_frame.values.flatten())[-ten_percent:]
-    #vmax = min(max_ten_percent)
+    # max_ten_percent = sorted(data_frame.values.flatten())[-ten_percent:]
+    # vmax = min(max_ten_percent)
     # build figure
     fig, ax = plt.subplots(figsize=(figure_size, figure_size))
     ax.set_title(title)
@@ -47,9 +50,34 @@ def plot_heatmap(data_frame, title, folder, file_name):
     _writeFigure(fig, folder, file_name)
 
 
-def plot_treemap(labels, values, title, folder, file_name):
+def _wrap_label(label, length):
+    labellines = []
+    offset = 5
+    towrap = label
+    while len(towrap) > length+offset:  # 25
+        l, r = towrap[:length], towrap[length:]  # 20
+        labellines.extend([l, r])
+        towrap = r
+    return "\n".join(labellines)
+
+
+def plot_treemap(data, title, folder, file_name):
     width = 700.
     height = 433.
+    # restrict number of values
+    if len(data) > _MAX_TREEMAP_ENTRIES:
+        _LOGGER.warn("Number of entries is %d and exceeds limit for treemaps. Will limit to max %d values" % (
+            len(data), _MAX_TREEMAP_ENTRIES))
+        data = OrderedDict(list(data.items())[:_MAX_TREEMAP_ENTRIES])
+    values = list(data.values())
+    # labels 
+    labels = []
+    for pname in data.keys():
+        label = pname
+        if len(pname) > 30:
+            label = _wrap_label(pname, 25)
+        label = "\n".join([label, "changes: "+str(data.get(pname))])
+        labels.append(label)
     # the sum of the values must equal the total area to be laid out
     # i.e., sum(values) == width * height
     norm_values = squarify.normalize_sizes(values, width, height)
@@ -57,9 +85,7 @@ def plot_treemap(labels, values, title, folder, file_name):
     color_map = plt.get_cmap('autumn_r', len(labels))
     colors = [color_map(i) for i in range(len(norm_values))][::-1]
     # plot
-    #squarify.plot(sizes=norm_values, label=labels, color=colors)
-    plt.title(title)
-    # make plot
+    plt.rc('font', size=8)
     fig = plt.figure(figsize=(12, 10))
     ax = fig.add_subplot(111)
     ax = squarify.plot(sizes=norm_values, color=colors,
@@ -67,9 +93,7 @@ def plot_treemap(labels, values, title, folder, file_name):
     ax.set_xticks([])
     ax.set_yticks([])
     ax.set_title(title, fontsize=16)
-
     # color bar
-    # create dummy invisible image with a color map
     img_data = np.array(values)
     img_data = np.expand_dims(img_data, axis=0)
     img = plt.imshow(img_data, cmap=color_map)

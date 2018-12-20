@@ -4,6 +4,7 @@
 import re
 import logging
 import subprocess
+import os
 from domain import Change
 
 _logger = logging.getLogger("Changerepo")
@@ -23,8 +24,9 @@ def get_file_changes(workingdir, since):
         decoded = line.decode('utf-8')
         if _LINES_CHANGED_PATTERN.match(decoded):
             split = decoded.split("\t")
+            path = os.path.normpath(os.path.join(workingdir,split[2]))
             changes.append(
-                Change(int(split[0]), int(split[1]), split[2]))
+                Change(int(split[0]), int(split[1]), path))
     _changes_by_dir[workingdir] = changes
     return changes
 

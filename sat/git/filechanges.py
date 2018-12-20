@@ -5,6 +5,7 @@ from analysis.analysis import Analysis
 from domain import Change
 import git.changerepo as repo
 
+import xlwt
 import re
 import plot
 import pandas as pd
@@ -47,7 +48,31 @@ class FileChanges(Analysis):
         self._changes_per_file.sort(
             key=lambda c: c.lines_added+c.lines_removed, reverse=True)
 
-    def write_results(self, outputDir):
+    def write_results(self, outputdir):
+        self._write_barchart(outputdir)
+        self._write_report(outputdir)
+
+
+    def _write_report(self, outputdir):
+        wb = xlwt.Workbook()
+        ws = wb.add_sheet("Lines_changed_since_"+self._since)
+        self._write_row(ws, 0, ["File", "Lines changed", "Lines added", "Lines removed"])
+        column=1
+        for change in self._changes_per_file:
+            overall_changes = change.lines_added+change.lines_removed
+            row_data = [change.filepath,
+                     overall_changes, change.lines_added, change.lines_removed]
+            self._write_row(ws, column, row_data)
+            column+=1
+        wb.save(os.path.join(outputdir, "changed_lines_per_file.xls"))
+
+    def _write_row(self, sheet, rindex, data):
+        i = 0
+        for d in data: 
+            sheet.write(rindex, i, str(d))
+            i+=1
+
+    def _write_barchart(self, outputDir):
         filepaths = [change.filepath for change in self._changes_per_file]
         data = []
         for change in self._changes_per_file[0:25]:
