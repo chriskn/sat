@@ -1,9 +1,7 @@
-/exampleProjects/my.dummy.project1/.settings/*.prefs
 *.prefs
-/.vscode/.ropeproject
 /.vscode
-/OSGiDepend/__pycache__/*.pyc
+/__pycache__
 *.pyc
-/build/lib/sat
+/build
 /exampleprojects/my.dummy.project4/bin
 /exampleprojects/my.dummy.project4/src/my/dummy/project4/util
