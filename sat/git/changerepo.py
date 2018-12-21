@@ -24,9 +24,8 @@ def get_file_changes(workingdir, since):
         decoded = line.decode('utf-8')
         if _LINES_CHANGED_PATTERN.match(decoded):
             split = decoded.split("\t")
-            path = os.path.normpath(os.path.join(workingdir,split[2]))
             changes.append(
-                Change(int(split[0]), int(split[1]), path))
+                Change(int(split[0]), int(split[1]), split[2]))
     _changes_by_dir[workingdir] = changes
     return changes
 

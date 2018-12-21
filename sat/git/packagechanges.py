@@ -4,7 +4,7 @@
 from analysis.analysis import Analysis
 from domain import Change
 
-import xlwt
+import xls
 import re
 import plot
 import pandas as pd
@@ -13,15 +13,13 @@ from scanner import Scanner
 import git.changerepo as repo
 from collections import OrderedDict
 
-
 _LINES_CHANGED_PATTERN = re.compile(r"\d+\t\d+\t*")
-
 
 class PackageChanges(Analysis):
 
     @staticmethod
     def name():
-        return "gitpackages"
+        return "packages"
 
     def __init__(self, since):
         self._since = since
@@ -47,7 +45,7 @@ class PackageChanges(Analysis):
             for change in self._changes:
                 file_directory = os.path.normpath(
                     os.path.dirname(change.filepath))
-                if relative_package_path in file_directory:
+                if  file_directory.endswith(relative_package_path):
                     lines_added += change.lines_added
                     lines_removed += change.lines_removed
             if lines_added+lines_removed > 0:
@@ -61,23 +59,15 @@ class PackageChanges(Analysis):
         self._write_treemap(outputdir)
 
     def _write_report(self, outputdir):
-        wb = xlwt.Workbook()
-        ws = wb.add_sheet("Lines_changed_since_"+self._since)
-        self._write_row(ws, 0, ["Package", "Lines changed", "Lines added", "Lines removed"])
-        column=1
+        rows = []
+        rows.append(["Package", "Lines changed", "Lines added", "Lines removed"])
         for change in self._changes_per_package:
             overall_changes = change.lines_added+change.lines_removed
-            row_data = [change.filepath.replace("\\", "."),
-                     overall_changes, change.lines_added, change.lines_removed]
-            self._write_row(ws, column, row_data)
-            column+=1
-        wb.save(os.path.join(outputdir, "changed_lines_per_package.xls"))
-
-    def _write_row(self, sheet, rindex, data):
-        i = 0
-        for d in data: 
-            sheet.write(rindex, i, str(d))
-            i+=1
+            rows.append([change.filepath.replace("\\", "."),
+                     overall_changes, change.lines_added, change.lines_removed])
+        filepath = os.path.join(outputdir, "changed_lines_per_package.xls")
+        sheet_name = "Changes since "+self._since
+        xls.write_xls(sheet_name, rows, filepath)
 
     def _write_treemap(self, outputdir):
         data = OrderedDict()

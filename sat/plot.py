@@ -7,10 +7,9 @@ import os
 import numpy as np
 from collections import OrderedDict
 
-
 sns.set()
-DPI = 72.27
 
+_DPI = 72.27
 _LOGGER = logging.getLogger(__name__)
 _MAX_HEATMAP_ENTRIES = 200
 _MAX_TREEMAP_ENTRIES = 25
@@ -25,7 +24,7 @@ def plot_heatmap(data_frame, title, folder, file_name):
     fontsize_pt = plt.rcParams['ytick.labelsize']
     # compute the required figure height
     matrix_height_pt = fontsize_pt * number_of_entries * 1.02
-    matrix_height_in = matrix_height_pt / DPI
+    matrix_height_in = matrix_height_pt / _DPI
     entry_offset = number_of_entries * 0.2
     figure_size = int(round(matrix_height_in + entry_offset))
     # colors
@@ -54,8 +53,8 @@ def _wrap_label(label, length):
     labellines = []
     offset = 5
     towrap = label
-    while len(towrap) > length+offset:  # 25
-        l, r = towrap[:length], towrap[length:]  # 20
+    while len(towrap) > length+offset:  
+        l, r = towrap[:length], towrap[length:]  
         labellines.extend([l, r])
         towrap = r
     return "\n".join(labellines)
@@ -70,7 +69,7 @@ def plot_treemap(data, title, folder, file_name):
             len(data), _MAX_TREEMAP_ENTRIES))
         data = OrderedDict(list(data.items())[:_MAX_TREEMAP_ENTRIES])
     values = list(data.values())
-    # labels 
+    # labels
     labels = []
     for pname in data.keys():
         label = pname

@@ -51,11 +51,12 @@ class Cli:
                                      help='Root folder for recursive analysers. Default is script location')
         changeanalysers.add_argument('-o', dest='outputdir', metavar='outputdir', default=os.getcwd(),
                                      help='Root folder for analysers results. Default is script location')
-        changeanalysers.add_argument('-i', dest='ignored', metavar='ignored path segments', default=_DEFAULT_IGNORED_PATH_SEGMENTS, nargs='*',
-                                     help="List of ignored path segements. Defaults: " +
-                                     ", ".join(_DEFAULT_IGNORED_PATH_SEGMENTS) +
-                                     ". Provide empty list to include all paths"
-                                     )
+        #changeanalysers.add_argument('-i', dest='ignored', metavar='ignored path segments', default=_DEFAULT_IGNORED_PATH_SEGMENTS, nargs='*',
+        #                             help="List of ignored path segements. Defaults: " +
+        #                             ", ".join(_DEFAULT_IGNORED_PATH_SEGMENTS) +
+        #                             ". Provide empty list to include all paths"
+        #                             )
+        changeanalysers.set_defaults(ignored="")
 
     def parse(self):
         args = self._parser.parse_args()
