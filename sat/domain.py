@@ -55,11 +55,10 @@ class Package:
 
 class SourceFile:
 
-    def __init__(self, name, language, imports, loc, concrete_classes, abstract_classes, interfaces, enums):
+    def __init__(self, name, language, imports, concrete_classes, abstract_classes, interfaces, enums):
         self.name = name
         self.language = language
         self.imports = imports
-        self.loc = loc
         self.concrete_classes = concrete_classes
         self.abstract_classes = abstract_classes
         self.interfaces = interfaces
@@ -125,11 +124,3 @@ class Declaration():
         self.name = name
         self.typename = type_name
         self.modifiers = modifiers
-
-
-class Change():
-
-    def __init__(self, lines_added, lines_removed, filepath):
-        self.lines_added = lines_added
-        self.lines_removed = lines_removed
-        self.filepath = filepath

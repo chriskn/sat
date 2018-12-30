@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import javalang
+from javalang.tree import CompilationUnit
 from javalang.tree import Import
 from javalang.tree import ClassDeclaration
 from javalang.tree import InterfaceDeclaration
@@ -9,26 +11,26 @@ from javalang.tree import EnumDeclaration
 from javalang.tree import ConstructorDeclaration
 from javalang.tree import MethodDeclaration
 from javalang.parser import JavaSyntaxError
-from domain import SourceFile, Declaration, Method, Class, Enum, Interface
 
-import javalang
 import os
 import re
 import logging
 
+from domain import SourceFile, Declaration, Method, Class, Enum, Interface
+
+
 logger = logging.getLogger(__name__)
 
 def parse_java_sourcefile(file, packagename=""):
-    file_content = None
     try:
         with open(file, 'r', encoding='utf-8') as f:
             file_content = f.read()
-        ast = javalang.parse.parse(file_content)
+            ast = javalang.parse.parse(file_content)
     except FileNotFoundError as error:
         logger.warn(str(error))
         return
     except JavaSyntaxError:
-        logger.warn("Could not parse java file %s" % file)
+        logger.warn("Could not parse java file %s. Invalid syntax" % file)
         return
     package_imports = set()
     [package_imports.add(imp.path) for imp in ast.imports]
@@ -41,10 +43,7 @@ def parse_java_sourcefile(file, packagename=""):
     enums = [parse_enum(type, packagename)
              for type in ast.types if isinstance(type, EnumDeclaration)]
     filename, extension = os.path.splitext(os.path.basename(file))
-    non_empty_lines = [
-        line for line in file_content.splitlines() if line.strip()]
-    loc = len(non_empty_lines)
-    return SourceFile(filename, extension[1:], package_imports, loc, concrete_classes, abstract_classes, interfaces, enums)
+    return SourceFile(filename, extension[1:], package_imports, concrete_classes, abstract_classes, interfaces, enums)
 
 
 def parse_enum(enum, packagename=""):

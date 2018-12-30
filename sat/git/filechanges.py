@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from analysis.analysis import Analysis
-from domain import Change
+from git.domain import Change
 import git.changerepo as repo
 
 import xls
@@ -30,6 +30,7 @@ class FileChanges(Analysis):
         self._changes = repo.get_file_changes(workingdir, self._since)
 
     def analyse(self, ignoredPathSegments):
+        self._logger.info("Analysing file changes.")
         if not self._changes:
             self._logger.warn("No changes found. No output will be written.")
             return

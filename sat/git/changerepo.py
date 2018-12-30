@@ -5,7 +5,7 @@ import re
 import logging
 import subprocess
 import os
-from domain import Change
+from git.domain import Change
 
 _logger = logging.getLogger("Changerepo")
 _LINES_CHANGED_PATTERN = re.compile(r"\d+\t\d+\t*")

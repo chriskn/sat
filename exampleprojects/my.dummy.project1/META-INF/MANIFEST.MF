@@ -8,7 +8,6 @@ Automatic-Module-Name: my.dummy.project1
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: my.dummy.project1.api,
  my.dummy.project2.api
-Import-Package: org.eclipse.core.commands,
- my.dummy.project2.impl
+Import-Package: org.eclipse.core.commands
 Require-Bundle: org.eclipse.ui,
  my.dummy.project4

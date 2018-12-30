@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 from analysis.analysis import Analysis
-from domain import Change
+from git.domain import Change
 
 import xls
 import re
 import plot
 import pandas as pd
 import os.path
-from scanner import Scanner
+import scanner
 import git.changerepo as repo
 from collections import OrderedDict
 
@@ -33,7 +33,8 @@ class ProjectChanges(Analysis):
         self._changes = repo.get_file_changes(workingdir, self._since)
 
     def analyse(self, ignored_path_segments):
-        project_paths = Scanner.find_projects(
+        self._logger.info("Analysing project changes.")
+        project_paths = scanner.find_projects(
             self._workingDir, ignored_path_segments)
         if not project_paths:
             self._logger.warn("No projects found. No output will be written.")

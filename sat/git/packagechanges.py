@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 from analysis.analysis import Analysis
-from domain import Change
+from git.domain import Change
 
 import xls
 import re
 import plot
 import pandas as pd
 import os.path
-from scanner import Scanner
+import scanner
 import git.changerepo as repo
 from collections import OrderedDict
 
@@ -31,7 +31,8 @@ class PackageChanges(Analysis):
         self._changes = repo.get_file_changes(workingdir, self._since)
 
     def analyse(self, ignored_path_segments):
-        relativepaths_for_package_paths = Scanner.find_packages(
+        self._logger.info("Analysing package changes.")
+        relativepaths_for_package_paths = scanner.find_packages(
             self._workingDir, ignored_path_segments)
         if not relativepaths_for_package_paths:
             self._logger.warn("No packages found. No output will be written.")

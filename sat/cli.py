@@ -11,7 +11,7 @@ _VERSION = '%(prog)s 0.1.0'
 
 class Cli:
 
-    def __init__(self, deps_analysers, change_analysers):
+    def __init__(self, deps_analysers, change_analysers, loc_analysers):
         self._parser = argparse.ArgumentParser(
             formatter_class=RawTextHelpFormatter)
         analyser_types = self._parser.add_subparsers(
@@ -19,8 +19,26 @@ class Cli:
         analyser_types.required = True
         self._add_deps_analysers(analyser_types, deps_analysers)
         self._add_change_analysers(analyser_types, change_analysers)
+        self._add_comp_analysers(analyser_types, loc_analysers)
+
         self._parser.add_argument(
             '-v', '--version', action='version', version=_VERSION)
+
+    def _add_comp_analysers(self, analyser_types, locanalyser_names):
+        locanalyers = analyser_types.add_parser("comp", help="Complexity analysers")
+        requiredForLoc = locanalyers.add_argument_group()
+        requiredForLoc.add_argument('-a', dest='analysers', metavar='analysers', nargs='+',
+                                       choices=locanalyser_names, required=True, help='List of analysers')
+        locanalyers.add_argument('-w', dest='workingdir', metavar='workingdir', default=os.getcwd(),
+                                   help='Root folder for recursive analysers. Default is script location')
+        locanalyers.add_argument('-o', dest='outputdir', metavar='outputdir', default=os.getcwd(),
+                                   help='Root folder for analysers results. Default is script location')
+        locanalyers.add_argument('-i', dest='ignored', metavar='ignored path segments', default=_DEFAULT_IGNORED_PATH_SEGMENTS, nargs='*',
+                                   help="List of ignored path segements. Defaults: " +
+                                   ", ".join(_DEFAULT_IGNORED_PATH_SEGMENTS) +
+                                   ". Provide empty list to include all paths"
+                                   )
+        locanalyers.set_defaults(since="")
 
     def _add_deps_analysers(self, analyser_types, depsanalyser_names):
         depsanalysers = analyser_types.add_parser(

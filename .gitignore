@@ -5,3 +5,10 @@
 /build
 /exampleprojects/my.dummy.project4/bin
 /exampleprojects/my.dummy.project4/src/my/dummy/project4/util
+/exampleprojects/my.dummy.project1/bin/my/dummy/project1/api/*.class
+/exampleprojects/.scannerwork/*.sonar_lock
+*.class
+*.sonar_lock
+.vscode
+cache
+.scannerwork

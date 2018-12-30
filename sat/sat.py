@@ -28,11 +28,21 @@ def run_change_analysers(analysernames, change_analysers_by_name, workingdir, ig
         analyser.analyse(ignored_path_segments)
         analyser.write_results(outputdir)
 
+def run_comp_analysers(analysernames, comp_analysers_by_name, workingdir, ignored_path_segments, outputdir):
+    for analyser_name in analysernames:
+        analyser = comp_analysers_by_name[analyser_name]()
+        analyser.load_data(workingdir, ignored_path_segments)
+        analyser.analyse(ignored_path_segments)
+        analyser.write_results(outputdir)
+
 if __name__ == '__main__':
     logger = logging.getLogger("SAT")
+
     deps_analysers_by_name = AnalyserRepo.deps_analyser_classes_by_name()
     change_analysers_by_name = AnalyserRepo.change_analyser_classes_by_name()
-    cli = Cli(deps_analysers_by_name.keys(), change_analysers_by_name.keys())
+    comp_analysers_by_name = AnalyserRepo.comp_analyser_classes_by_name()
+
+    cli = Cli(deps_analysers_by_name.keys(), change_analysers_by_name.keys(), comp_analysers_by_name)
     workingdir, ignored_path_segments, analyser_group, analysers, outputbasedir, since = cli.parse()
     outputdir = os.path.join(outputbasedir, "sat", _OUTPUT_FOLDER_NAME)
     if not os.path.exists(outputdir):
@@ -48,3 +58,5 @@ if __name__ == '__main__':
         run_deps_analysers(analysers, deps_analysers_by_name, workingdir, ignored_path_segments, outputdir)
     if analyser_group == "changes":
         run_change_analysers(analysers, change_analysers_by_name, workingdir, ignored_path_segments, outputdir, since)
+    if analyser_group == "comp":
+        run_comp_analysers(analysers, comp_analysers_by_name, workingdir, ignored_path_segments, outputdir)    
