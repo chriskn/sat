@@ -29,15 +29,10 @@ def plot_heatmap(data_frame, title, folder, file_name):
     figure_size = int(round(matrix_height_in + entry_offset))
     # colors
     color_map = plt.get_cmap('autumn_r', 10)
-    # color_map.set_under('white')
-    # color_map.set_over('black')
-   # ten_percent = int(round(number_of_entries * 0.1))
-    # max_ten_percent = sorted(data_frame.values.flatten())[-ten_percent:]
-    # vmax = min(max_ten_percent)
     # build figure
     fig, ax = plt.subplots(figsize=(figure_size, figure_size))
     ax.set_title(title)
-    # add heatmap
+    # plot
     sns.heatmap(data_frame, square=True, fmt="d", ax=ax,
                 xticklabels=True, yticklabels=True,
                 annot_kws={"size": 8}, annot=True,
@@ -53,8 +48,8 @@ def _wrap_label(label, length):
     labellines = []
     offset = 5
     towrap = label
-    while len(towrap) > length+offset:  
-        l, r = towrap[:length], towrap[length:]  
+    while len(towrap) > length+offset:
+        l, r = towrap[:length], towrap[length:]
         labellines.extend([l, r])
         towrap = r
     return "\n".join(labellines)
@@ -128,6 +123,36 @@ def plot_stacked_barchart(data, ylabel, title, folder, file_name):
     bottom_plot.set_xticklabels(bottom_plot.get_xticklabels(), rotation=90)
     _writeFigure(bottom_plot.get_figure(), folder, file_name)
 
+def plot_barchart(data, ylabel, title, folder, file_name):
+    # Set general plot properties
+    #sns.set_style("white")
+    #sns.axes_style("whitegrid", {'axes.grid' : True})
+    #sns.set_context({"figure.figsize": (24, 10)})
+    # Plot 
+    labels = (data[data.columns[0]].values)[0:25]
+    y = (data[data.columns[1]].values)[0:25]
+    fig, axs = plt.subplots(1, 1, figsize=(24, 10))
+    labels_pos = np.arange(len(labels))
+    axs.bar(labels_pos, y, color="green")
+    # Labels
+    plt.xticks(labels_pos, labels)
+    axs.set_ylabel(ylabel)
+    axs.set_title(title)
+    for n, _y in enumerate(y):
+        axs.annotate(
+            s=str(_y),
+            xy=(n, _y),
+            ha='center',va='center',
+            xytext=(0,10),
+            textcoords='offset points',
+            color="black"
+        )
+    # Optional - Make plot look nicer
+    for label in axs.get_xticklabels():
+        if len(label._text) > 60:
+            label._text = "..."+label._text[-60:]
+    plt.xticks(rotation=90)
+    _writeFigure(fig, folder, file_name)
 
 def _writeFigure(figure, folder, file_name):
     path = os.path.join(folder, file_name)

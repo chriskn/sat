@@ -102,8 +102,6 @@ def _is_nullvalue(expr):
 
 def _increments_nesting(expr,parent):
    is_elseif = _is_elseif(expr, parent)
-   # if is_elseif:
-   #    print("")
    if (isinstance(expr, IfStatement) and not is_elseif)  or isinstance(expr, SwitchStatement) or isinstance(expr, CatchClause) or isinstance(expr, ForStatement) or isinstance(expr, WhileStatement) or isinstance(expr, DoStatement):
        return True
    return False

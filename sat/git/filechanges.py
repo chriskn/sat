@@ -50,7 +50,7 @@ class FileChanges(Analysis):
             key=lambda c: c.lines_added+c.lines_removed, reverse=True)
 
     def write_results(self, outputdir):
-        self._write_barchart(outputdir)
+        self._write_stacked_barchart(outputdir)
         self._write_report(outputdir)
 
     def _write_report(self, outputdir):
@@ -64,7 +64,7 @@ class FileChanges(Analysis):
         sheet_name = "Changes since "+self._since
         xls.write_xls(sheet_name, rows, filepath)
 
-    def _write_barchart(self, outputDir):
+    def _write_stacked_barchart(self, outputDir):
         filepaths = [change.filepath for change in self._changes_per_file]
         data = []
         for change in self._changes_per_file[0:25]:

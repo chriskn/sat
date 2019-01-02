@@ -7,12 +7,12 @@ import subprocess
 import os
 from git.domain import Change
 
-_logger = logging.getLogger("Changerepo")
+_logger = logging.getLogger("ChangeRepo")
 _LINES_CHANGED_PATTERN = re.compile(r"\d+\t\d+\t*")
 _changes_by_dir = dict()
 
 def get_file_changes(workingdir, since):
-    existing_changes =  _changes_by_dir.get(workingdir)
+    existing_changes = _changes_by_dir.get(workingdir)
     if existing_changes:
         return existing_changes
     changes = []
