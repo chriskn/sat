@@ -112,6 +112,143 @@ public class ComplDummy {
 		}
 		return null;
 	} // total complexity = 19
+	
+	private boolean complExample4(State state, String value, String matchCondition) {
+        boolean matched = false;
+        String unquotedValue = value;
+        if (unquotedValue.startsWith("\"") && unquotedValue.endsWith("\"")) { 
+            unquotedValue = unquotedValue.substring(1, unquotedValue.length() - 1);
+        }
+        Condition condition = Condition.EQUAL;
+        if (matchCondition != null) { 
+            condition = Condition.fromString(matchCondition);
+            if (condition == null) { 
+                logger.warn("matchStateToValue: unknown match condition '{}'", matchCondition);
+                return matched;
+            }
+        }
+        if (unquotedValue.equals(UnDefType.NULL.toString()) || unquotedValue.equals(UnDefType.UNDEF.toString())) { // +2
+            switch (condition) { 
+                case EQUAL:
+                    if (unquotedValue.equals(state.toString())) { 
+                        matched = true;
+                    }
+                    break;
+                case NOT:
+                case NOTEQUAL:
+                    if (!unquotedValue.equals(state.toString())) { 
+                        matched = true;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        } else { 
+            if (state instanceof DecimalType || state instanceof QuantityType<?>) { 
+                try {
+                    double compareDoubleValue = Double.parseDouble(unquotedValue);
+                    double stateDoubleValue;
+                    if (state instanceof DecimalType) { 
+                        stateDoubleValue = ((DecimalType) state).doubleValue();
+                    } else { //+1
+                        stateDoubleValue = ((QuantityType<?>) state).doubleValue();
+                    }
+                    switch (condition) { 
+                        case EQUAL:
+                            if (stateDoubleValue == compareDoubleValue) {
+                                matched = true;
+                            }
+                            break;
+                        case LTE:
+                            if (stateDoubleValue <= compareDoubleValue) {
+                                matched = true;
+                            }
+                            break;
+                        case GTE:
+                            if (stateDoubleValue >= compareDoubleValue) {
+                                matched = true;
+                            }
+                            break;
+                        case GREATER:
+                            if (stateDoubleValue > compareDoubleValue) { 
+                                matched = true;
+                            }
+                            break;
+                        case LESS:
+                            if (stateDoubleValue < compareDoubleValue) { 
+                                matched = true;
+                            }
+                            break;
+                        case NOT:
+                        case NOTEQUAL:
+                            if (stateDoubleValue != compareDoubleValue) { 
+                                matched = true;
+                            }
+                            break;
+                    }
+                } catch (NumberFormatException e) { 
+                    logger.debug("matchStateToValue: Decimal format exception: ", e);
+                }
+            } else if (state instanceof DateTimeType) { 
+                ZonedDateTime val = ((DateTimeType) state).getZonedDateTime();
+                ZonedDateTime now = ZonedDateTime.now();
+                long secsDif = ChronoUnit.SECONDS.between(val, now);
+                try {
+                    switch (condition) { 
+                        case EQUAL:
+                            if (secsDif == Integer.parseInt(unquotedValue)) {
+                                matched = true;
+                            }
+                            break;
+                        case LTE:
+                            if (secsDif <= Integer.parseInt(unquotedValue)) {
+                                matched = true;
+                            }
+                            break;
+                        case GTE:
+                            if (secsDif >= Integer.parseInt(unquotedValue)) {
+                                matched = true;
+                            }
+                            break;
+                        case GREATER:
+                            if (secsDif > Integer.parseInt(unquotedValue)) { 
+                                matched = true;
+                            }
+                            break;
+                        case LESS:
+                            if (secsDif < Integer.parseInt(unquotedValue)) { 
+                                matched = true;
+                            }
+                            break;
+                        case NOT:
+                        case NOTEQUAL:
+                            if (secsDif != Integer.parseInt(unquotedValue)) { 
+                                matched = true;
+                            }
+                            break;
+                    }
+                } catch (NumberFormatException e) { 
+                    logger.debug("matchStateToValue: Decimal format exception: ", e);
+                }
+            } else { 
+                switch (condition) {
+                    case NOT:
+                    case NOTEQUAL:
+                        if (!unquotedValue.equals(state.toString())) { 
+                            matched = true;
+                        }
+                        break;
+                    default:
+                        if (unquotedValue.equals(state.toString())) { 
+                            matched = true;
+                        }
+                        break;
+                }
+            }
+        }
+
+        return matched;
+    } // Cognitive Complexity 96
 
 	private	String switchExample(int number) {    
 		switch (number) {         // +1      

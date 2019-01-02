@@ -13,7 +13,7 @@ from javalang.tree import SwitchStatement
 from javalang.tree import CatchClause
 from javalang.tree import Literal
 
-def complexitivity(body):
+def complexity(body):
         compl = 0
         for expr in body:
             c = _count_recursive(expr)
@@ -104,7 +104,7 @@ def _increments_nesting(expr,parent):
    is_elseif = _is_elseif(expr, parent)
    # if is_elseif:
    #    print("")
-   if (isinstance(expr, IfStatement) and not is_elseif) or isinstance(expr, CatchClause) or isinstance(expr, ForStatement) or isinstance(expr, WhileStatement) or isinstance(expr, DoStatement):
+   if (isinstance(expr, IfStatement) and not is_elseif)  or isinstance(expr, SwitchStatement) or isinstance(expr, CatchClause) or isinstance(expr, ForStatement) or isinstance(expr, WhileStatement) or isinstance(expr, DoStatement):
        return True
    return False
 

@@ -34,27 +34,31 @@ class TestComplCalulator(unittest.TestCase):
 
     def test_compl_for_complExample1(self):
         method = _METHODS_BY_NAME.get("complExample1")
-        self.assertEqual(sut.complexitivity(method), 20)
+        self.assertEqual(sut.complexity(method), 20)
 
     def test_compl_for_complExample2(self):
         method = _METHODS_BY_NAME.get("complExample2")
-        self.assertEqual(sut.complexitivity(method), 35)
+        self.assertEqual(sut.complexity(method), 35)
 
     def test_compl_for_complExample3(self):
         method = _METHODS_BY_NAME.get("complExample3")
-        self.assertEqual(sut.complexitivity(method), 19)
+        self.assertEqual(sut.complexity(method), 19)
+
+    def test_compl_for_complExample3(self):
+        method = _METHODS_BY_NAME.get("complExample4")
+        self.assertEqual(sut.complexity(method), 96)
 
     def test_compl_for_switchExample(self):
         method = _METHODS_BY_NAME.get("switchExample")
-        self.assertEqual(sut.complexitivity(method), 1)
+        self.assertEqual(sut.complexity(method), 1)
 
     def test_compl_for_ifInLoops(self):
         method = _METHODS_BY_NAME.get("ifInLoops")
-        self.assertEqual(sut.complexitivity(method), 6)
+        self.assertEqual(sut.complexity(method), 6)
 
     def test_compl_for_ifElseifExample(self):
         method = _METHODS_BY_NAME.get("ifElseifExample")
-        self.assertEqual(sut.complexitivity(method), 5)
+        self.assertEqual(sut.complexity(method), 5)
 
 
 if __name__ == '__main__':
