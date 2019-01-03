@@ -125,9 +125,6 @@ def plot_stacked_barchart(data, ylabel, title, folder, file_name):
 
 def plot_barchart(data, ylabel, title, folder, file_name):
     # Set general plot properties
-    #sns.set_style("white")
-    #sns.axes_style("whitegrid", {'axes.grid' : True})
-    #sns.set_context({"figure.figsize": (24, 10)})
     # Plot 
     labels = (data[data.columns[0]].values)[0:25]
     y = (data[data.columns[1]].values)[0:25]

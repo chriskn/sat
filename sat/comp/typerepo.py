@@ -1,18 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from comp.domain import Method
-from comp.domain import Type
-import scanner
-import javalang
 import logging
-import comp.compcalculator as comp
+
+import javalang
 from javalang.parser import JavaSyntaxError
+from javalang.tree import (ClassDeclaration, ConstructorDeclaration,
+                           EnumDeclaration, InterfaceDeclaration,
+                           MethodDeclaration)
+
 import comp.compcalculator as comp
-from javalang.tree import ConstructorDeclaration
-from javalang.tree import MethodDeclaration
-from javalang.tree import ClassDeclaration
-from javalang.tree import InterfaceDeclaration
-from javalang.tree import EnumDeclaration
+import scanner
+from comp.domain import Method, Type
 
 _types = dict()
 _logger = logging.getLogger("TypeRepo")
@@ -52,6 +50,7 @@ def _parse_methods(type_):
             compMethod = Method(name, complexity)
             analysed_methods.append(compMethod)
     return analysed_methods
+
 
 def _parse_javafile(file):
     try:

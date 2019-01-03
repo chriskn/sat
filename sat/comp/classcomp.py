@@ -12,11 +12,11 @@ from analysis.analysis import Analysis
 from comp.domain import Method, Type
 
 
-class MethodComp(Analysis):
+class ClassComp(Analysis):
 
     @staticmethod
     def name():
-        return "methods"
+        return "classes"
 
     def load_data(self, workingdir, ignored_path_segments):
         self._types = repo.types(workingdir, ignored_path_segments)
@@ -30,26 +30,28 @@ class MethodComp(Analysis):
 
     def _write_report(self, outputdir):
         rows = []
-        head = ["Method", "Cognitive Complexity", "Path"]
+        head = ["Class", "Cognitive Complexity",
+                "Methods with complexity > 0", "Path"]
         for type_ in self._types:
-            for method in type_.methods:
-                rows.append([method.name, method.complexity, type_.path])
+            methods = ["%s:%d" % (method.name, method.complexity) for method in sorted(type_.methods,
+                key=lambda x:x.complexity, reverse=True) if method.complexity > 0]
+            rows.append([type_.name, type_.complexity(),
+                         ", ".join(methods), type_.path])
         rows.sort(key=lambda x: x[1], reverse=True)
         rows.insert(0, head)
         filepath = os.path.join(
-            outputdir, "cognitive_complexity_per_method.xls")
-        sheet_name = "Method Complexity"
+            outputdir, "cognitive_complexity_per_class.xls")
+        sheet_name = "Class Complexity"
         xls.write_xls(sheet_name, rows, filepath)
 
     def _write_barchart(self, outputDir):
         data = []
         for type_ in self._types:
-            for method in type_.methods:
-                complexity = method.complexity
-                if complexity > 0:
-                    data.append((method.name, complexity))
+            complexity = type_.complexity()
+            if complexity > 0:
+                data.append((type_.name, complexity))
         data.sort(key=lambda x: x[1], reverse=True)
-        df = pd.DataFrame(data, columns=["Method", "Complexity"])
+        df = pd.DataFrame(data, columns=["Class", "Complexity"])
         if not df.empty:
             plot.plot_barchart(df, "Cognitive complexity",
-                               "Methods with highest cognitive complexity", outputDir, "most_complex_methods.pdf")
+                               "Classes with highest cognitive complexity", outputDir, "most_complex_classes.pdf")
