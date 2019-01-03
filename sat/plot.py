@@ -55,7 +55,7 @@ def _wrap_label(label, length):
     return "\n".join(labellines)
 
 
-def plot_treemap(data, title, folder, file_name):
+def plot_treemap(data, title, folder, file_name, value_name):
     width = 700.
     height = 433.
     # restrict number of values
@@ -70,7 +70,7 @@ def plot_treemap(data, title, folder, file_name):
         label = pname
         if len(pname) > 30:
             label = _wrap_label(pname, 25)
-        label = "\n".join([label, "changes: "+str(data.get(pname))])
+        label = "\n".join([label, value_name+" "+str(data.get(pname))])
         labels.append(label)
     # the sum of the values must equal the total area to be laid out
     # i.e., sum(values) == width * height

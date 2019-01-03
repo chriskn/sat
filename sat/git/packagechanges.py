@@ -78,4 +78,4 @@ class PackageChanges(Analysis):
             data[label] = int(num_changes)
         if data:
             plot.plot_treemap(data, "Number of changed lines per packag since " +
-                              self._since, outputdir, "changed_lines_per_package.pdf")
+                              self._since, outputdir, "changed_lines_per_package.pdf", "changes:")

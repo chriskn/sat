@@ -9,11 +9,12 @@ from git.packagechanges import PackageChanges
 from git.projectchanges import ProjectChanges
 from comp.methodcomp import MethodComp
 from comp.classcomp import ClassComp
-
+from comp.packagecomp import PackageComp
+from comp.projectcomp import ProjectComp
 
 _DEPS_ANALYSER_CLASSES = [PlainJavaAnalyser, ProjectAnalyser, BundleAnalyser]
 _CHANGE_ANALYSER_CLASSES = [FileChanges, PackageChanges, ProjectChanges]
-_COMP_ANALYSER_CLASSES = [MethodComp, ClassComp]
+_COMP_ANALYSER_CLASSES = [MethodComp, ClassComp, PackageComp, ProjectComp]
 
 _DEPS_ANALYSER_CLS_BY_NAME = {
     analyser.name(): analyser for analyser in _DEPS_ANALYSER_CLASSES}

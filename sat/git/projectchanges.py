@@ -85,4 +85,4 @@ class ProjectChanges(Analysis):
             data[label] = int(num_changes)
         if data:
             plot.plot_treemap(data, "Number of changed lines per project since " +
-                              self._since, outputdir, "changed_lines_per_project.pdf")
+                              self._since, outputdir, "changed_lines_per_project.pdf", "changes:")
