@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from javalang.tree import ConstructorDeclaration
-from javalang.tree import MethodDeclaration
-import javalang
-import comp.compcalculator as sut
-import unittest
 import os
+import unittest
+
+import javalang
+from javalang.tree import ConstructorDeclaration, MethodDeclaration
+
+import comp.compcalculator as sut
 
 _TEST_DATA = "test\\comp\\data\\ComplDummy.java"
 _METHODS_BY_NAME = dict()
@@ -26,7 +27,7 @@ class TestComplCalulator(unittest.TestCase):
         with open(testfile, 'r', encoding='utf-8') as f:
             file_content = f.read()
             ast = javalang.parse.parse(file_content)
-            classes = ast.types
+            classes = getattr(ast,"types")
             for class_ in classes:
                 methods = TestComplCalulator._filter_methods(class_.body)
                 for method in methods:
@@ -44,7 +45,7 @@ class TestComplCalulator(unittest.TestCase):
         method = _METHODS_BY_NAME.get("complExample3")
         self.assertEqual(sut.complexity(method), 19)
 
-    def test_compl_for_complExample3(self):
+    def test_compl_for_complExample4(self):
         method = _METHODS_BY_NAME.get("complExample4")
         self.assertEqual(sut.complexity(method), 96)
 
@@ -59,6 +60,10 @@ class TestComplCalulator(unittest.TestCase):
     def test_compl_for_ifElseifExample(self):
         method = _METHODS_BY_NAME.get("ifElseifExample")
         self.assertEqual(sut.complexity(method), 5)
+
+    def test_compl_for_doWhile(self):
+        method = _METHODS_BY_NAME.get("doWhileExample")
+        self.assertEqual(sut.complexity(method), 3)
 
 
 if __name__ == '__main__':

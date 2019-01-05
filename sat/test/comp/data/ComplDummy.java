@@ -35,7 +35,7 @@ public class ComplDummy {
 		}
 		sb.append('$');
 		return sb.toString();
-	} // total complexity = 20
+	} // Cognitive Complexity 20
 
 	private void complExample2(final Entry entry, final Transaction txn)
 			throws PersistitInterruptedException, RollbackException {
@@ -83,7 +83,7 @@ public class ComplDummy {
 				throw new PersistitInterruptedException(ie);
 			}
 		}
-	} // Cognitive Complexity = 35
+	} // Cognitive Complexity 35
 
 	private MethodJavaSymbol complExample3(ClassJavaType classType) {
 		if (classType.isUnknown()) { // +1
@@ -112,6 +112,15 @@ public class ComplDummy {
 		}
 		return null;
 	} // total complexity = 19
+
+	private void doWhileExample(){
+		int i = 0;
+		do { //1
+			if (true) { //2
+				i++;
+			}
+		} while(i < 10);
+	} // Cognitive Complexity 3
 	
 	private boolean complExample4(State state, String value, String matchCondition) {
         boolean matched = false;

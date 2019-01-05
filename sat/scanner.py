@@ -6,14 +6,18 @@ import xml.etree.ElementTree
 import itertools
 
 def find_projects(directory, ignored_path_segments):
-    project_dirs = []
-    for dirpath, dirnames, files in os.walk(directory):
+    project_dirs = dict()
+    for dirpath, _, files in os.walk(directory):
         ignored = any(
             ignored_segment in dirpath for ignored_segment in ignored_path_segments)
         if not ignored:
             for file in files:
                 if file == ".classpath":
-                    project_dirs.append(os.path.normpath(dirpath))
+                    #any as each folder starts at projectroot
+                    sourcefolder = _find_sourcefolders_for_project(dirpath)[0]
+                    normed = os.path.normpath(dirpath)
+                    relpath = normed.split(os.sep)[-1]
+                    project_dirs[normed] = relpath
     return project_dirs
 
 
@@ -30,15 +34,15 @@ def find_packages(directory, ignored_path_segments):
                 ignored = any(
                     ignored_segment in package_for_project for ignored_segment in ignored_path_segments)
                 if not ignored:
-                    relpath = os.path.normpath(os.path.relpath(
+                    rel_proj_path = os.path.normpath(os.path.relpath(
                         package_for_project, sourcefolder))
-                    relpaths_for_packagepaths[package_for_project] = relpath
+                    relpaths_for_packagepaths[package_for_project] = rel_proj_path
     return relpaths_for_packagepaths
 
 
 def find_java_source_files(directory, ignored_path_segments):
     java_file_paths = []
-    for dirpath, dirname, files in os.walk(directory):
+    for dirpath, _, files in os.walk(directory):
         java_file_paths.append([os.path.join(dirpath,file) for file in files if file.endswith(".java")])
         #ignored = any(ignored_segment in dirpath for ignored_segment in ignored_path_segments)
     return list(itertools.chain.from_iterable(java_file_paths))
@@ -46,7 +50,7 @@ def find_java_source_files(directory, ignored_path_segments):
 
 def _find_sourcepackages_for_sourcefolder(sourcefolder):
     sourcepackage_paths = []
-    for dirpath, dirname, files in os.walk(sourcefolder):
+    for dirpath, _, files in os.walk(sourcefolder):
         java_filenames = [file for file in files if file.endswith(".java")]
         if java_filenames:
             sourcepackage_path = os.path.normpath(dirpath)

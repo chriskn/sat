@@ -16,7 +16,7 @@ def complexity(body):
 
 
 def _count_recursive(expr, parent=None, count=0, nesting=0):
-    new_count = _calc_for_statement(expr, parent, nesting)
+    new_count = _calc_for_expression(expr, parent, nesting)
     new_nesting = nesting
     if isinstance(expr, Node):
         inc_neasting = _increments_nesting(expr, parent)
@@ -34,7 +34,7 @@ def _count_recursive(expr, parent=None, count=0, nesting=0):
     return new_count
 
 
-def _calc_for_statement(expr, parent, nesting):
+def _calc_for_expression(expr, parent, nesting):
     if isinstance(expr, BinaryOperation):
         op = expr.operator
         if op == "||" or op == "&&":

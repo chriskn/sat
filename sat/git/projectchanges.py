@@ -78,11 +78,12 @@ class ProjectChanges(Analysis):
         xls.write_xls(sheet_name, rows, filepath)
 
     def write_treemap(self, outputdir):
-        data = OrderedDict()
+        data = []
         for change in self._changes_per_project:
             label = os.path.basename(change.filepath)
             num_changes = change.lines_added+change.lines_removed
-            data[label] = int(num_changes)
+            data.append((label, int(num_changes)))
         if data:
-            plot.plot_treemap(data, "Number of changed lines per project since " +
+            df = pd.DataFrame(data=data, columns=["Projects", "Changes"])
+            plot.plot_treemap(df, "Number of changed lines per project since " +
                               self._since, outputdir, "changed_lines_per_project.pdf", "changes:")

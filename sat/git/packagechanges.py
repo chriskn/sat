@@ -71,11 +71,12 @@ class PackageChanges(Analysis):
         xls.write_xls(sheet_name, rows, filepath)
 
     def _write_treemap(self, outputdir):
-        data = OrderedDict()
+        data = []
         for change in self._changes_per_package:
             label = change.filepath.replace("\\", ".")
             num_changes = change.lines_added+change.lines_removed
-            data[label] = int(num_changes)
+            data.append((label, int(num_changes)))
         if data:
-            plot.plot_treemap(data, "Number of changed lines per packag since " +
+            df = pd.DataFrame(data=data, columns=["Package", "Changes"])
+            plot.plot_treemap(df, "Number of changed lines per packag since " +
                               self._since, outputdir, "changed_lines_per_package.pdf", "changes:")

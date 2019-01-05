@@ -7,6 +7,7 @@ import os
 import numpy as np
 from collections import OrderedDict
 
+
 sns.set()
 
 _DPI = 72.27
@@ -59,18 +60,19 @@ def plot_treemap(data, title, folder, file_name, value_name):
     width = 700.
     height = 433.
     # restrict number of values
-    if len(data) > _MAX_TREEMAP_ENTRIES:
-        _LOGGER.warn("Number of entries is %d and exceeds limit for treemaps. Will limit to max %d values" % (
+    number_of_entries = data.shape[0]
+    if number_of_entries > _MAX_TREEMAP_ENTRIES:
+        _LOGGER.warn("Number of entries  (%d) exceeds limit for treemaps. Will limit to max %d values" % (
             len(data), _MAX_TREEMAP_ENTRIES))
-        data = OrderedDict(list(data.items())[:_MAX_TREEMAP_ENTRIES])
-    values = list(data.values())
-    # labels
+    names = data[data.columns[0]].values
+    values = data[data.columns[1]].values
     labels = []
-    for pname in data.keys():
+    for index, pname in enumerate(names):
         label = pname
         if len(pname) > 30:
-            label = _wrap_label(pname, 25)
-        label = "\n".join([label, value_name+" "+str(data.get(pname))])
+            label = _wrap_label(names, 25)
+        value = values[index]
+        label = "\n".join([label, value_name+" "+"%.2f" % round(value, 2)])
         labels.append(label)
     # the sum of the values must equal the total area to be laid out
     # i.e., sum(values) == width * height
@@ -123,7 +125,9 @@ def plot_stacked_barchart(data, ylabel, title, folder, file_name):
     bottom_plot.set_xticklabels(bottom_plot.get_xticklabels(), rotation=90)
     _writeFigure(bottom_plot.get_figure(), folder, file_name)
 
-def plot_barchart(data, ylabel, title, folder, file_name):
+def plot_barchart(data, ylabel, title, folder, filename):
+    if data.empty:
+        _LOGGER.info("No data available. While skip writing barchart: %s" % filename)
     # Set general plot properties
     # Plot 
     labels = (data[data.columns[0]].values)[0:25]
@@ -149,9 +153,9 @@ def plot_barchart(data, ylabel, title, folder, file_name):
         if len(label._text) > 60:
             label._text = "..."+label._text[-60:]
     plt.xticks(rotation=90)
-    _writeFigure(fig, folder, file_name)
+    _writeFigure(fig, folder, filename)
 
-def _writeFigure(figure, folder, file_name):
-    path = os.path.join(folder, file_name)
+def _writeFigure(figure, folder, filename):
+    path = os.path.join(folder, filename)
     figure.savefig(path, bbox_inches='tight')
     plt.close(figure)

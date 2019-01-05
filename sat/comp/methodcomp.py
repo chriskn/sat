@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
-
 import pandas as pd
 
 import comp.typerepo as repo
@@ -22,34 +20,27 @@ class MethodComp(Analysis):
         self._types = repo.types(workingdir, ignored_path_segments)
 
     def analyse(self, ignoredPathSegments):
-        pass
-
-    def write_results(self, outputdir):
-        self._write_report(outputdir)
-        self._write_barchart(outputdir)
-
-    def _write_report(self, outputdir):
-        rows = []
-        head = ["Method", "Cognitive Complexity", "Path"]
-        for type_ in self._types:
-            for method in type_.methods:
-                rows.append([method.name, method.complexity, type_.path])
-        rows.sort(key=lambda x: x[1], reverse=True)
-        rows.insert(0, head)
-        filepath = os.path.join(
-            outputdir, "cognitive_complexity_per_method.xls")
-        sheet_name = "Method Complexity"
-        xls.write_xls(sheet_name, rows, filepath)
-
-    def _write_barchart(self, outputDir):
+        self._logger.info("Analysing Method Complexity.")
         data = []
         for type_ in self._types:
             for method in type_.methods:
                 complexity = method.complexity
-                if complexity > 0:
-                    data.append((method.name, complexity))
-        data.sort(key=lambda x: x[1], reverse=True)
-        df = pd.DataFrame(data, columns=["Method", "Complexity"])
-        if not df.empty:
-            plot.plot_barchart(df, "Cognitive complexity",
-                               "Methods with highest cognitive complexity", outputDir, "most_complex_methods.pdf")
+                path = type_.path
+                data.append((method.name, complexity,  path))
+        complexity_col = "Complexity"
+        df = pd.DataFrame(data, columns=["Method", complexity_col, "Path"])
+        self._df = df.sort_values(complexity_col, ascending=False)
+        return self._df
+
+    def write_results(self, outputdir):
+        xls.write_data_frame(
+            self._df, "cognitive_complexity_per_method.xls",
+            outputdir, "Method Complexity")
+        methods_with_comp_greater_null = self._create_barchart_data()
+        plot.plot_barchart(methods_with_comp_greater_null, "Cognitive complexity",
+                           "Methods with highest cognitive complexity",
+                           outputdir, "most_complex_methods.pdf")
+
+    def _create_barchart_data(self):
+        methods_with_comp = self._df.drop(columns=["Path"])
+        return methods_with_comp[methods_with_comp.Complexity > 0]
