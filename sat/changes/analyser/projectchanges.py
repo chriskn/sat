@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from analysis.analysis import Analysis
-from git.domain import Change
+from changes.domain import Change
 
 import xls
 import re
@@ -10,11 +10,9 @@ import plot
 import pandas as pd
 import os.path
 import scanner
-import git.changerepo as repo
+import changes.changerepo as repo
 from collections import OrderedDict
 
-
-_LINES_CHANGED_PATTERN = re.compile(r"\d+\t\d+\t*")
 
 
 class ProjectChanges(Analysis):
@@ -30,7 +28,7 @@ class ProjectChanges(Analysis):
 
     def load_data(self, workingdir, ignored_path_segments):
         self._workingDir = os.path.normpath(workingdir)
-        self._changes = repo.get_file_changes(workingdir, self._since)
+        self._changes = repo.changes(workingdir, self._since)
 
     def analyse(self, ignored_path_segments):
         self._logger.info("Analysing project changes.")
@@ -47,7 +45,7 @@ class ProjectChanges(Analysis):
             lines_removed = 0
             for change in self._changes:
                 file_directory = os.path.normpath(
-                    os.path.dirname(change.filepath))
+                    os.path.dirname(change.path))
                 rel_proj_path =  project_path.replace(self._workingDir, "")
                 if rel_proj_path.startswith("\\"):
                     rel_proj_path = rel_proj_path[1:]
@@ -56,7 +54,7 @@ class ProjectChanges(Analysis):
                     lines_removed += change.lines_removed
             if lines_added+lines_removed > 0:
                 self._changes_per_project.append(
-                    Change(lines_added, lines_removed, project_path))
+                    Change(project_path, lines_added, lines_removed))
         self._changes_per_project.sort(
             key=lambda c: c.lines_added+c.lines_removed, reverse=True)
 
@@ -70,7 +68,7 @@ class ProjectChanges(Analysis):
                      "Lines added", "Lines removed"])
         for change in self._changes_per_project:
             overall_changes = change.lines_added+change.lines_removed
-            project_name = os.path.basename(change.filepath)
+            project_name = os.path.basename(change.path)
             rows.append([project_name,
                          overall_changes, change.lines_added, change.lines_removed])
         filepath = os.path.join(outputdir, "changed_lines_per_project.xls")
@@ -80,9 +78,8 @@ class ProjectChanges(Analysis):
     def write_treemap(self, outputdir):
         data = []
         for change in self._changes_per_project:
-            label = os.path.basename(change.filepath)
-            num_changes = change.lines_added+change.lines_removed
-            data.append((label, int(num_changes)))
+            label = os.path.basename(change.path)
+            data.append((label, change.total_lines))
         if data:
             df = pd.DataFrame(data=data, columns=["Projects", "Changes"])
             plot.plot_treemap(df, "Number of changed lines per project since " +

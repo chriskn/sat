@@ -5,8 +5,8 @@ import os
 
 import pandas as pd
 
-import comp.typerepo as repo
-import comp.projectrepo as prepo
+import comp.repo.typerepo as repo
+import comp.repo.projectrepo as prepo
 
 import plot
 import xls

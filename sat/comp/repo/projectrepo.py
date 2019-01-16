@@ -4,7 +4,7 @@ import logging
 import os
 
 import comp.compcalculator as comp
-import comp.packagerepo as prepo
+import comp.repo.packagerepo as prepo
 import scanner
 from comp.domain import Project
 

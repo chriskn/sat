@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from analysis.analysis import Analysis
-from git.domain import Change
+from changes.domain import Change
 
 import xls
 import re
@@ -10,10 +10,8 @@ import plot
 import pandas as pd
 import os.path
 import scanner
-import git.changerepo as repo
+import changes.changerepo as repo
 from collections import OrderedDict
-
-_LINES_CHANGED_PATTERN = re.compile(r"\d+\t\d+\t*")
 
 class PackageChanges(Analysis):
 
@@ -28,7 +26,7 @@ class PackageChanges(Analysis):
 
     def load_data(self, workingdir, ignored_path_segments):
         self._workingDir = workingdir
-        self._changes = repo.get_file_changes(workingdir, self._since)
+        self._changes = repo.changes(workingdir, self._since)
 
     def analyse(self, ignored_path_segments):
         self._logger.info("Analysing package changes.")
@@ -45,13 +43,13 @@ class PackageChanges(Analysis):
             lines_removed = 0
             for change in self._changes:
                 file_directory = os.path.normpath(
-                    os.path.dirname(change.filepath))
+                    os.path.dirname(change.path))
                 if  file_directory.endswith(relative_package_path):
                     lines_added += change.lines_added
                     lines_removed += change.lines_removed
             if lines_added+lines_removed > 0:
                 self._changes_per_package.append(
-                    Change(lines_added, lines_removed, relative_package_path))
+                    Change(relative_package_path, lines_added, lines_removed))
         self._changes_per_package.sort(
             key=lambda c: c.lines_added+c.lines_removed, reverse=True)
 
@@ -63,9 +61,8 @@ class PackageChanges(Analysis):
         rows = []
         rows.append(["Package", "Lines changed", "Lines added", "Lines removed"])
         for change in self._changes_per_package:
-            overall_changes = change.lines_added+change.lines_removed
-            rows.append([change.filepath.replace("\\", "."),
-                     overall_changes, change.lines_added, change.lines_removed])
+            rows.append([change.path.replace("\\", "."),
+                     change.total_lines, change.lines_added, change.lines_removed])
         filepath = os.path.join(outputdir, "changed_lines_per_package.xls")
         sheet_name = "Changes since "+self._since
         xls.write_xls(sheet_name, rows, filepath)
@@ -73,7 +70,7 @@ class PackageChanges(Analysis):
     def _write_treemap(self, outputdir):
         data = []
         for change in self._changes_per_package:
-            label = change.filepath.replace("\\", ".")
+            label = change.path.replace("\\", ".")
             num_changes = change.lines_added+change.lines_removed
             data.append((label, int(num_changes)))
         if data:

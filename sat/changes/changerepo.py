@@ -5,28 +5,36 @@ import re
 import logging
 import subprocess
 import os
-from git.domain import Change
+from changes.domain import Change
 
 _logger = logging.getLogger("ChangeRepo")
 _LINES_CHANGED_PATTERN = re.compile(r"\d+\t\d+\t*")
 _changes_by_dir = dict()
 
-def get_file_changes(workingdir, since):
+def changes(workingdir, since):
     existing_changes = _changes_by_dir.get(workingdir)
     if existing_changes:
         return existing_changes
+    changes = _parse_changes(workingdir, since)
+    _changes_by_dir[workingdir] = changes
+    return changes
+
+
+def _parse_changes(workingdir, since):
     changes = []
-    command = 'git log --numstat --oneline --shortstat --after="' + \
-        since+'" -- ' + workingdir
+    command = 'git log --numstat --oneline --shortstat --after="'+since+'" -- ' + workingdir
     result = _run_git_command(command, workingdir)
     lines = result.splitlines()
     for line in lines:
         decoded = line.decode('utf-8')
         if _LINES_CHANGED_PATTERN.match(decoded):
             split = decoded.split("\t")
+            path = split[2]
+            lines_added = int(split[0])
+            lines_removed = int(split[1])
             changes.append(
-                Change(int(split[0]), int(split[1]), split[2]))
-    _changes_by_dir[workingdir] = changes
+                Change(path, lines_added, lines_removed)
+            )
     return changes
 
 
@@ -35,10 +43,9 @@ def _run_git_command(command, workingdir):
     try:
         result = subprocess.run(
             command, stdout=subprocess.PIPE, cwd=workingdir, shell=True)
+        return result.stdout
     except OSError as ose:
-        _logger.warn("Error while executing git command: "+str(ose))
-        return ""
+        _logger.warning("OS Error while executing git command: "+str(ose))
     except subprocess.CalledProcessError as pe:
-        _logger.warn("Error while executing git command: "+pe.output)
-        return ""
-    return result.stdout
+        _logger.warning("Process Error while executing git command. Return Code "+str(pe.returncode))
+    return ""

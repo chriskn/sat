@@ -3,7 +3,7 @@
 
 import pandas as pd
 
-import comp.typerepo as repo
+import comp.repo.typerepo as repo
 import plot
 import xls
 from analysis.analysis import Analysis

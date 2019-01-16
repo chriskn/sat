@@ -4,7 +4,7 @@ import logging
 import os
 
 import comp.compcalculator as comp
-import comp.typerepo as typerepo
+import comp.repo.typerepo as typerepo
 import scanner
 from comp.domain import Package
 

@@ -2,17 +2,14 @@
 # -*- coding: utf-8 -*-
 
 from analysis.analysis import Analysis
-from git.domain import Change
-import git.changerepo as repo
+from changes.domain import Change
+import changes.changerepo as repo
 
 import xls
 import re
 import plot
 import pandas as pd
 import os.path
-
-_LINES_CHANGED_PATTERN = re.compile(r"\d+\t\d+\t*")
-
 
 class FileChanges(Analysis):
 
@@ -27,23 +24,23 @@ class FileChanges(Analysis):
 
     def load_data(self, workingdir, ignored_path_segments):
         self._workingDir = workingdir
-        self._changes = repo.get_file_changes(workingdir, self._since)
+        self._changes = repo.changes(workingdir, self._since)
 
     def analyse(self, ignoredPathSegments):
         self._logger.info("Analysing file changes.")
         if not self._changes:
             self._logger.warn("No changes found. No output will be written.")
             return
-        filepaths = set([change.filepath for change in self._changes])
+        filepaths = set([change.path for change in self._changes])
         for filepath in filepaths:
             lines_added = 0
             lines_removed = 0
             for change in self._changes:
-                if change.filepath == filepath:
+                if change.path == filepath:
                     lines_added += change.lines_added
                     lines_removed += change.lines_removed
             self._changes_per_file.append(
-                Change(lines_added, lines_removed, filepath))
+                Change(filepath, lines_added, lines_removed, ))
         # Filter for existing files
         #self.changesPerFile[:] = [change for change in self.changesPerFile if os.path.isfile(os.path.join(self._workingDir,change.filepath))]
         self._changes_per_file.sort(
@@ -58,14 +55,14 @@ class FileChanges(Analysis):
         rows.append(["File", "Lines changed", "Lines added", "Lines removed"])
         for change in self._changes_per_file:
             overall_changes = change.lines_added+change.lines_removed
-            rows.append([change.filepath,
+            rows.append([change.path,
                          overall_changes, change.lines_added, change.lines_removed])
         filepath = os.path.join(outputdir, "changed_lines_per_file.xls")
         sheet_name = "Changes since "+self._since
         xls.write_xls(sheet_name, rows, filepath)
 
     def _write_stacked_barchart(self, outputDir):
-        filepaths = [change.filepath for change in self._changes_per_file]
+        filepaths = [change.path for change in self._changes_per_file]
         data = []
         for change in self._changes_per_file[0:25]:
             data.append([change.lines_added, change.lines_removed])

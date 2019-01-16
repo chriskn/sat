@@ -103,6 +103,17 @@ public class ComplDummy {
 		return s;
 	}
 
+	private void doWhileExample(){
+		int i = 0;
+		do { //1
+			if (true) { //2
+				i++;
+			}
+		} while(i < 10);
+	} // Cognitive Complexity 3
+	
+	
+	
 	private MethodJavaSymbol overriddenSymbolFrom(ClassJavaType classType) {
 		if (classType.isUnknown()) { // +1
 			return Symbols.unknownMethodSymbol;

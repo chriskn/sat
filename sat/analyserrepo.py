@@ -4,13 +4,13 @@
 from analysis.bundleanalysis import BundleAnalyser
 from analysis.projectanalysis import ProjectAnalyser
 from analysis.plainjavaanalysis import PlainJavaAnalyser
-from git.filechanges import FileChanges
-from git.packagechanges import PackageChanges
-from git.projectchanges import ProjectChanges
-from comp.methodcomp import MethodComp
-from comp.classcomp import ClassComp
-from comp.packagecomp import PackageComp
-from comp.projectcomp import ProjectComp
+from changes.analyser.filechanges import FileChanges
+from changes.analyser.packagechanges import PackageChanges
+from changes.analyser.projectchanges import ProjectChanges
+from comp.analyser.methodcomp import MethodComp
+from comp.analyser.classcomp import ClassComp
+from comp.analyser.packagecomp import PackageComp
+from comp.analyser.projectcomp import ProjectComp
 
 _DEPS_ANALYSER_CLASSES = [PlainJavaAnalyser, ProjectAnalyser, BundleAnalyser]
 _CHANGE_ANALYSER_CLASSES = [FileChanges, PackageChanges, ProjectChanges]

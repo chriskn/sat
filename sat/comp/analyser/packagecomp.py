@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 
-import comp.typerepo as repo
 import plot
 import xls
+import comp.repo.typerepo as repo
+import comp.repo.packagerepo as prepo
 from analysis.analysis import Analysis
-import comp.packagerepo as prepo
 import xls
 
 _COLUMNS = ["Package", "Complexity", "Average complexity by class",
