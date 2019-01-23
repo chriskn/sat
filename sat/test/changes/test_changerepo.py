@@ -46,16 +46,16 @@ class TestChangeRepo(unittest.TestCase):
 
         max_change = sorted(
             resulting_changes, key=lambda c: c.lines_added+c.lines_removed, reverse=True)[0]
-        path_for_change_with_added_and_removed = 'exampleprojects/my.dummy.project1/META-INF/MANIFEST2.MF'
         self._assertChange(
-            max_change, 'exampleprojects/my.dummy.project5/src/my/dummy/project5/compl/dummy/ComplDummy.java', 144, 0)
+            max_change, 'exampleprojects\\my.dummy.project5\\src\\my\\dummy\\project5\\compl\\dummy\\ComplDummy.java', 144, 0)
 
+        path_for_change_with_added_and_removed = 'exampleprojects\\my.dummy.project1\\META-INF\\MANIFEST2.MF'
         change_with_added_and_removed = self._get_change_by_path(
             resulting_changes, path_for_change_with_added_and_removed)[0]
         self._assertChange(change_with_added_and_removed,
                            path_for_change_with_added_and_removed, 1, 2)
 
-        path_with_multiple_changes = 'exampleprojects/my.dummy.project1/META-INF/MANIFEST.MF'
+        path_with_multiple_changes = 'exampleprojects\\my.dummy.project1\\META-INF\\MANIFEST.MF'
         multiple_changes_for_path = self._get_change_by_path(
             resulting_changes, path_with_multiple_changes)
         self.assertEqual(len(multiple_changes_for_path), 2)

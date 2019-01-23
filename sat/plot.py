@@ -99,30 +99,35 @@ def plot_treemap(data, title, folder, file_name, value_name):
 
 
 def plot_stacked_barchart(data, ylabel, title, folder, file_name):
-    column0 = data[data.columns[0]].values
-    column1 = data[data.columns[1]].values
-    total = column0 + column1
-    data["total"] = total
+    labels = data[data.columns[0]].values
+    data_column_1 = data.columns[1]
+    data_column_2 = data.columns[2]
+    column_data_1 = data[data_column_1].values
+    column_data_2 = data[data_column_2].values
+    total = column_data_1 + column_data_2
     # Set general plot properties
     sns.set_style("white")
     sns.set_context({"figure.figsize": (24, 10)})
     # Plot 1 - background - "total" (top) series
-    sns.barplot(x=data.index, y=data.total, color="red")
+    sns.barplot(x=labels, y=total, color="red")
     # Plot 2 - overlay - "bottom" series
-    bottom_plot = sns.barplot(x=data.index, y=column0, color="green")
+    bottom_plot = sns.barplot(x=labels, y=column_data_1, color="green")
+    # Legend
     top_bar = plt.Rectangle((0, 0), 1, 1, fc="red", edgecolor='none')
     bottom_bar = plt.Rectangle((0, 0), 1, 1, fc='green',  edgecolor='none')
-    legend = plt.legend([bottom_bar, top_bar], [data.columns[0],
-                                                'Total'], loc=1, ncol=2, prop={'size': 16})
+    legend = plt.legend([bottom_bar, top_bar], [data_column_1,
+                                                data_column_2], loc=1, ncol=2, prop={'size': 16})
     legend.draw_frame(False)
     bottom_plot.set_ylabel(ylabel)
     bottom_plot.set_title(title)
-    # Optional - Make plot look nicer
+    # remove spines
     sns.despine(left=True)
+    # trim labels
     for label in bottom_plot.get_xticklabels():
-        if len(label._text) > 60:
-            label._text = "..."+label._text[-60:]
-    bottom_plot.set_xticklabels(bottom_plot.get_xticklabels(), rotation=90)
+        if len(label._text) > 40:
+            label._text = "..."+label._text[-40:]
+    # rotate labels
+    bottom_plot.set_xticklabels(bottom_plot.get_xticklabels(), rotation=80)
     _writeFigure(bottom_plot.get_figure(), folder, file_name)
 
 def plot_barchart(data, ylabel, title, folder, filename):

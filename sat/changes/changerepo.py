@@ -29,7 +29,7 @@ def _parse_changes(workingdir, since):
         decoded = line.decode('utf-8')
         if _LINES_CHANGED_PATTERN.match(decoded):
             split = decoded.split("\t")
-            path = split[2]
+            path = os.path.normpath(split[2])
             lines_added = int(split[0])
             lines_removed = int(split[1])
             changes.append(

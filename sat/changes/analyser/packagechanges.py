@@ -8,12 +8,15 @@ import xls
 import re
 import plot
 import pandas as pd
-import os.path
+import os
 import scanner
 import changes.changerepo as repo
 from collections import OrderedDict
 
+
 class PackageChanges(Analysis):
+
+    _COLUMNS = ["Path", "Package", "Lines changed", "Lines added", "Lines removed"]
 
     @staticmethod
     def name():
@@ -22,58 +25,46 @@ class PackageChanges(Analysis):
     def __init__(self, since):
         self._since = since
         self._changes = []
-        self._changes_per_package = []
+        self._df = None
 
     def load_data(self, workingdir, ignored_path_segments):
         self._workingDir = workingdir
         self._changes = repo.changes(workingdir, self._since)
+        self._relativepaths_for_package_paths = scanner.find_packages(
+            self._workingDir, ignored_path_segments)
 
     def analyse(self, ignored_path_segments):
         self._logger.info("Analysing package changes.")
-        relativepaths_for_package_paths = scanner.find_packages(
-            self._workingDir, ignored_path_segments)
-        if not relativepaths_for_package_paths:
-            self._logger.warn("No packages found. No output will be written.")
-            return
-        if not self._changes:
-            self._logger.warn("No changes found. No output will be written.")
-            return
-        for fullpath, relative_package_path in relativepaths_for_package_paths.items():
+        data = []    
+        for full_package_path, relative_package_path in self._relativepaths_for_package_paths.items():
             lines_added = 0
             lines_removed = 0
+            name = relative_package_path.replace(os.sep, ".")
             for change in self._changes:
-                file_directory = os.path.normpath(
-                    os.path.dirname(change.path))
-                if  file_directory.endswith(relative_package_path):
+                change_directory = os.path.normpath(os.path.dirname(change.path))
+                norm_package_path =  self._norm_path(full_package_path)
+                if  change_directory.endswith(norm_package_path):
                     lines_added += change.lines_added
-                    lines_removed += change.lines_removed
-            if lines_added+lines_removed > 0:
-                self._changes_per_package.append(
-                    Change(relative_package_path, lines_added, lines_removed))
-        self._changes_per_package.sort(
-            key=lambda c: c.lines_added+c.lines_removed, reverse=True)
+                    lines_removed += change.lines_removed    
+            data.append((relative_package_path, name, lines_added+lines_removed, lines_added, lines_removed))
+        df = pd.DataFrame(data=data, columns=PackageChanges._COLUMNS)
+        self._df = df.sort_values(PackageChanges._COLUMNS[2], ascending=False)
+        return self._df
+
+    def _norm_path(self, full_package_path):
+        norm_package_path =  full_package_path.replace(self._workingDir, "")
+        rel_pattern = "[.]+"+re.escape(os.sep)
+        if re.match(rel_pattern,norm_package_path):
+            norm_package_path =   re.sub(rel_pattern, '', norm_package_path)
+        return norm_package_path
 
     def write_results(self, outputdir):
-        self._write_report(outputdir)
-        self._write_treemap(outputdir)
-
-    def _write_report(self, outputdir):
-        rows = []
-        rows.append(["Package", "Lines changed", "Lines added", "Lines removed"])
-        for change in self._changes_per_package:
-            rows.append([change.path.replace("\\", "."),
-                     change.total_lines, change.lines_added, change.lines_removed])
-        filepath = os.path.join(outputdir, "changed_lines_per_package.xls")
-        sheet_name = "Changes since "+self._since
-        xls.write_xls(sheet_name, rows, filepath)
-
-    def _write_treemap(self, outputdir):
-        data = []
-        for change in self._changes_per_package:
-            label = change.path.replace("\\", ".")
-            num_changes = change.lines_added+change.lines_removed
-            data.append((label, int(num_changes)))
-        if data:
-            df = pd.DataFrame(data=data, columns=["Package", "Changes"])
-            plot.plot_treemap(df, "Number of changed lines per packag since " +
+        xls.write_data_frame(self._df, "changed_lines_per_package.xls", outputdir,  "Changes since "+self._since)
+        tm_data = self._create_tm_data()
+        plot.plot_treemap(tm_data, "Number of changed lines per packag since " +
                               self._since, outputdir, "changed_lines_per_package.pdf", "changes:")
+
+    def _create_tm_data(self):
+        tm_data = self._df.drop(columns=["Path", "Lines added", "Lines removed"])
+        return tm_data[tm_data[PackageChanges._COLUMNS[2]] > 0]
+       

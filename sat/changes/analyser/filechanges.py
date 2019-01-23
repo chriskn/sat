@@ -4,14 +4,18 @@
 from analysis.analysis import Analysis
 from changes.domain import Change
 import changes.changerepo as repo
-
+import ntpath
 import xls
 import re
 import plot
 import pandas as pd
 import os.path
 
+
 class FileChanges(Analysis):
+
+    _COLUMNS = ["Path", "File", "Total changes",
+                "Lines added", "Lines removed"]
 
     @staticmethod
     def name():
@@ -28,46 +32,36 @@ class FileChanges(Analysis):
 
     def analyse(self, ignoredPathSegments):
         self._logger.info("Analysing file changes.")
-        if not self._changes:
-            self._logger.warn("No changes found. No output will be written.")
-            return
+        data = []
         filepaths = set([change.path for change in self._changes])
         for filepath in filepaths:
+            file_name = self._file_name(filepath)
             lines_added = 0
             lines_removed = 0
             for change in self._changes:
                 if change.path == filepath:
                     lines_added += change.lines_added
                     lines_removed += change.lines_removed
-            self._changes_per_file.append(
-                Change(filepath, lines_added, lines_removed, ))
+            data.append((filepath, file_name, lines_added +
+                         lines_removed, lines_added, lines_removed))
         # Filter for existing files
         #self.changesPerFile[:] = [change for change in self.changesPerFile if os.path.isfile(os.path.join(self._workingDir,change.filepath))]
-        self._changes_per_file.sort(
-            key=lambda c: c.lines_added+c.lines_removed, reverse=True)
+        df = pd.DataFrame(data=data, columns=FileChanges._COLUMNS)
+        self._df = df.sort_values(FileChanges._COLUMNS[2], ascending=False)
+        return self._df
+
+    def _file_name(self, path):
+        head, tail = ntpath.split(path)
+        return tail or ntpath.basename(head)
 
     def write_results(self, outputdir):
-        self._write_stacked_barchart(outputdir)
-        self._write_report(outputdir)
-
-    def _write_report(self, outputdir):
-        rows = []
-        rows.append(["File", "Lines changed", "Lines added", "Lines removed"])
-        for change in self._changes_per_file:
-            overall_changes = change.lines_added+change.lines_removed
-            rows.append([change.path,
-                         overall_changes, change.lines_added, change.lines_removed])
-        filepath = os.path.join(outputdir, "changed_lines_per_file.xls")
-        sheet_name = "Changes since "+self._since
-        xls.write_xls(sheet_name, rows, filepath)
-
-    def _write_stacked_barchart(self, outputDir):
-        filepaths = [change.path for change in self._changes_per_file]
-        data = []
-        for change in self._changes_per_file[0:25]:
-            data.append([change.lines_added, change.lines_removed])
-        df = pd.DataFrame(data=data, index=filepaths[0:25], columns=[
-                          "Added", "Removed"])
-        if not df.empty:
-            plot.plot_stacked_barchart(df, "Number of changed lines",
-                                       "Number of changed lines for most changed files since "+self._since, outputDir, "most_changed_files.pdf")
+        xls.write_data_frame(self._df, "changed_lines_per_file.xls",
+                             outputdir, "Changes since "+self._since)
+        barchart_data = self._create_barchart_data()
+        plot.plot_stacked_barchart(barchart_data, "Number of changed lines",
+                           "Number of changed lines for most changed files since "+self._since, outputdir, "most_changed_files.pdf")
+        
+    def _create_barchart_data(self):
+        columns_to_drop = [FileChanges._COLUMNS[1], FileChanges._COLUMNS[2]]
+        barchart_data = self._df.iloc[0:25].drop(columns=columns_to_drop)
+        return barchart_data

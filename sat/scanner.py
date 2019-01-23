@@ -15,9 +15,9 @@ def find_projects(directory, ignored_path_segments):
                 if file == ".classpath":
                     #any as each folder starts at projectroot
                     sourcefolder = _find_sourcefolders_for_project(dirpath)[0]
-                    normed = os.path.normpath(dirpath)
-                    relpath = normed.split(os.sep)[-1]
-                    project_dirs[normed] = relpath
+                    path = os.path.normpath(dirpath)
+                    name = path.split(os.sep)[-1]
+                    project_dirs[path] = name
     return project_dirs
 
 
