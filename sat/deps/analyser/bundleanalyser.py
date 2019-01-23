@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from analysis.analysis import Analysis
-from bundle.bundleparser import BundleParser
-from bundle.bundlegraph import BundleGraph
-from domain import Bundle
+from app.analyser import Analyser
+from deps.parser.bundleparser import BundleParser
+from deps.graph.bundlegraph import BundleGraph
+from deps.domain import Bundle
 import os
 
 
@@ -14,7 +14,7 @@ _CSV_SEPARATOR = "\t"
 _LIST_SEPARATOR = ", "
 
 
-class BundleAnalyser(Analysis):
+class BundleAnalyser(Analyser):
 
     @staticmethod
     def name():

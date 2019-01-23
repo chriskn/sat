@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
@@ -5,11 +6,11 @@ from abc import ABC, abstractmethod
 import logging
 
 
-class Analysis(ABC):
-
+class Analyser(ABC):
+    
     @staticmethod
     @abstractmethod
-    def name(Analysis):
+    def name(Analyser):
         pass
 
     @property
@@ -17,13 +18,13 @@ class Analysis(ABC):
         return logging.getLogger(self.__class__.__name__)
 
     @abstractmethod
-    def load_data(self, workingDir, ignoredPathSegments):
+    def load_data(self, workingDir, ignoredpathsegments):
         pass
 
     @abstractmethod
-    def analyse(self, ignoredPathSegments):
+    def analyse(self, ignoredpathsegments):
         pass
 
     @abstractmethod
-    def write_results(self, outputFolder):
+    def write_results(self, outputfolder):
         pass

@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from analysis.bundleanalysis import BundleAnalyser
-from analysis.projectanalysis import ProjectAnalyser
-from analysis.plainjavaanalysis import PlainJavaAnalyser
 from changes.analyser.filechanges import FileChanges
 from changes.analyser.packagechanges import PackageChanges
 from changes.analyser.projectchanges import ProjectChanges
-from comp.analyser.methodcomp import MethodComp
 from comp.analyser.classcomp import ClassComp
+from comp.analyser.methodcomp import MethodComp
 from comp.analyser.packagecomp import PackageComp
 from comp.analyser.projectcomp import ProjectComp
+from deps.analyser.bundleanalyser import BundleAnalyser
+from deps.analyser.plainjavaanalyser import PlainJavaAnalyser
+from deps.analyser.projectanalyser import ProjectAnalyser
 
 _DEPS_ANALYSER_CLASSES = [PlainJavaAnalyser, ProjectAnalyser, BundleAnalyser]
 _CHANGE_ANALYSER_CLASSES = [FileChanges, PackageChanges, ProjectChanges]

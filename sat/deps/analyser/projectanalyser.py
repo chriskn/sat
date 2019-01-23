@@ -1,17 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from project.projectparser import ProjectParser
-from project.projectgraph import ProjectGraph
-from analysis.analysis import Analysis
+import logging
+import os
+
 import numpy as np
 import pandas as pd
-import os
-import plot
-import logging
+
+import report.plot as plot
+from app.analyser import Analyser
+from deps.graph.projectgraph import ProjectGraph
+from deps.parser.projectparser import ProjectParser
 
 
-class ProjectAnalyser(Analysis):
+class ProjectAnalyser(Analyser):
 
     @staticmethod
     def name():
@@ -39,7 +41,7 @@ class ProjectAnalyser(Analysis):
     def write_results(self, outputDir):
         self._logger.info("Writing project analysis results")
         plot.plot_heatmap(self._projectCouplingMap, "Project Coupling",
-                         outputDir, "project_coupling_heatmap.pdf")
+                          outputDir, "project_coupling_heatmap.pdf")
         self._write_to_graphMl(os.path.join(
             outputDir, "project_dependencies.graphml"), self._projectGraph)
         self._write_to_graphMl(os.path.join(

@@ -53,8 +53,8 @@ class TestClassComp(unittest.TestCase):
         self.assertEqual(len(result.columns), 4,
                          "Columns with unexpected lengths.")
 
-    @mock.patch("plot.plot_barchart")
-    @mock.patch("xls.write_data_frame")
+    @mock.patch("report.plot.plot_barchart")
+    @mock.patch("report.xls.write_data_frame")
     @mock.patch("comp.repo.typerepo.types")
     def test_write_results_calls_write_data_frame(self, mock_type_repo, write_xls, plot_barchart):
         mock_type_repo.return_value = []
@@ -65,8 +65,8 @@ class TestClassComp(unittest.TestCase):
         write_xls.assert_called_with(
             ANY, "cognitive_complexity_per_class.xls", odir, "Class Complexity")
 
-    @mock.patch("plot.plot_barchart")
-    @mock.patch("xls.write_data_frame")
+    @mock.patch("report.plot.plot_barchart")
+    @mock.patch("report.xls.write_data_frame")
     @mock.patch("comp.repo.typerepo.types")
     def test_write_results_calls_plot_barchart(self, mock_type_repo, write_xls, plot_barchart):
         mock_type_repo.return_value = []
@@ -77,8 +77,8 @@ class TestClassComp(unittest.TestCase):
         plot_barchart.assert_called_with(
             ANY, "Cognitive complexity", "Classes with highest cognitive complexity", odir, "most_complex_classes.pdf")
 
-    @mock.patch("plot.plot_barchart")
-    @mock.patch("xls.write_data_frame")
+    @mock.patch("report.plot.plot_barchart")
+    @mock.patch("report.xls.write_data_frame")
     @mock.patch("comp.repo.typerepo.types")
     def test_write_results_plots_expected_data(self, mock_type_repo, write_xls, plot_barchart):
         mock_type_repo.return_value = _TYPES

@@ -6,13 +6,13 @@ import os
 import pandas as pd
 
 import comp.repo.typerepo as repo
-import plot
-import xls
-from analysis.analysis import Analysis
+import report.plot as plot
+import report.xls as xls
+from app.analyser import Analyser
 from comp.domain import Method, Type
 
 
-class ClassComp(Analysis):
+class ClassComp(Analyser):
 
     @staticmethod
     def name():

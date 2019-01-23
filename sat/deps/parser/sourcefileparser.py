@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-import lang.java as javaParser
-from domain import SourceFile
+import deps.parser.javaparser as javaParser
+from deps.domain import SourceFile
 
 class SourcefileParser: 
 

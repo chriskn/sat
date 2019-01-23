@@ -97,8 +97,8 @@ class TestPackageComp(unittest.TestCase):
         self.assertEqual(len(result.columns), 3,
                          "Columns with unexpected lengths.")
 
-    @mock.patch("plot.plot_treemap")
-    @mock.patch("xls.write_data_frame")
+    @mock.patch("report.plot.plot_treemap")
+    @mock.patch("report.xls.write_data_frame")
     @mock.patch("comp.repo.projectrepo.projects")
     def test_write_results_calls_write_data_frame(self, mock_project_repo, write_xls, plot_treemap):
         mock_project_repo.return_value = []
@@ -109,8 +109,8 @@ class TestPackageComp(unittest.TestCase):
         write_xls.assert_called_with(
             ANY, "cognitive_complexity_per_project.xls", odir, "Project Complexity")
 
-    @mock.patch("plot.plot_treemap")
-    @mock.patch("xls.write_data_frame")
+    @mock.patch("report.plot.plot_treemap")
+    @mock.patch("report.xls.write_data_frame")
     @mock.patch("comp.repo.projectrepo.projects")
     def test_write_results_calls_plot_treemap_for_total_comp(self, mock_project_repo, write_xls, plot_treemap):
         mock_project_repo.return_value = []
@@ -123,8 +123,8 @@ class TestPackageComp(unittest.TestCase):
         plot_treemap.assert_has_calls([expected_total_call], any_order=True)
 
   
-    @mock.patch("plot.plot_treemap")
-    @mock.patch("xls.write_data_frame")
+    @mock.patch("report.plot.plot_treemap")
+    @mock.patch("report.xls.write_data_frame")
     @mock.patch("comp.repo.projectrepo.projects")
     def test_write_results_plots_expected_data_for_total_comp(self, mock_project_repo, write_xls, plot_treemap):
         mock_project_repo.return_value = _PROJECTS

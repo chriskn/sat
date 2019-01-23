@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from graph import Graph
-import re, logging
+import logging
+import re
+
+from deps.graph.graph import Graph
 
 logger = logging.getLogger(__name__)
+
 
 class PackageGraph(Graph):
 
@@ -14,10 +17,11 @@ class PackageGraph(Graph):
         Graph.__init__(self)
         _packages = packages
         numdeps = [len(p.imports()) for p in packages]
-        max_numdeps = max(numdeps) if len (numdeps)> 0  else 1 
+        max_numdeps = max(numdeps) if len(numdeps) > 0 else 1
         for package in packages:
-            node_size = self.interpolate_node_size(len(package.imports()), max_numdeps)
-            self.add_node(package.name,  width=node_size, height=node_size)    
+            node_size = self.interpolate_node_size(
+                len(package.imports()), max_numdeps)
+            self.add_node(package.name,  width=node_size, height=node_size)
         for package in packages:
             for imp in package.imports():
                 import_name = imp
@@ -28,5 +32,5 @@ class PackageGraph(Graph):
 
     def cycle_graph(self, cycles):
         graph = PackageGraph()
-        Graph.cycle_graph(graph, self , cycles)
+        Graph.cycle_graph(graph, self, cycles)
         return graph

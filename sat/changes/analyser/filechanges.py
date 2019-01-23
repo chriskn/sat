@@ -1,18 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from analysis.analysis import Analysis
-from changes.domain import Change
-import changes.changerepo as repo
 import ntpath
-import xls
-import re
-import plot
-import pandas as pd
 import os.path
+import re
+
+import pandas as pd
+
+import changes.changerepo as repo
+import report.plot as plot
+import report.xls as xls
+from app.analyser import Analyser
+from changes.domain import Change
 
 
-class FileChanges(Analysis):
+class FileChanges(Analyser):
 
     _COLUMNS = ["Path", "File", "Total changes",
                 "Lines added", "Lines removed"]
@@ -59,8 +61,8 @@ class FileChanges(Analysis):
                              outputdir, "Changes since "+self._since)
         barchart_data = self._create_barchart_data()
         plot.plot_stacked_barchart(barchart_data, "Number of changed lines",
-                           "Number of changed lines for most changed files since "+self._since, outputdir, "most_changed_files.pdf")
-        
+                                   "Number of changed lines for most changed files since "+self._since, outputdir, "most_changed_files.pdf")
+
     def _create_barchart_data(self):
         columns_to_drop = [FileChanges._COLUMNS[1], FileChanges._COLUMNS[2]]
         barchart_data = self._df.iloc[0:25].drop(columns=columns_to_drop)

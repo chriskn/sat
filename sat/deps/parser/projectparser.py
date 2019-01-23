@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import os,re
-from domain import Project
-from package.packageparser import PackageParser
+from deps.domain import Project
+from deps.parser.packageparser import PackageParser
 
 import xml.etree.ElementTree
 

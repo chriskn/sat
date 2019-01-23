@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import pyyed
-from domain import Interface
-from domain import Enum
-from domain import Class
-from graph import Graph
-import textwrap
-import logging
 
+import logging
+import textwrap
+
+import pyyed
+from deps.domain import Class, Enum, Interface
+from deps.graph.graph import Graph
 
 BUILD_IN_TYPES = ["int", "boolean", "String", "double", "float", "byte"]
 logger = logging.getLogger(__name__)
@@ -54,7 +53,7 @@ class ClassDiagramm(Graph):
             elif len(fqn_deps) > 0:
                 logger.warn("Multiple alternative dependencies from node %s to possible alternatives: %s" % (
                     tle.fqn, ",".join(fqn_deps)))
-        #else:
+        # else:
             #logger.warn("Can't find dependency from node %s to possible alternatives: %s" % (tle.fqn, dependency))
 
     def _collect_top_level_elements(self, packages):
@@ -89,7 +88,8 @@ class ClassDiagramm(Graph):
         return parents
 
     def _add_package(self, package):
-        package_group = self.add_group(package.name, shape="rectangle", fill="#ffd35b")
+        package_group = self.add_group(
+            package.name, shape="rectangle", fill="#ffd35b")
         for sourcefile in package.sourcefiles:
             for con_class in sourcefile.concrete_classes:
                 self._add_class(con_class, package_group)

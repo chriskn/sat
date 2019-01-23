@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from source.sourcefileparser import SourcefileParser
+from deps.parser.sourcefileparser import SourcefileParser
 
 _sourcefiles = None
 _parser = SourcefileParser()

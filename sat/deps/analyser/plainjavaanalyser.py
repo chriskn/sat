@@ -1,22 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from project.projectparser import ProjectParser
-from project.projectgraph import ProjectGraph
-from package.packagegraph import PackageGraph
-from analysis.analysis import Analysis
+import os
+import re
+
 import numpy as np
 import pandas as pd
-import os
-import plot
-import re
-from package.classdiagramm import ClassDiagramm
+
+import report.plot as plot
+from app.analyser import Analyser
+from deps.graph.packagegraph import PackageGraph
+from deps.graph.projectgraph import ProjectGraph
+from deps.parser.projectparser import ProjectParser
+from deps.graph.classdiagramm import ClassDiagramm
 
 _CLASS_IMPORT_PATTERN = re.compile(r'.*\.[A-Z].*')
 _LIST_SEPARATOR = ", "
 
 
-class PlainJavaAnalyser(Analysis):
+class PlainJavaAnalyser(Analyser):
 
     @staticmethod
     def name():

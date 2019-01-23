@@ -2,17 +2,16 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 
-import plot
-import xls
-import comp.repo.typerepo as repo
 import comp.repo.packagerepo as prepo
-from analysis.analysis import Analysis
-import xls
+import comp.repo.typerepo as repo
+import report.plot as plot
+import report.xls as xls
+from app.analyser import Analyser
 
 _COLUMNS = ["Package", "Complexity", "Average complexity by class",
                   "Average complexity by method", "Path"]
 
-class PackageComp(Analysis):
+class PackageComp(Analyser):
 
     @staticmethod
     def name():

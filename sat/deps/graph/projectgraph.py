@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from graph import Graph
+from deps.graph.graph import Graph
 import re
 
 class ProjectGraph(Graph):

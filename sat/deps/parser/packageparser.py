@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-from domain import Package
-import source.sourcerepo as repo
+from deps.domain import Package
+import deps.repo.sourcerepo as repo
 
 
 class PackageParser:

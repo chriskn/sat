@@ -8,14 +8,14 @@ from collections import OrderedDict
 import pandas as pd
 
 import changes.changerepo as repo
-import plot
+import report.plot as plot
+import report.xls as xls
 import scanner
-import xls
-from analysis.analysis import Analysis
+from app.analyser import Analyser
 from changes.domain import Change
 
 
-class ProjectChanges(Analysis):
+class ProjectChanges(Analyser):
 
     _COLUMNS = ["Path", "Project", "Total changes",
                 "Lines added", "Lines Removed"]

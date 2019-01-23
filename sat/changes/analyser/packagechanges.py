@@ -1,20 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from analysis.analysis import Analysis
-from changes.domain import Change
-
-import xls
-import re
-import plot
-import pandas as pd
 import os
-import scanner
-import changes.changerepo as repo
+import re
 from collections import OrderedDict
 
+import pandas as pd
 
-class PackageChanges(Analysis):
+import changes.changerepo as repo
+import scanner
+from app.analyser import Analyser
+from changes.domain import Change
+
+import report.plot as plot
+import report.xls as xls
+
+
+class PackageChanges(Analyser):
 
     _COLUMNS = ["Path", "Package", "Lines changed", "Lines added", "Lines removed"]
 
@@ -67,4 +69,3 @@ class PackageChanges(Analysis):
     def _create_tm_data(self):
         tm_data = self._df.drop(columns=["Path", "Lines added", "Lines removed"])
         return tm_data[tm_data[PackageChanges._COLUMNS[2]] > 0]
-       

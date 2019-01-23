@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from domain import Bundle
-from graph import Graph
+from deps.domain import Bundle
+from deps.graph.graph import Graph
 import logging
 
 

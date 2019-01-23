@@ -98,8 +98,8 @@ class TestPackageComp(unittest.TestCase):
         self.assertEqual(len(result.columns), 5,
                          "Columns with unexpected lengths.")
 
-    @mock.patch("plot.plot_treemap")
-    @mock.patch("xls.write_data_frame")
+    @mock.patch("report.plot.plot_treemap")
+    @mock.patch("report.xls.write_data_frame")
     @mock.patch("comp.repo.packagerepo.packages")
     def test_write_results_calls_write_data_frame(self, mock_package_repo, write_xls, plot_treemap):
         mock_package_repo.return_value = []
@@ -110,8 +110,8 @@ class TestPackageComp(unittest.TestCase):
         write_xls.assert_called_with(
             ANY, "cognitive_complexity_per_package.xls", odir, "Package Complexity")
 
-    @mock.patch("plot.plot_treemap")
-    @mock.patch("xls.write_data_frame")
+    @mock.patch("report.plot.plot_treemap")
+    @mock.patch("report.xls.write_data_frame")
     @mock.patch("comp.repo.packagerepo.packages")
     def test_write_results_calls_plot_treemap_for_total_comp(self, mock_package_repo, write_xls, plot_treemap):
         mock_package_repo.return_value = []
@@ -123,8 +123,8 @@ class TestPackageComp(unittest.TestCase):
             ANY, "Cognitive complexity per package", odir, "cognitive_complexity_per_package.pdf", "complexity:")
         plot_treemap.assert_has_calls([expected_total_call], any_order=True)
 
-    @mock.patch("plot.plot_treemap")
-    @mock.patch("xls.write_data_frame")
+    @mock.patch("report.plot.plot_treemap")
+    @mock.patch("report.xls.write_data_frame")
     @mock.patch("comp.repo.packagerepo.packages")
     def test_write_results_calls_plot_treemap_for_av_type_comp(self, mock_package_repo, write_xls, plot_treemap):
         mock_package_repo.return_value = []
@@ -136,8 +136,8 @@ class TestPackageComp(unittest.TestCase):
                                       odir, "av_class_complexity_per_package.pdf", "avc complexity:")
         plot_treemap.assert_has_calls([expected_avt_call], any_order=True)
 
-    @mock.patch("plot.plot_treemap")
-    @mock.patch("xls.write_data_frame")
+    @mock.patch("report.plot.plot_treemap")
+    @mock.patch("report.xls.write_data_frame")
     @mock.patch("comp.repo.packagerepo.packages")
     def test_write_results_calls_plot_treemap_for_av_method_comp(self, mock_package_repo, write_xls, plot_treemap):
         mock_package_repo.return_value = []
@@ -149,8 +149,8 @@ class TestPackageComp(unittest.TestCase):
                                       odir, "av_method_complexity_per_package.pdf", "avm complexity:")
         plot_treemap.assert_has_calls([expected_avm_call], any_order=True)
    
-    @mock.patch("plot.plot_treemap")
-    @mock.patch("xls.write_data_frame")
+    @mock.patch("report.plot.plot_treemap")
+    @mock.patch("report.xls.write_data_frame")
     @mock.patch("comp.repo.packagerepo.packages")
     def test_write_results_plots_expected_data_for_total_comp(self, mock_package_repo, write_xls, plot_treemap):
         mock_package_repo.return_value = _PACKAGES
@@ -166,8 +166,8 @@ class TestPackageComp(unittest.TestCase):
         self.assertEqual(len(used_dataframes.columns), 2,
                           "Columns with unexpected lengths.")
 
-    @mock.patch("plot.plot_treemap")
-    @mock.patch("xls.write_data_frame")
+    @mock.patch("report.plot.plot_treemap")
+    @mock.patch("report.xls.write_data_frame")
     @mock.patch("comp.repo.packagerepo.packages")
     def test_write_results_plots_expected_data_for_av_class_comp(self, mock_package_repo, write_xls, plot_treemap):
         mock_package_repo.return_value = _PACKAGES
@@ -184,8 +184,8 @@ class TestPackageComp(unittest.TestCase):
                           "Columns with unexpected lengths.")
 
 
-    @mock.patch("plot.plot_treemap")
-    @mock.patch("xls.write_data_frame")
+    @mock.patch("report.plot.plot_treemap")
+    @mock.patch("report.xls.write_data_frame")
     @mock.patch("comp.repo.packagerepo.packages")
     def test_write_results_plots_expected_data_for_av_method_comp(self, mock_package_repo, write_xls, plot_treemap):
         mock_package_repo.return_value = _PACKAGES

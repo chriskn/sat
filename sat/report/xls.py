@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import xlwt
-
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import xlwt
+
 import pandas as pd
 import os
 

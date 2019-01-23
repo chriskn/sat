@@ -2,22 +2,21 @@
 # -*- coding: utf-8 -*-
 
 import os
+from collections import OrderedDict
 
 import pandas as pd
 
-import comp.repo.typerepo as repo
 import comp.repo.projectrepo as prepo
-
-import plot
-import xls
-from analysis.analysis import Analysis
-from comp.domain import Method, Type
+import comp.repo.typerepo as repo
+import report.plot as plot
+import report.xls as xls
 import scanner
-from collections import OrderedDict
+from app.analyser import Analyser
+from comp.domain import Method, Type
 
 _COLUMNS = ["Project", "Complexity", "Path"]
 
-class ProjectComp(Analysis):
+class ProjectComp(Analyser):
 
     @staticmethod
     def name():

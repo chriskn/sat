@@ -98,8 +98,8 @@ class FileChangesTest(unittest.TestCase):
         lines_removed = list(result[FileChanges._COLUMNS[4]])
         self.assertListEqual(lines_removed, [20,20,20,0])
 
-    @mock.patch("plot.plot_stacked_barchart")
-    @mock.patch("xls.write_data_frame")
+    @mock.patch("report.plot.plot_stacked_barchart")
+    @mock.patch("report.xls.write_data_frame")
     def test_write_results_calls_xls_writer_as_expected(self, writer, dummy_plot):
         exp_output_folder = "dummy//folder"
         self.sut.load_data("","")
@@ -109,8 +109,8 @@ class FileChangesTest(unittest.TestCase):
         writer.assert_called_once_with(result, "changed_lines_per_file.xls", exp_output_folder,  "Changes since "+self.expected_since)
 
 
-    @mock.patch("plot.plot_stacked_barchart")
-    @mock.patch("xls.write_data_frame")
+    @mock.patch("report.plot.plot_stacked_barchart")
+    @mock.patch("report.xls.write_data_frame")
     def test_write_results_calls_plot_as_expected(self, dummy_writer, plot):
         exp_output_folder = "dummy//folder"
         self.sut.load_data("","")
@@ -124,8 +124,8 @@ class FileChangesTest(unittest.TestCase):
 
     
     @mock.patch("changes.changerepo.changes")    
-    @mock.patch("plot.plot_stacked_barchart")
-    @mock.patch("xls.write_data_frame")
+    @mock.patch("report.plot.plot_stacked_barchart")
+    @mock.patch("report.xls.write_data_frame")
     def test_write_results_plots_expected_dataframe(self, dummy_writer, plot, change_repo):
         change_repo.return_value = _CHANGES
         exp_output_folder = "dummy//folder"
