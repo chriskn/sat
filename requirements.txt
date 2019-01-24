@@ -3,7 +3,7 @@ seaborn==0.9.0
 squarify==0.3.0
 matplotlib==3.0.1
 pandas
-xlrd
+xlwt
 
 coverage
 pytest

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from pathlib import Path
 import os
 import unittest
 
@@ -9,7 +10,7 @@ from javalang.tree import ConstructorDeclaration, MethodDeclaration
 
 import comp.compcalculator as sut
 
-_TEST_DATA = "test\\comp\\data\\ComplDummy.java"
+_TEST_DATA = os.path.join("sat","test","comp","data","ComplDummy.java")
 _METHODS_BY_NAME = dict()
 
 

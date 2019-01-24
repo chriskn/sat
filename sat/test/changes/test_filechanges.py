@@ -9,23 +9,23 @@ from pandas.util.testing import assert_frame_equal
 from unittest.mock import ANY
 import os
 
-_PROJ_PATH_1 = "my\\dummy\\proj1"
-_PROJ_PATH_2 = "my\\dummy\\proj2"
-_PROJ_PATH_3 = "my\\dummy\\proj3"
+_PROJ_PATH_1 = os.path.join("my","dummy","proj1")
+_PROJ_PATH_2 = os.path.join("my","dummy","proj2")
+_PROJ_PATH_3 = os.path.join("my","dummy","proj3")
 
 
-_REL_PACK_PATH_1 = "a\\b"
-_REL_PACK_PATH_1_2 = "a\\b" # split package
-_REL_PACK_PATH_3 = "c\\d"
-_REL_PACK_PATH_4 = "e\\f\\g"
-_REL_PACK_PATH_5 = "e\\f\\h"
+_REL_PACK_PATH_1 = os.path.join("a","b")
+_REL_PACK_PATH_1_2 = os.path.join("a","b") # split package
+_REL_PACK_PATH_3 = os.path.join("c","d")
+_REL_PACK_PATH_4 = os.path.join("e","f","g")
+_REL_PACK_PATH_5 = os.path.join("e","f","h")
 
 
-_ABS_PACKAGE_PATH_1 = _PROJ_PATH_1+"\\"+_REL_PACK_PATH_1
-_ABS_PACKAGE_PATH_1_2 = _PROJ_PATH_2+"\\"+_REL_PACK_PATH_1_2
-_ABS_PACKAGE_PATH_3 = _PROJ_PATH_2+"\\"+_REL_PACK_PATH_3
-_ABS_PACKAGE_PATH_4 = _PROJ_PATH_3+"\\"+_REL_PACK_PATH_4
-_ABS_PACKAGE_PATH_5 = _PROJ_PATH_3+"\\"+_REL_PACK_PATH_5
+_ABS_PACKAGE_PATH_1 = os.path.join(_PROJ_PATH_1, _REL_PACK_PATH_1)
+_ABS_PACKAGE_PATH_1_2 = os.path.join(_PROJ_PATH_2, _REL_PACK_PATH_1_2)
+_ABS_PACKAGE_PATH_3 = os.path.join(_PROJ_PATH_2,_REL_PACK_PATH_3)
+_ABS_PACKAGE_PATH_4 = os.path.join(_PROJ_PATH_3, _REL_PACK_PATH_4)
+_ABS_PACKAGE_PATH_5 = os.path.join(_PROJ_PATH_3,_REL_PACK_PATH_5)
 
 _REL_PACK_PATH_FOR_PACK_PATH = {
     _ABS_PACKAGE_PATH_1: _REL_PACK_PATH_1, 
@@ -40,10 +40,10 @@ _CHANGE_2 = "dummy2.java"
 _CHANGE_3 = "dummy3.java"
 _CHANGE_4 = "dummy4.java"
 
-_CHANGE_PATH_1 =_ABS_PACKAGE_PATH_1+"\\"+_CHANGE_1
-_CHANGE_PATH_2 =_ABS_PACKAGE_PATH_1_2+"\\"+_CHANGE_2
-_CHANGE_PATH_3 =_ABS_PACKAGE_PATH_3+"\\"+_CHANGE_3
-_CHANGE_PATH_4 =_ABS_PACKAGE_PATH_4+"\\"+_CHANGE_4
+_CHANGE_PATH_1 =os.path.join(_ABS_PACKAGE_PATH_1, _CHANGE_1)
+_CHANGE_PATH_2 =os.path.join(_ABS_PACKAGE_PATH_1_2, _CHANGE_2)
+_CHANGE_PATH_3 =os.path.join(_ABS_PACKAGE_PATH_3, _CHANGE_3)
+_CHANGE_PATH_4 =os.path.join(_ABS_PACKAGE_PATH_4, _CHANGE_4)
 
 _CHANGES = [
     Change(_CHANGE_PATH_1, 10, 20),
