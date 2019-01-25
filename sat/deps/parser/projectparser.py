@@ -22,7 +22,7 @@ class ProjectParser:
 
     def _scan(self):
         projects = []
-        for dirpath, dirnames, files in os.walk(self.directory):
+        for dirpath, _, files in os.walk(self.directory):
             ignored = any(ignored_segment in dirpath for ignored_segment in self.ignored_path_segments)
             if not ignored: 
                 for file in files:

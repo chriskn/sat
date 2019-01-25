@@ -3,13 +3,13 @@
 
 from deps.parser.sourcefileparser import SourcefileParser
 
-_sourcefiles = None
+_sourcefiles = dict()
 _parser = SourcefileParser()
 
-def sourcefiles(path, javafile, packagename=""):
+def sourcefiles(java_file_names, package_path, packagename=""):
     global _sourcefiles
-    if _sourcefiles:
-        return _sourcefiles
-    else:
-       _sourcefiles = _parser.parse_sourcefiles(path, javafile, packagename)
-       return _sourcefiles
+    key = "".join(java_file_names)+package_path+packagename
+    if _sourcefiles.get(key):
+        return _sourcefiles.get(key)
+    _sourcefiles[key] = _parser.parse_sourcefiles(java_file_names, package_path, packagename)
+    return _sourcefiles.get(key)

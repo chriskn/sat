@@ -16,13 +16,13 @@ class PackageParser:
 
     def _parse(self, sourcefolder):
         source_packages = []
-        for dirpath, dirname, files in os.walk(sourcefolder):
+        for package_path, _, files in os.walk(sourcefolder):
             java_filenames = [file for file in files if file.endswith(".java")]
             if java_filenames:
                 packagename = os.path.normpath(
-                    dirpath.replace(sourcefolder, ""))
+                    package_path.replace(sourcefolder, ""))
                 packagename = ".".join(packagename.strip(os.sep).split(os.sep))
-                sourcefiles = repo.sourcefiles(java_filenames, dirpath, packagename)
-                new_package = Package(packagename, dirpath, sourcefiles)
+                sourcefiles = repo.sourcefiles(java_filenames, package_path, packagename)
+                new_package = Package(packagename, package_path, sourcefiles)
                 source_packages.append(new_package)
         return source_packages

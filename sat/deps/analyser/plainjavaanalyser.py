@@ -120,4 +120,5 @@ class PlainJavaAnalyser(Analyser):
         for package in reversed(packages):
             package_imps = [self._to_package_import(imp) for imp in package.imports()]
             data.append([package_imps.count(pName) for pName in names])
-        return pd.DataFrame(data=data, index=list(reversed(names)), columns=names)
+        df =  pd.DataFrame(data=data, index=list(reversed(names)), columns=names)
+        return df
