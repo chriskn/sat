@@ -2,3 +2,17 @@ language: python
 script: pytest
 python:
     - "3.6"
+install:
+  - pip install pytest
+  - pip install pytest-cov
+  - pip install coveralls
+  #- pip install flake8
+  #- pip install pylint 
+  # Project specific dependencies
+  - pip install -r requirements.txt
+script:
+  - pytest --cov=sat
+  #- python -m flake8
+  #- python -m pylint sat/sat sat/comp sat/report sat/changes sat/deps sat/app sat/test
+after_success:
+  - coveralls
