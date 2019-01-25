@@ -10,7 +10,7 @@ import mock
 
 import changes.changerepo as sut
 
-_PATH_TO_TESTDATA = os.path.join("sat","test","changes","data","git_changes_test.log")
+_PATH_TO_TESTDATA = os.path.join("data","git_changes_test.log")
 
 
 class TestChangeRepo(unittest.TestCase):
@@ -74,7 +74,8 @@ class TestChangeRepo(unittest.TestCase):
         self.assertEqual(len(resulting_changes), 0)
 
     def _load_executer_testdata(self):
-        testfile = os.path.join(os.getcwd(), _PATH_TO_TESTDATA)
+        cur_dir = os.path.dirname(os.path.abspath(__file__))
+        testfile = os.path.join(cur_dir, _PATH_TO_TESTDATA)
         expected_content = None
         with open(testfile, 'r') as f:
             expected_content = f.read()

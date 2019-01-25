@@ -10,7 +10,7 @@ from javalang.tree import ConstructorDeclaration, MethodDeclaration
 
 import comp.compcalculator as sut
 
-_TEST_DATA = os.path.join("sat","test","comp","data","ComplDummy.java")
+_PATH_TO_TEST_DATA = os.path.join("data","ComplDummy.java")
 _METHODS_BY_NAME = dict()
 
 
@@ -24,7 +24,8 @@ class TestComplCalulator(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        testfile = os.path.join(os.getcwd(), _TEST_DATA)
+        cur_dir = os.path.dirname(os.path.abspath(__file__))
+        testfile = os.path.join(cur_dir, _PATH_TO_TEST_DATA)
         with open(testfile, 'r', encoding='utf-8') as f:
             file_content = f.read()
             ast = javalang.parse.parse(file_content)

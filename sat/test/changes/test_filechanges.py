@@ -59,7 +59,7 @@ class FileChangesTest(unittest.TestCase):
         self.sut = FileChanges(self.expected_since)
 
     def test_name_is_files(self):
-        self.assertEquals(FileChanges.name(), "files")
+        self.assertEqual(FileChanges.name(), "files")
 
     @mock.patch("changes.changerepo.changes")
     def test_load_data_calls_change_repo_as_expected(self, change_repo):

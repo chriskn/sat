@@ -51,7 +51,7 @@ class PackageChangesTest(unittest.TestCase):
         self.sut = PackageChanges(self.expected_since)
 
     def test_name_is_packages(self):
-        self.assertEquals(PackageChanges.name(), "packages")
+        self.assertEqual(PackageChanges.name(), "packages")
 
     @mock.patch("changes.changerepo.changes")
     def test_load_data_calls_change_repo_as_expected(self, change_repo):

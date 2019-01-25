@@ -47,7 +47,7 @@ class ProjectChangesTest(unittest.TestCase):
         self.sut = ProjectChanges(self.expected_since)
 
     def test_name_is_packages(self):
-        self.assertEquals(ProjectChanges.name(), "projects")
+        self.assertEqual(ProjectChanges.name(), "projects")
 
     @mock.patch("changes.changerepo.changes")
     def test_load_data_calls_change_repo_as_expected(self, change_repo):
