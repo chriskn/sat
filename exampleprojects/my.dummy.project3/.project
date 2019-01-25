@@ -6,7 +6,17 @@
 	</projects>
 	<buildSpec>
 		<buildCommand>
+			<name>org.openclover.eclipse.core.prejavabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
 			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.openclover.eclipse.core.postjavabuilder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
@@ -24,5 +34,6 @@
 	<natures>
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>org.openclover.eclipse.core.clovernature</nature>
 	</natures>
 </projectDescription>

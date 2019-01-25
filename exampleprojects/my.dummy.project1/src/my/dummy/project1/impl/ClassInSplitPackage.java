@@ -1,4 +1,4 @@
-package my.dummy.project2.api;
+package my.dummy.project1.impl;
 
 import my.dummy.project1.api.IDummy;
 
