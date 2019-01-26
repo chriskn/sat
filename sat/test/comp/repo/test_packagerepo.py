@@ -14,22 +14,24 @@ class TestPackageRepo(unittest.TestCase):
         sut._packages = dict()
 
     @mock.patch("comp.repo.packagerepo._parse_packages")
-    def test_packages_not_calls__parse_packages_twice_for_same_input(self, _parse_packages):
+    def test_packages_not_calls__parse_packages_twice_for_same_input(
+            self, _parse_packages):
         workingdir = "foo"
-        ignored = ["bar", "", "foo"]
+        ignored = ["bar", "blub", "foo"]
         sut.packages(workingdir, ignored)
         sut.packages(workingdir, ignored)
         self.assertEqual(_parse_packages.call_count, 1)
 
     @mock.patch("comp.repo.packagerepo._parse_packages")
-    def test_packages_calls__parse_packages_depending_on_dir_and_ignored(self, _parse_packages):
+    def test_packages_calls__parse_packages_depending_on_dir_and_ignored(
+            self, _parse_packages):
         workingdir = "foo"
         ignored = ["bar", "", "foo"]
         sut.packages(workingdir, ignored)
         # duplicate
         sut.packages(workingdir, ignored)
-        sut.packages(workingdir, ignored+["another"])
-        sut.packages(workingdir+"another", ignored)
+        sut.packages(workingdir, ignored + ["another"])
+        sut.packages(workingdir + "another", ignored)
         self.assertEqual(_parse_packages.call_count, 3)
 
     @mock.patch("comp.repo.packagerepo._parse_packages")
@@ -55,7 +57,7 @@ class TestPackageRepo(unittest.TestCase):
     @mock.patch("comp.repo.typerepo.types")
     def test_parser_creates_expected_packages(self, repo, scanner):
         scanner_result = {
-            "proj1//a1/b1//": "a1"+os.sep+"b1",
+            "proj1//a1/b1//": "a1" + os.sep + "b1",
             # single slash after proj2 is by intention
             "proj2/a2//": "a2",
             "proj3//a2//": "a2"
@@ -68,7 +70,7 @@ class TestPackageRepo(unittest.TestCase):
         scanner.return_value = scanner_result
         repo.return_value = types
 
-        packages = sut.packages("", "")
+        packages = sut.packages("path", "")
 
         self.assertEqual(len(packages), 3)
         package1 = packages[0]

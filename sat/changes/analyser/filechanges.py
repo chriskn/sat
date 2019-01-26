@@ -49,21 +49,26 @@ class FileChanges(Analyser):
         # Filter for existing files
         #self.changesPerFile[:] = [change for change in self.changesPerFile if os.path.isfile(os.path.join(self._workingDir,change.filepath))]
         df = pd.DataFrame(data=data, columns=FileChanges._COLUMNS)
-        self._df = df.sort_values(FileChanges._COLUMNS[2], ascending=False)
-        return self._df
+        self._analysis_result = df.sort_values(FileChanges._COLUMNS[2], ascending=False)
+        return self._analysis_result
 
     def _file_name(self, path):
         head, tail = ntpath.split(path)
         return tail or ntpath.basename(head)
 
     def write_results(self, outputdir):
-        xls.write_data_frame(self._df, "changed_lines_per_file.xls",
-                             outputdir, "Changes since "+self._since)
+        xls.write_data_frame(self._analysis_result, "changed_lines_per_file.xls",
+                             outputdir, "Changes since " + self._since)
         barchart_data = self._create_barchart_data()
-        plot.plot_stacked_barchart(barchart_data, "Number of changed lines",
-                                   "Number of changed lines for most changed files since "+self._since, outputdir, "most_changed_files.pdf")
+        plot.plot_stacked_barchart(
+            barchart_data,
+            "Number of changed lines",
+            "Number of changed lines for most changed files since " +
+            self._since,
+            outputdir,
+            "most_changed_files.pdf")
 
     def _create_barchart_data(self):
         columns_to_drop = [FileChanges._COLUMNS[1], FileChanges._COLUMNS[2]]
-        barchart_data = self._df.iloc[0:25].drop(columns=columns_to_drop)
+        barchart_data = self._analysis_result.iloc[0:25].drop(columns=columns_to_drop)
         return barchart_data

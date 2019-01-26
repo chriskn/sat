@@ -64,29 +64,40 @@ class PlainJavaAnalyser(Analyser):
         self._logger.info("Writing project analysis results")
         self._write_graphml(os.path.join(
             outputDir, "project_dependencies.graphml"), self._projectGraph)
-        self._write_graphml(os.path.join(
-            outputDir, "cyclic_project_dependencies.graphml"), self._cycleProjectGraph)
+        self._write_graphml(
+            os.path.join(
+                outputDir,
+                "cyclic_project_dependencies.graphml"),
+            self._cycleProjectGraph)
         self._write_cycles_to_txt(os.path.join(
             outputDir, "project_cycles.txt"), self._projectCycles)
         plot.plot_heatmap(self._projectCouplingMap, "Project Coupling",
                           outputDir, "project_coupling_heatmap.pdf")
- 
+
         self._logger.info("Writing package analysis results")
         self._write_cycles_to_txt(os.path.join(
             outputDir, "package_cycles.txt"), self._packageCycles)
         self._write_graphml(os.path.join(
             outputDir, "package_dependencies.graphml"), self._packageGraph)
-        self._write_graphml(os.path.join(
-            outputDir, "cyclic_package_dependencies.graphml"), self._cyclePackageGraph)
+        self._write_graphml(
+            os.path.join(
+                outputDir,
+                "cyclic_package_dependencies.graphml"),
+            self._cyclePackageGraph)
         plot.plot_heatmap(self._packageCouplingMap, "Package Coupling",
                           outputDir, "package_coupling_heatmap.pdf")
-        self._write_graphml(os.path.join(outputDir, "classdiagramm.graphml"), self._classDiagramm)
+        self._write_graphml(
+            os.path.join(
+                outputDir,
+                "classdiagramm.graphml"),
+            self._classDiagramm)
 
     def _project_coupling_data_frame(self, projects):
         proj_names = []
         data = []
         for project in reversed(projects):
-            proj_imports = [self._to_package_import(imp) for imp in project.imports()]
+            proj_imports = [self._to_package_import(
+                imp) for imp in project.imports()]
             proj_names.append(project.name)
             proj_data = []
             for other_project in projects:
@@ -96,7 +107,11 @@ class PlainJavaAnalyser(Analyser):
                     proj_deps += occurences
                 proj_data.append(proj_deps)
             data.append(proj_data)
-        return pd.DataFrame(data=data, index=proj_names, columns=list(reversed(proj_names)))
+        return pd.DataFrame(
+            data=data,
+            index=proj_names,
+            columns=list(
+                reversed(proj_names)))
 
     def _write_graphml(self, path, graph):
         with open(path, 'w') as output_file:
@@ -106,19 +121,24 @@ class PlainJavaAnalyser(Analyser):
         with open(path, 'w') as output_file:
             for cycle in cycles:
                 cycle_list = _LIST_SEPARATOR.join(sorted(cycle))
-                output_file.write(cycle_list+"\n")
-    
+                output_file.write(cycle_list + "\n")
+
     def _to_package_import(self, import_):
         if _CLASS_IMPORT_PATTERN.match(import_):
             return re.split(r'\.[A-Z]', import_, maxsplit=1)[0]
         else:
-           return import_
+            return import_
 
     def _createPackageCouplingDataFrame(self, packages):
         names = [p.name for p in packages]
         data = []
         for package in reversed(packages):
-            package_imps = [self._to_package_import(imp) for imp in package.imports()]
+            package_imps = [self._to_package_import(
+                imp) for imp in package.imports()]
             data.append([package_imps.count(pName) for pName in names])
-        df =  pd.DataFrame(data=data, index=list(reversed(names)), columns=names)
+        df = pd.DataFrame(
+            data=data,
+            index=list(
+                reversed(names)),
+            columns=names)
         return df

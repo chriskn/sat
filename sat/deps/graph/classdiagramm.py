@@ -16,8 +16,8 @@ class ClassDiagramm(Graph):
 
     def __init__(self, packages):
         Graph.__init__(self)
-        (top_level_elements, self._imports_for_fqn) = self._collect_top_level_elements(
-            packages)
+        (top_level_elements,
+         self._imports_for_fqn) = self._collect_top_level_elements(packages)
         self._elements_by_fqn = {tle.fqn: tle for tle in top_level_elements}
         for package in packages:
             self._add_package(package)
@@ -25,24 +25,32 @@ class ClassDiagramm(Graph):
             external_deps = set(self._filter_external_types(tle))
             # if type_ in simple_names
             [self._add_dependency(tle, type_) for type_ in external_deps]
-            if type(tle) == Class:
+            if isinstance(tle, Class):
                 if tle.extends:
                     self._add_dependency(
                         tle, tle.extends, arrowhead="white_delta")
                 for interface in tle.implements:
                     self._add_dependency(
                         tle, interface, line_type="dotted", arrowhead="white_delta")
-            if type(tle) == Interface:
+            if isinstance(tle, Interface):
                 if tle.extends:
                     self._add_dependency(
                         tle, tle.extends, arrowhead="white_delta")
 
-    def _add_dependency(self, tle, dependency, line_type="line", arrowhead="standard"):
+    def _add_dependency(
+            self,
+            tle,
+            dependency,
+            line_type="line",
+            arrowhead="standard"):
         possible_fqns_for_dependency = [
             key for key, val in self._elements_by_fqn.items() if val.name == dependency]
         if len(possible_fqns_for_dependency) == 1:
             self.add_edge(
-                tle.fqn, possible_fqns_for_dependency[0], line_type=line_type, arrowhead=arrowhead)
+                tle.fqn,
+                possible_fqns_for_dependency[0],
+                line_type=line_type,
+                arrowhead=arrowhead)
         elif len(possible_fqns_for_dependency) > 1:
             imports_for_node = self._imports_for_fqn[tle.fqn]
             fqn_deps = imports_for_node.intersection(
@@ -51,8 +59,9 @@ class ClassDiagramm(Graph):
                 self.add_edge(tle.fqn, list(fqn_deps)[
                               0], line_type=line_type, arrowhead=arrowhead)
             elif len(fqn_deps) > 0:
-                logger.warn("Multiple alternative dependencies from node %s to possible alternatives: %s" % (
-                    tle.fqn, ",".join(fqn_deps)))
+                logger.warn(
+                    "Multiple alternative dependencies from node %s to possible alternatives: %s" %
+                    (tle.fqn, ",".join(fqn_deps)))
         # else:
             #logger.warn("Can't find dependency from node %s to possible alternatives: %s" % (tle.fqn, dependency))
 
@@ -68,17 +77,22 @@ class ClassDiagramm(Graph):
         return (topLevelElements, imports_for_fqn)
 
     def _filter_external_types(self, class_):
-        if not type(class_) is Enum:
+        if not isinstance(class_, Enum):
             types_for_attributes = list(
-                filter(lambda attr: attr.typename not in BUILD_IN_TYPES, class_.attributes))
+                filter(
+                    lambda attr: attr.typename not in BUILD_IN_TYPES,
+                    class_.attributes))
             types_for_attributes[:] = [
                 type.typename for type in types_for_attributes if type.typename != "enum"]
             types_for_params = []
             for method in class_.methods:
-                types_for_params.extend(list(
-                    filter(lambda param: param.typename not in BUILD_IN_TYPES, method.parameters)))
+                types_for_params.extend(
+                    list(
+                        filter(
+                            lambda param: param.typename not in BUILD_IN_TYPES,
+                            method.parameters)))
             types_for_params[:] = [type.typename for type in types_for_params]
-            return types_for_attributes+types_for_params
+            return types_for_attributes + types_for_params
         return []
 
     def _filter_parents(self, class_):
@@ -119,7 +133,11 @@ class ClassDiagramm(Graph):
     def _add_class(self, clazz, package_group):
         uml = self._uml(clazz)
         self.add_node(
-            clazz.name, package_group, node_type="UMLClassNode", shape_fill="#FFFFFF", UML=uml)
+            clazz.name,
+            package_group,
+            node_type="UMLClassNode",
+            shape_fill="#FFFFFF",
+            UML=uml)
 
     def _uml(self, type):
         attributes = [self._declaration_to_string(
@@ -145,7 +163,8 @@ class ClassDiagramm(Graph):
                              for modifier in attribute.modifiers])
         static = self._static_prefix(attribute.modifiers)
         abstract = self._abstract_prefix(attribute.modifiers)
-        return "{0}{1} {2}{3}: {4}".format(abstract, static, modifiers, attribute.name, attribute.typename)
+        return "{0}{1} {2}{3}: {4}".format(
+            abstract, static, modifiers, attribute.name, attribute.typename)
 
     def _visibility(self, modifier):
         visibility_switch = {

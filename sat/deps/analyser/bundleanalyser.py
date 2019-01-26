@@ -8,8 +8,14 @@ from deps.domain import Bundle
 import os
 
 
-_OUTPUT_HEADER = ["Name", "Version", "Number of Dependencies",
-                  "Exported Packages", "Imported Packages", "Required Bundles", "Path to Bundle"]
+_OUTPUT_HEADER = [
+    "Name",
+    "Version",
+    "Number of Dependencies",
+    "Exported Packages",
+    "Imported Packages",
+    "Required Bundles",
+    "Path to Bundle"]
 _CSV_SEPARATOR = "\t"
 _LIST_SEPARATOR = ", "
 
@@ -59,13 +65,18 @@ class BundleAnalyser(Analyser):
             for cycle in self._cycles:
                 cycleList = _LIST_SEPARATOR.join(
                     sorted([label for label in cycle]))
-                output_file.write(cycleList+"\n")
+                output_file.write(cycleList + "\n")
 
     def _writeBundlesToCsv(self, path):
         with open(path, 'w') as output_file:
             output_file.write(_CSV_SEPARATOR.join(
-                _OUTPUT_HEADER)+"\n")
-            for bundle in sorted(sorted(self._bundles, key=lambda x: x.name), key=lambda x: x.num_dependencies, reverse=True):
+                _OUTPUT_HEADER) + "\n")
+            for bundle in sorted(
+                    sorted(
+                        self._bundles,
+                        key=lambda x: x.name),
+                    key=lambda x: x.num_dependencies,
+                    reverse=True):
                 output_file.write(_CSV_SEPARATOR.join([
                     bundle.name,
                     bundle.version,

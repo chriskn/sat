@@ -22,6 +22,7 @@ _TYPES = [
     Type("dummy4/path", "dummy4", [])
 ]
 
+
 class TestClassComp(unittest.TestCase):
 
     def setUp(self):
@@ -48,39 +49,55 @@ class TestClassComp(unittest.TestCase):
         methods = list(result['Methods with complexity > 0'])
         self.assertEqual(complexity, [500, 25, 14, 0])
         self.assertEqual(classes, ["dummy3", "dummy1", "dummy2", "dummy4"])
-        self.assertEqual(paths, ["dummy3/path", "dummy1/path", "dummy2/path", "dummy4/path"])
-        self.assertEqual(methods, ["dummy3Method2:500", "dummy1Method2:15, dummy1Method1:10", "dummy2Method2:9, dummy2Method1:5", ""])
+        self.assertEqual(
+            paths, [
+                "dummy3/path", "dummy1/path", "dummy2/path", "dummy4/path"])
+        self.assertEqual(methods,
+                         ["dummy3Method2:500",
+                          "dummy1Method2:15, dummy1Method1:10",
+                          "dummy2Method2:9, dummy2Method1:5",
+                          ""])
         self.assertEqual(len(result.columns), 4,
                          "Columns with unexpected lengths.")
 
     @mock.patch("report.plot.plot_barchart")
     @mock.patch("report.xls.write_data_frame")
     @mock.patch("comp.repo.typerepo.types")
-    def test_write_results_calls_write_data_frame(self, mock_type_repo, write_xls, plot_barchart):
+    def test_write_results_calls_write_data_frame(
+            self, mock_type_repo, write_xls, plot_barchart):
         mock_type_repo.return_value = []
         self.sut.load_data("", "")
         self.sut.analyse("")
         odir = "result\\dir"
         self.sut.write_results(odir)
         write_xls.assert_called_with(
-            ANY, "cognitive_complexity_per_class.xls", odir, "Class Complexity")
+            ANY,
+            "cognitive_complexity_per_class.xls",
+            odir,
+            "Class Complexity")
 
     @mock.patch("report.plot.plot_barchart")
     @mock.patch("report.xls.write_data_frame")
     @mock.patch("comp.repo.typerepo.types")
-    def test_write_results_calls_plot_barchart(self, mock_type_repo, write_xls, plot_barchart):
+    def test_write_results_calls_plot_barchart(
+            self, mock_type_repo, write_xls, plot_barchart):
         mock_type_repo.return_value = []
         self.sut.load_data("", "")
         odir = "result\\dir"
         self.sut.analyse("")
         self.sut.write_results(odir)
         plot_barchart.assert_called_with(
-            ANY, "Cognitive complexity", "Classes with highest cognitive complexity", odir, "most_complex_classes.pdf")
+            ANY,
+            "Cognitive complexity",
+            "Classes with highest cognitive complexity",
+            odir,
+            "most_complex_classes.pdf")
 
     @mock.patch("report.plot.plot_barchart")
     @mock.patch("report.xls.write_data_frame")
     @mock.patch("comp.repo.typerepo.types")
-    def test_write_results_plots_expected_data(self, mock_type_repo, write_xls, plot_barchart):
+    def test_write_results_plots_expected_data(
+            self, mock_type_repo, write_xls, plot_barchart):
         mock_type_repo.return_value = _TYPES
         self.sut.load_data("", "")
         self.sut.analyse("")
@@ -94,6 +111,7 @@ class TestClassComp(unittest.TestCase):
         self.assertEqual(classes, ["dummy3", "dummy1", "dummy2"])
         self.assertEqual(len(used_data.columns), 2,
                          "Columns with unexpected lengths.")
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+#pylint: disable=too-few-public-methods
 
 class Project():
 
@@ -10,6 +11,7 @@ class Project():
         self.packages = packages
         self.complexity = sum(package.complexity for package in packages)
 
+
 class Package():
 
     def __init__(self, path, name, types):
@@ -17,6 +19,7 @@ class Package():
         self.name = name
         self.types = types
         self.complexity = sum(type_.complexity for type_ in types)
+
 
 class Type():
 

@@ -12,21 +12,23 @@ class TestTypeRepo(unittest.TestCase):
         sut._types = dict()
 
     @mock.patch("comp.repo.typerepo._parse_types")
-    def test_types_not_calls__parse_types_twice_for_same_input(self, _parse_types):
+    def test_types_not_calls__parse_types_twice_for_same_input(
+            self, _parse_types):
         workingdir = "foo"
-        ignored = ["bar", "", "foo"]
+        ignored = ["bar", "blub", "foo"]
         sut.types(workingdir, ignored)
         sut.types(workingdir, ignored)
         self.assertEqual(_parse_types.call_count, 1)
 
     @mock.patch("comp.repo.typerepo._parse_types")
-    def test_types_calls__parse_types_depending_on_dir_and_ignored(self, _parse_types):
+    def test_types_calls__parse_types_depending_on_dir_and_ignored(
+            self, _parse_types):
         workingdir = "foo"
         ignored = ["bar", "", "foo"]
         sut.types(workingdir, ignored)
         sut.types(workingdir, ignored)
-        sut.types(workingdir, ignored+["another"])
-        sut.types(workingdir+"another", ignored)
+        sut.types(workingdir, ignored + ["another"])
+        sut.types(workingdir + "another", ignored)
         self.assertEqual(_parse_types.call_count, 3)
 
     @mock.patch("comp.repo.typerepo._parse_types")

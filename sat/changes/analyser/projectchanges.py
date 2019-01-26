@@ -51,24 +51,32 @@ class ProjectChanges(Analyser):
             data.append((rel_proj_path, proj_name, lines_added +
                          lines_removed, lines_added, lines_removed))
         df = pd.DataFrame(data=data, columns=ProjectChanges._COLUMNS)
-        self._df = df.sort_values(ProjectChanges._COLUMNS[2], ascending=False)
-        return self._df
+        self._analysis_result = df.sort_values(ProjectChanges._COLUMNS[2], ascending=False)
+        return self._analysis_result
 
     def _norm_path(self, full_project_path):
         norm_package_path = full_project_path.replace(self._workingDir, "")
-        rel_pattern = "^[.]*"+re.escape(os.sep)
+        rel_pattern = "^[.]*" + re.escape(os.sep)
         if re.match(rel_pattern, norm_package_path):
             norm_package_path = re.sub(rel_pattern, '', norm_package_path)
         return norm_package_path
 
     def write_results(self, outputdir):
-        xls.write_data_frame(self._df, "changed_lines_per_project.xls",
-                             outputdir, "Changes since "+self._since)
+        xls.write_data_frame(self._analysis_result, "changed_lines_per_project.xls",
+                             outputdir, "Changes since " + self._since)
         tm_data = self._create_tm_data()
-        plot.plot_treemap(tm_data, "Number of changed lines per project since " +
-                          self._since, outputdir, "changed_lines_per_project.pdf", "changes:")
+        plot.plot_treemap(
+            tm_data,
+            "Number of changed lines per project since " +
+            self._since,
+            outputdir,
+            "changed_lines_per_project.pdf",
+            "changes:")
 
     def _create_tm_data(self):
-        tm_data = self._df.drop(columns=[
-                                ProjectChanges._COLUMNS[0], ProjectChanges._COLUMNS[3], ProjectChanges._COLUMNS[4]])
+        tm_data = self._analysis_result.drop(
+            columns=[
+                ProjectChanges._COLUMNS[0],
+                ProjectChanges._COLUMNS[3],
+                ProjectChanges._COLUMNS[4]])
         return tm_data[tm_data[ProjectChanges._COLUMNS[2]] > 0]

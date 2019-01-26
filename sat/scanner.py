@@ -5,6 +5,7 @@ import os
 import xml.etree.ElementTree
 import itertools
 
+
 def find_projects(directory, ignored_path_segments):
     project_dirs = dict()
     for dirpath, _, files in os.walk(directory):
@@ -13,8 +14,6 @@ def find_projects(directory, ignored_path_segments):
         if not ignored:
             for file in files:
                 if file == ".classpath":
-                    #any as each folder starts at projectroot
-                    sourcefolder = _find_sourcefolders_for_project(dirpath)[0]
                     path = os.path.normpath(dirpath)
                     name = path.split(os.sep)[-1]
                     project_dirs[path] = name
@@ -43,8 +42,9 @@ def find_packages(directory, ignored_path_segments):
 def find_java_source_files(directory, ignored_path_segments):
     java_file_paths = []
     for dirpath, _, files in os.walk(directory):
-        java_file_paths.append([os.path.join(dirpath,file) for file in files if file.endswith(".java")])
-        #ignored = any(ignored_segment in dirpath for ignored_segment in ignored_path_segments)
+        java_file_paths.append([os.path.join(dirpath, file)
+                                for file in files if file.endswith(".java")])
+    # ignored = any(ignored_segment in dirpath for ignored_segment in ignored_path_segments)
     return list(itertools.chain.from_iterable(java_file_paths))
 
 

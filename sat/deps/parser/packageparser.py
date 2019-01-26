@@ -22,7 +22,8 @@ class PackageParser:
                 packagename = os.path.normpath(
                     package_path.replace(sourcefolder, ""))
                 packagename = ".".join(packagename.strip(os.sep).split(os.sep))
-                sourcefiles = repo.sourcefiles(java_filenames, package_path, packagename)
+                sourcefiles = repo.sourcefiles(
+                    java_filenames, package_path, packagename)
                 new_package = Package(packagename, package_path, sourcefiles)
                 source_packages.append(new_package)
         return source_packages

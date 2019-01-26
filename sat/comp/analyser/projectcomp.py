@@ -1,18 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
-from collections import OrderedDict
-
 import pandas as pd
 
 import comp.repo.projectrepo as prepo
-import comp.repo.typerepo as repo
+
 import report.plot as plot
 import report.xls as xls
-import scanner
+
 from app.analyser import Analyser
-from comp.domain import Method, Type
 
 _COLUMNS = ["Project", "Complexity", "Path"]
 
@@ -22,25 +18,36 @@ class ProjectComp(Analyser):
     def name():
         return "projects"
 
-    def load_data(self, workingdir, ignored_path_segments):
-        self._projects = prepo.projects(workingdir, ignored_path_segments) 
+    def __init__(self):
+        self._projects = None
+        self._analysis_result = None
 
-    def analyse(self, ignoredPathSegments):
+    def load_data(self, workingdir, ignored_path_segments):
+        self._projects = prepo.projects(workingdir, ignored_path_segments)
+
+    def analyse(self, ignored_path_segments):
         self._logger.info("Analysing Project Complexity.")
         data = []
         for project in self._projects:
             data.append((project.name, project.complexity, project.path))
-        df = pd.DataFrame(data, columns=_COLUMNS)
-        self._df = df.sort_values(_COLUMNS[1], ascending=False)
-        return self._df
+        project_data = pd.DataFrame(data, columns=_COLUMNS)
+        self._analysis_result = project_data.sort_values(_COLUMNS[1], ascending=False)
+        return self._analysis_result
 
-    def write_results(self, outputdir):
-        xls.write_data_frame(self._df, "cognitive_complexity_per_project.xls", outputdir, "Project Complexity")
+    def write_results(self, outputfolder):
+        xls.write_data_frame(
+            self._analysis_result,
+            "cognitive_complexity_per_project.xls",
+            outputfolder,
+            "Project Complexity")
         tm_data = self._create_treemap_data()
-        plot.plot_treemap(tm_data, "Cognitive complexity per project", outputdir,
-                              "cognitive_complexity_per_project.pdf", "complexity:")
-    
-   
+        plot.plot_treemap(
+            tm_data,
+            "Cognitive complexity per project",
+            outputfolder,
+            "cognitive_complexity_per_project.pdf",
+            "complexity:")
+
     def _create_treemap_data(self):
-        tm_data = self._df.drop(columns=["Path"])
+        tm_data = self._analysis_result.drop(columns=["Path"])
         return tm_data[tm_data.Complexity > 0]

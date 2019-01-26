@@ -6,8 +6,8 @@ import mock
 import javalang
 import comp.typeparser as sut
 
-class TypeParserTest(unittest.TestCase):
 
+class TypeParserTest(unittest.TestCase):
 
     @mock.patch("java.parse")
     def test_parser_returns_empty_list_for_none_ast(self, java_parser):
@@ -30,7 +30,7 @@ class TypeParserTest(unittest.TestCase):
         result = sut.parse("")
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].name, "Test")
-    
+
     @mock.patch("java.parse")
     def test_parser_returns_interface(self, java_parser):
         input_ast = javalang.parse.parse("package dummy; interface Test {}")
@@ -41,7 +41,7 @@ class TypeParserTest(unittest.TestCase):
 
     @mock.patch("java.parse")
     def test_parser_returns_nested_types(self, java_parser):
-        input_ast = javalang.parse.parse("""package dummy; 
+        input_ast = javalang.parse.parse("""package dummy;
             class Class {
                 class IClass {
                     enum IIEnum {
@@ -55,7 +55,7 @@ class TypeParserTest(unittest.TestCase):
 
     @mock.patch("java.parse")
     def test_parser_returns_private_classes(self, java_parser):
-        input_ast = javalang.parse.parse("""package dummy; 
+        input_ast = javalang.parse.parse("""package dummy;
             private class pClass1 {}
             private class pClass2 {}
             class Class {}
@@ -69,7 +69,7 @@ class TypeParserTest(unittest.TestCase):
 
     @mock.patch("java.parse")
     def test_parser_parses_empty_methods(self, java_parser):
-        input_ast = javalang.parse.parse("""package dummy; 
+        input_ast = javalang.parse.parse("""package dummy;
             class Class {
                 private static void staticFoo(){}
                 private void foo(){}

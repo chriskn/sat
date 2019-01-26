@@ -14,7 +14,8 @@ class TestProjectRepo(unittest.TestCase):
         sut._projects = dict()
 
     @mock.patch("comp.repo.projectrepo._parse_projects")
-    def test_projects_not_calls__parse_projects_twice_for_same_input(self, _parse_projects):
+    def test_projects_not_calls__parse_projects_twice_for_same_input(
+            self, _parse_projects):
         workingdir = "dir"
         ignored = ["bar", "", "foo"]
         sut.projects(workingdir, ignored)
@@ -22,14 +23,15 @@ class TestProjectRepo(unittest.TestCase):
         self.assertEqual(_parse_projects.call_count, 1)
 
     @mock.patch("comp.repo.projectrepo._parse_projects")
-    def test_projects_calls__parse_projects_depending_on_dir_and_ignored(self, _parse_projects):
+    def test_projects_calls__parse_projects_depending_on_dir_and_ignored(
+            self, _parse_projects):
         workingdir = "foo"
         ignored = ["bar", "", "foo"]
         sut.projects(workingdir, ignored)
         # duplicate
         sut.projects(workingdir, ignored)
-        sut.projects(workingdir, ignored+["another"])
-        sut.projects(workingdir+"another", ignored)
+        sut.projects(workingdir, ignored + ["another"])
+        sut.projects(workingdir + "another", ignored)
         self.assertEqual(_parse_projects.call_count, 3)
 
     @mock.patch("comp.repo.projectrepo._parse_projects")
@@ -56,7 +58,7 @@ class TestProjectRepo(unittest.TestCase):
     @mock.patch("comp.repo.packagerepo.packages")
     def test_parser_creates_expected_projects(self, packagerepo, scanner):
         scanner_result = {
-            "foo//bar//proj1//a1/b1//": "a1"+os.sep+"b1",
+            "foo//bar//proj1//a1/b1//": "a1" + os.sep + "b1",
             # single slash after proj2 is by intention
             "bar//proj2/a2//": "a2",
             "proj3//a2//": "a2"

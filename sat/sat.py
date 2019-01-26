@@ -15,7 +15,12 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO,
 _OUTPUT_FOLDER_NAME = datetime.datetime.now().strftime("%d%m%y_%H-%M-%S")
 
 
-def run_deps_analysers(analysernames, deps_analysers_by_name, workingdir, ignored_path_segments, outputdir):
+def run_deps_analysers(
+        analysernames,
+        deps_analysers_by_name,
+        workingdir,
+        ignored_path_segments,
+        outputdir):
     for analyser_name in analysernames:
         analyser = deps_analysers_by_name[analyser_name]()
         analyser.load_data(workingdir, ignored_path_segments)
@@ -23,7 +28,13 @@ def run_deps_analysers(analysernames, deps_analysers_by_name, workingdir, ignore
         analyser.write_results(outputdir)
 
 
-def run_change_analysers(analysernames, change_analysers_by_name, workingdir, ignored_path_segments, outputdir, since):
+def run_change_analysers(
+        analysernames,
+        change_analysers_by_name,
+        workingdir,
+        ignored_path_segments,
+        outputdir,
+        since):
     for analyser_name in analysernames:
         analyser = change_analysers_by_name[analyser_name](since)
         analyser.load_data(workingdir, ignored_path_segments)
@@ -31,7 +42,12 @@ def run_change_analysers(analysernames, change_analysers_by_name, workingdir, ig
         analyser.write_results(outputdir)
 
 
-def run_comp_analysers(analysernames, comp_analysers_by_name, workingdir, ignored_path_segments, outputdir):
+def run_comp_analysers(
+        analysernames,
+        comp_analysers_by_name,
+        workingdir,
+        ignored_path_segments,
+        outputdir):
     for analyser_name in analysernames:
         analyser = comp_analysers_by_name[analyser_name]()
         analyser.load_data(workingdir, ignored_path_segments)
@@ -53,8 +69,9 @@ if __name__ == '__main__':
     if not os.path.exists(outputdir):
         os.makedirs(outputdir)
 
-    logger.info("Ignoring directory paths containing one of the following strings %s",
-                ignored_path_segments)
+    logger.info(
+        "Ignoring directory paths containing one of the following strings %s",
+        ignored_path_segments)
     logger.info("Using directory %s as working directory", workingdir)
     logger.info("Using directory %s as output directory", outputdir)
     logger.info("Running the following analysers: %s", ", ".join(analysers))
@@ -63,8 +80,13 @@ if __name__ == '__main__':
         run_deps_analysers(analysers, deps_analysers_by_name,
                            workingdir, ignored_path_segments, outputdir)
     if analyser_group == "changes":
-        run_change_analysers(analysers, change_analysers_by_name,
-                             workingdir, ignored_path_segments, outputdir, since)
+        run_change_analysers(
+            analysers,
+            change_analysers_by_name,
+            workingdir,
+            ignored_path_segments,
+            outputdir,
+            since)
     if analyser_group == "comp":
         run_comp_analysers(analysers, comp_analysers_by_name,
                            workingdir, ignored_path_segments, outputdir)

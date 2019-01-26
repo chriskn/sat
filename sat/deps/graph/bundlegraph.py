@@ -38,13 +38,22 @@ class BundleGraph(Graph):
                                       height=node_size)
                     elif self.add_node(req_bundle, shape_fill=self._WHITE):
                         self._logger.info(
-                            "Bundle %s is not contained in workspace." % req_bundle)
+                            "Bundle %s is not contained in workspace." %
+                            req_bundle)
                     self.add_edge(bundle.name, req_bundle, label="requires")
                 for imported_package in bundle.imported_packages:
                     self._add_edge_for_package_import(
-                        bundle.name, imported_package, self._bundles_for_exports, num_dependencies_for_bundle)
+                        bundle.name,
+                        imported_package,
+                        self._bundles_for_exports,
+                        num_dependencies_for_bundle)
 
-    def _add_edge_for_package_import(self, sourceBundle, importedPackage, bundlesForExports, numDependenciesForBundle):
+    def _add_edge_for_package_import(
+            self,
+            sourceBundle,
+            importedPackage,
+            bundlesForExports,
+            numDependenciesForBundle):
         if importedPackage in bundlesForExports:
             exportingBundle = bundlesForExports[importedPackage]
             ignored = any(
@@ -55,12 +64,16 @@ class BundleGraph(Graph):
                 self.add_node(exportingBundle.name,
                               width=nodeSize, height=nodeSize)
                 self.add_edge(sourceBundle, exportingBundle.name,
-                              label="imports "+importedPackage)
+                              label="imports " + importedPackage)
         else:
             ignored = any(
                 ignoredSegment in importedPackage for ignoredSegment in self._ignored_path_segments)
             if not ignored:
-                if self.add_node(importedPackage, shape_fill=self._WHITE, shape="rectangle"):
+                if self.add_node(
+                        importedPackage,
+                        shape_fill=self._WHITE,
+                        shape="rectangle"):
                     self._logger.info(
-                        "Exporting bundle not found for import %s. Created package node instead" % importedPackage)
+                        "Exporting bundle not found for import %s. Created package node instead" %
+                        importedPackage)
                 self.add_edge(sourceBundle, importedPackage, label="imports")

@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
-
 import pandas as pd
 
-import comp.repo.typerepo as repo
 import report.plot as plot
 import report.xls as xls
+
 from app.analyser import Analyser
-from comp.domain import Method, Type
+
+import comp.repo.typerepo as repo
 
 
 class ClassComp(Analyser):
@@ -18,10 +17,14 @@ class ClassComp(Analyser):
     def name():
         return "classes"
 
+    def __init__(self):
+        self._analysis_result = None
+        self._types = None
+
     def load_data(self, workingdir, ignored_path_segments):
         self._types = repo.types(workingdir, ignored_path_segments)
 
-    def analyse(self, ignoredPathSegments):
+    def analyse(self, ignored_path_segments):
         self._logger.info("Analysing Class Complexity.")
         data = []
         complexity_col = "Complexity"
@@ -35,18 +38,25 @@ class ClassComp(Analyser):
                                 if method.complexity > 0]
             data.append([type_.name, type_.complexity,
                          ", ".join(comp_for_methods), type_.path])
-        df = pd.DataFrame(data, columns=columns)
-        self._df = df.sort_values(complexity_col, ascending=False)
-        return self._df
+        class_data_frame = pd.DataFrame(data, columns=columns)
+        self._analysis_result = class_data_frame.sort_values(complexity_col, ascending=False)
+        return self._analysis_result
 
-    def write_results(self, outputdir):
+    def write_results(self, outputfolder):
         xls.write_data_frame(
-            self._df, "cognitive_complexity_per_class.xls", outputdir, "Class Complexity")
-        df = self._create_barchart_data()
-        plot.plot_barchart(df, "Cognitive complexity",
-                               "Classes with highest cognitive complexity", outputdir, "most_complex_classes.pdf")
+            self._analysis_result,
+            "cognitive_complexity_per_class.xls",
+            outputfolder,
+            "Class Complexity")
+        batchart_data = self._create_barchart_data()
+        plot.plot_barchart(
+            batchart_data,
+            "Cognitive complexity",
+            "Classes with highest cognitive complexity",
+            outputfolder,
+            "most_complex_classes.pdf")
 
     def _create_barchart_data(self):
-        classes_with_comp = self._df.drop(
+        classes_with_comp = self._analysis_result.drop(
             columns=["Methods with complexity > 0", "Path"])
         return classes_with_comp[classes_with_comp.Complexity > 0]

@@ -12,12 +12,15 @@ import os
 from comp.domain import Type, Method
 
 
-def is_method(body_element): return isinstance(
-    body_element, ConstructorDeclaration) or isinstance(body_element, MethodDeclaration)
+def is_method(body_element):
+    return isinstance(
+        body_element, ConstructorDeclaration) or isinstance(
+        body_element, MethodDeclaration)
 
 
-def is_type(type): return isinstance(type, ClassDeclaration) or isinstance(
-    type, InterfaceDeclaration) or isinstance(type, EnumDeclaration)
+def is_type(type):
+    return isinstance(type, ClassDeclaration) or isinstance(
+        type, InterfaceDeclaration) or isinstance(type, EnumDeclaration)
 
 
 def parse(java_file):

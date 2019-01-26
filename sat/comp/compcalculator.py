@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from javalang.tree import (BinaryOperation, BlockStatement, CatchClause,
-                           ConstructorDeclaration, DoStatement, ForStatement,
-                           IfStatement, Literal, MemberReference,
-                           MethodDeclaration, Node, SwitchStatement,
+from javalang.tree import (BinaryOperation, CatchClause, DoStatement,
+                           ForStatement, IfStatement, Node, SwitchStatement,
                            TernaryExpression, WhileStatement)
 
 
@@ -37,42 +35,48 @@ def _count_recursive(expr, parent=None, count=0, nesting=0):
 def _calc_for_expression(expr, parent, nesting):
     if isinstance(expr, BinaryOperation):
         op = expr.operator
-        if op == "||" or op == "&&":
+        if op in  ("||", "&&"):
             return 1
     if isinstance(expr, TernaryExpression):
         return 1
     if isinstance(expr, SwitchStatement):
-        return 1+nesting
+        return 1 + nesting
     if isinstance(expr, CatchClause):
-        return 1+nesting
+        return 1 + nesting
     if isinstance(expr, IfStatement):
         if _is_elseif(expr, parent):
             count = 1
             if _has_else(expr):
                 count += 1
             return count
-        count = 1+nesting
+        count = 1 + nesting
         if _has_else(expr):
             count += 1
         return count
     if isinstance(expr, WhileStatement):
-        return 1+nesting
+        return 1 + nesting
     if isinstance(expr, ForStatement):
-        return 1+nesting
+        return 1 + nesting
     if isinstance(expr, DoStatement):
-        return 1+nesting
+        return 1 + nesting
     return 0
 
 
 def _increments_nesting(expr, parent):
     is_elseif = _is_elseif(expr, parent)
-    if (isinstance(expr, IfStatement) and not is_elseif) or isinstance(expr, SwitchStatement) or isinstance(expr, CatchClause) or isinstance(expr, ForStatement) or isinstance(expr, WhileStatement) or isinstance(expr, DoStatement):
+    if (isinstance(expr, IfStatement) and not is_elseif) or isinstance(
+            expr, (SwitchStatement, CatchClause)) or _is_loop(expr):
         return True
     return False
 
+def _is_loop(expr):
+    if isinstance(expr, (DoStatement, ForStatement, WhileStatement)):
+        return True
+    return False
 
 def _has_else(if_statement):
-    if if_statement.else_statement and not isinstance(if_statement.else_statement, IfStatement):
+    if if_statement.else_statement and not isinstance(
+            if_statement.else_statement, IfStatement):
         return True
     return False
 

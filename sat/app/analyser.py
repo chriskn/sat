@@ -7,10 +7,10 @@ import logging
 
 
 class Analyser(ABC):
-    
+
     @staticmethod
     @abstractmethod
-    def name(Analyser):
+    def name():
         pass
 
     @property
@@ -18,7 +18,7 @@ class Analyser(ABC):
         return logging.getLogger(self.__class__.__name__)
 
     @abstractmethod
-    def load_data(self, workingDir, ignoredpathsegments):
+    def load_data(self, workingdir, ignoredpathsegments):
         pass
 
     @abstractmethod

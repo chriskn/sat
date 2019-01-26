@@ -5,7 +5,8 @@ import os
 import deps.parser.javaparser as javaParser
 from deps.domain import SourceFile
 
-class SourcefileParser: 
+
+class SourcefileParser:
 
     def parse_sourcefiles(self, java_filenames, package_path, packagename=""):
         sourcefiles = []
@@ -14,8 +15,8 @@ class SourcefileParser:
             if sourcefile:
                 sourcefiles.append(sourcefile)
         return sourcefiles
-    
+
     def _parse(self, javafilename, package_path, packagename=""):
         if javafilename.split(".")[1] == "java":
-            return javaParser.parse_java_sourcefile(os.path.join(package_path, javafilename), packagename)
-
+            return javaParser.parse_java_sourcefile(
+                os.path.join(package_path, javafilename), packagename)

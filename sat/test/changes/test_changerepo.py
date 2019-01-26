@@ -10,7 +10,7 @@ import mock
 
 import changes.changerepo as sut
 
-_PATH_TO_TESTDATA = os.path.join("data","git_changes_test.log")
+_PATH_TO_TESTDATA = os.path.join("data", "git_changes_test.log")
 
 
 class TestChangeRepo(unittest.TestCase):
@@ -19,7 +19,8 @@ class TestChangeRepo(unittest.TestCase):
         sut._changes_by_dir = dict()
 
     @mock.patch("changes.changerepo._parse_changes")
-    def test_changes_does_run_command_twice_for_same_params(self, _parse_changes):
+    def test_changes_does_run_command_twice_for_same_params(
+            self, _parse_changes):
         workingdir = "foo"
         since = "01.01.2018"
 
@@ -46,29 +47,51 @@ class TestChangeRepo(unittest.TestCase):
         resulting_changes = sut.changes("", "")
 
         max_change = sorted(
-            resulting_changes, key=lambda c: c.lines_added+c.lines_removed, reverse=True)[0]
+            resulting_changes,
+            key=lambda c: c.lines_added +
+            c.lines_removed,
+            reverse=True)[0]
         self._assertChange(
-            max_change, os.path.join("exampleprojects","my.dummy.project5","src","my","dummy","project5","compl","dummy","ComplDummy.java"), 144, 0)
+            max_change,
+            os.path.join(
+                "exampleprojects",
+                "my.dummy.project5",
+                "src",
+                "my",
+                "dummy",
+                "project5",
+                "compl",
+                "dummy",
+                "ComplDummy.java"),
+            144,
+            0)
 
-        path_for_change_with_added_and_removed = os.path.join("exampleprojects","my.dummy.project1","META-INF","MANIFEST2.MF")
+        path_for_change_with_added_and_removed = os.path.join(
+            "exampleprojects", "my.dummy.project1", "META-INF", "MANIFEST2.MF")
         change_with_added_and_removed = self._get_change_by_path(
             resulting_changes, path_for_change_with_added_and_removed)[0]
         self._assertChange(change_with_added_and_removed,
                            path_for_change_with_added_and_removed, 1, 2)
 
-        path_with_multiple_changes = os.path.join("exampleprojects","my.dummy.project1","META-INF","MANIFEST.MF")
+        path_with_multiple_changes = os.path.join(
+            "exampleprojects", "my.dummy.project1", "META-INF", "MANIFEST.MF")
         multiple_changes_for_path = self._get_change_by_path(
             resulting_changes, path_with_multiple_changes)
         self.assertEqual(len(multiple_changes_for_path), 2)
 
     @mock.patch("subprocess.run", **{'side_effect': OSError()})
-    def test_changes_returns_empty_list_if_oserror_occur_during_process_execution(self, executer):
+    def test_changes_returns_empty_list_if_oserror_occur_during_process_execution(
+            self,
+            executer):
         resulting_changes = sut.changes("", "")
         self.assertRaises(OSError, executer)
         self.assertEqual(len(resulting_changes), 0)
 
-    @mock.patch("subprocess.run", **{'side_effect': CalledProcessError(returncode=1, cmd="")})
-    def test_changes_returns_empty_list_if_processerror_occur_during_process_execution(self, executer):
+    @mock.patch("subprocess.run", **
+                {'side_effect': CalledProcessError(returncode=1, cmd="")})
+    def test_changes_returns_empty_list_if_processerror_occur_during_process_execution(
+            self,
+            executer):
         resulting_changes = sut.changes("", "")
         self.assertRaises(CalledProcessError, executer)
         self.assertEqual(len(resulting_changes), 0)
@@ -88,4 +111,4 @@ class TestChangeRepo(unittest.TestCase):
         self.assertEqual(change.path, exp_path)
         self.assertEqual(change.lines_added, exp_added)
         self.assertEqual(change.lines_removed, exp_removed)
-        self.assertEqual(change.total_lines, exp_added+exp_removed)
+        self.assertEqual(change.total_lines, exp_added + exp_removed)

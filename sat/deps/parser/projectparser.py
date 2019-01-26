@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os,re
+import os
+import re
 from deps.domain import Project
 from deps.parser.packageparser import PackageParser
 
@@ -17,25 +18,32 @@ class ProjectParser:
 
     def parse(self):
         projetc_paths = self._scan()
-        projects = [self._parseProject(projectPath) for projectPath in projetc_paths]
+        projects = [self._parseProject(projectPath)
+                    for projectPath in projetc_paths]
         return projects
 
     def _scan(self):
         projects = []
         for dirpath, _, files in os.walk(self.directory):
-            ignored = any(ignored_segment in dirpath for ignored_segment in self.ignored_path_segments)
-            if not ignored: 
+            ignored = any(
+                ignored_segment in dirpath for ignored_segment in self.ignored_path_segments)
+            if not ignored:
                 for file in files:
-                    if file == ".classpath": 
+                    if file == ".classpath":
                         projects.append(dirpath)
         return projects
 
     def _parseProject(self, project_path):
-        classpathFilePath = os.path.join(project_path,".classpath")
+        classpathFilePath = os.path.join(project_path, ".classpath")
         relative_sourcefolders = self._parse_classpath(classpathFilePath)
-        sourcefolders = [os.path.join(project_path, s) for s in relative_sourcefolders]
-        java_source_packages = self.package_parser.parse_packages(sourcefolders)
-        project = Project(os.path.basename(project_path), project_path, java_source_packages)
+        sourcefolders = [os.path.join(project_path, s)
+                         for s in relative_sourcefolders]
+        java_source_packages = self.package_parser.parse_packages(
+            sourcefolders)
+        project = Project(
+            os.path.basename(project_path),
+            project_path,
+            java_source_packages)
         return project
 
     def _parse_classpath(self, classpath_file_path):
@@ -45,4 +53,3 @@ class ProjectParser:
             if classpath.get('kind') == "src":
                 sourcefolders.append(classpath.get('path'))
         return sourcefolders
-

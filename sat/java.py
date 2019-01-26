@@ -3,9 +3,10 @@
 
 import javalang
 from javalang.parser import JavaSyntaxError
-import logging 
+import logging
 
 logger = logging.getLogger(__name__)
+
 
 def parse(file):
     try:

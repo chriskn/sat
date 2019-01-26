@@ -25,20 +25,28 @@ _PACKAGE_3_DUPLICATED = "converter"
 _PACKAGE_4 = "interpreter"
 _PACKAGE_5 = "src.main.dummy5.persistence"
 
-_FULL_PATH_PACKAGE_1 = ("%s"*4) % (_PROJ_PATH_1, os.sep, _PACKAGE_1, os.sep)
-_FULL_PATH_PACKAGE_2 = ("%s"*4) % (_PROJ_PATH_1, os.sep, _PACKAGE_2, os.sep)
-_FULL_PATH_PACKAGE_3 = ("%s"*4) % (_PROJ_PATH_2, os.sep, _PACKAGE_3_DUPLICATED, os.sep)
-_FULL_PATH_PACKAGE_4 = ("%s"*4) % (_PROJ_PATH_2, os.sep, _PACKAGE_4, os.sep)
-_FULL_PATH_PACKAGE_5 = ("%s"*4) % (_PROJ_PATH_2, os.sep, _PACKAGE_5, os.sep)
-_FULL_PATH_PACKAGE_6 = ("%s"*4) % (_PROJ_PATH_3, os.sep, _PACKAGE_3_DUPLICATED, os.sep)
+_FULL_PATH_PACKAGE_1 = ("%s" * 4) % (_PROJ_PATH_1, os.sep, _PACKAGE_1, os.sep)
+_FULL_PATH_PACKAGE_2 = ("%s" * 4) % (_PROJ_PATH_1, os.sep, _PACKAGE_2, os.sep)
+_FULL_PATH_PACKAGE_3 = (
+    "%s" * 4) % (_PROJ_PATH_2,
+                 os.sep,
+                 _PACKAGE_3_DUPLICATED,
+                 os.sep)
+_FULL_PATH_PACKAGE_4 = ("%s" * 4) % (_PROJ_PATH_2, os.sep, _PACKAGE_4, os.sep)
+_FULL_PATH_PACKAGE_5 = ("%s" * 4) % (_PROJ_PATH_2, os.sep, _PACKAGE_5, os.sep)
+_FULL_PATH_PACKAGE_6 = (
+    "%s" * 4) % (_PROJ_PATH_3,
+                 os.sep,
+                 _PACKAGE_3_DUPLICATED,
+                 os.sep)
 
-_FULL_PATH_FILE_1 = _FULL_PATH_PACKAGE_1+"dummy1.java"
-_FULL_PATH_FILE_2 = _FULL_PATH_PACKAGE_2+"dummy2.java"
-_FULL_PATH_FILE_3 = _FULL_PATH_PACKAGE_3+"dummy3.java"
-_FULL_PATH_FILE_4 = _FULL_PATH_PACKAGE_4+"dummy4.java"
-_FULL_PATH_FILE_5 = _FULL_PATH_PACKAGE_4+"dummy5.java"
-_FULL_PATH_FILE_6 = _FULL_PATH_PACKAGE_5+"dummy6.java"
-_FULL_PATH_FILE_7 = _FULL_PATH_PACKAGE_6+"dummy3.java"
+_FULL_PATH_FILE_1 = _FULL_PATH_PACKAGE_1 + "dummy1.java"
+_FULL_PATH_FILE_2 = _FULL_PATH_PACKAGE_2 + "dummy2.java"
+_FULL_PATH_FILE_3 = _FULL_PATH_PACKAGE_3 + "dummy3.java"
+_FULL_PATH_FILE_4 = _FULL_PATH_PACKAGE_4 + "dummy4.java"
+_FULL_PATH_FILE_5 = _FULL_PATH_PACKAGE_4 + "dummy5.java"
+_FULL_PATH_FILE_6 = _FULL_PATH_PACKAGE_5 + "dummy6.java"
+_FULL_PATH_FILE_7 = _FULL_PATH_PACKAGE_6 + "dummy3.java"
 
 _TYPE_1 = Type(_FULL_PATH_FILE_1, "dummy1", [Method(
     "dummy1Method1", 10), Method("dummy1Method2", 15)])
@@ -62,9 +70,9 @@ _PACKAGE_7 = Package(_FULL_PATH_PACKAGE_6, _PACKAGE_3_DUPLICATED, [])
 
 
 _PROJECTS = [
-    Project(_PROJ_PATH_1 , "proj1", [_PACKAGE_1, _PACKAGE_2]),
-    Project(_PROJ_PATH_2 , "proj2", [_PACKAGE_3, _PACKAGE_4, _PACKAGE_5]),
-    Project(_PROJ_PATH_3 , "proj3", [_PACKAGE_6, _PACKAGE_7])
+    Project(_PROJ_PATH_1, "proj1", [_PACKAGE_1, _PACKAGE_2]),
+    Project(_PROJ_PATH_2, "proj2", [_PACKAGE_3, _PACKAGE_4, _PACKAGE_5]),
+    Project(_PROJ_PATH_3, "proj3", [_PACKAGE_6, _PACKAGE_7])
 ]
 
 
@@ -100,33 +108,42 @@ class TestPackageComp(unittest.TestCase):
     @mock.patch("report.plot.plot_treemap")
     @mock.patch("report.xls.write_data_frame")
     @mock.patch("comp.repo.projectrepo.projects")
-    def test_write_results_calls_write_data_frame(self, mock_project_repo, write_xls, plot_treemap):
+    def test_write_results_calls_write_data_frame(
+            self, mock_project_repo, write_xls, plot_treemap):
         mock_project_repo.return_value = []
         self.sut.load_data("", "")
         self.sut.analyse("")
         odir = "result\\dir"
         self.sut.write_results(odir)
         write_xls.assert_called_with(
-            ANY, "cognitive_complexity_per_project.xls", odir, "Project Complexity")
+            ANY,
+            "cognitive_complexity_per_project.xls",
+            odir,
+            "Project Complexity")
 
     @mock.patch("report.plot.plot_treemap")
     @mock.patch("report.xls.write_data_frame")
     @mock.patch("comp.repo.projectrepo.projects")
-    def test_write_results_calls_plot_treemap_for_total_comp(self, mock_project_repo, write_xls, plot_treemap):
+    def test_write_results_calls_plot_treemap_for_total_comp(
+            self, mock_project_repo, write_xls, plot_treemap):
         mock_project_repo.return_value = []
         self.sut.load_data("", "")
         odir = "result\\dir"
         self.sut.analyse("")
         self.sut.write_results(odir)
         expected_total_call = mock.call(
-            ANY, "Cognitive complexity per project", odir, "cognitive_complexity_per_project.pdf", "complexity:")
+            ANY,
+            "Cognitive complexity per project",
+            odir,
+            "cognitive_complexity_per_project.pdf",
+            "complexity:")
         plot_treemap.assert_has_calls([expected_total_call], any_order=True)
 
-  
     @mock.patch("report.plot.plot_treemap")
     @mock.patch("report.xls.write_data_frame")
     @mock.patch("comp.repo.projectrepo.projects")
-    def test_write_results_plots_expected_data_for_total_comp(self, mock_project_repo, write_xls, plot_treemap):
+    def test_write_results_plots_expected_data_for_total_comp(
+            self, mock_project_repo, write_xls, plot_treemap):
         mock_project_repo.return_value = _PROJECTS
         self.sut.load_data("", "")
         self.sut.analyse("")
@@ -138,8 +155,8 @@ class TestPackageComp(unittest.TestCase):
         self.assertEqual(complexity, [1042, 39])
         self.assertEqual(projects, ["proj2", "proj1"])
         self.assertEqual(len(used_dataframes.columns), 2,
-                          "Columns with unexpected lengths.")
+                         "Columns with unexpected lengths.")
 
-  
+
 if __name__ == '__main__':
     unittest.main()

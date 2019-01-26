@@ -44,8 +44,11 @@ class ProjectAnalyser(Analyser):
                           outputDir, "project_coupling_heatmap.pdf")
         self._write_to_graphMl(os.path.join(
             outputDir, "project_dependencies.graphml"), self._projectGraph)
-        self._write_to_graphMl(os.path.join(
-            outputDir, "cyclic_project_dependencies.graphml"), self._cycleProjectGraph)
+        self._write_to_graphMl(
+            os.path.join(
+                outputDir,
+                "cyclic_project_dependencies.graphml"),
+            self._cycleProjectGraph)
 
     def _create_project_coupling_data_frame(self, projects):
         proj_name = []
@@ -61,7 +64,11 @@ class ProjectAnalyser(Analyser):
                     proj_deps += occurences
                 proj_data.append(proj_deps)
             data.append(proj_data)
-        return pd.DataFrame(data=data, index=proj_name, columns=list(reversed(proj_name)))
+        return pd.DataFrame(
+            data=data,
+            index=proj_name,
+            columns=list(
+                reversed(proj_name)))
 
     def _write_to_graphMl(self, path, graph):
         with open(path, 'w') as output_file:

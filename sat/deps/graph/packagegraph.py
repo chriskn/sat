@@ -21,7 +21,7 @@ class PackageGraph(Graph):
         for package in packages:
             node_size = self.interpolate_node_size(
                 len(package.imports()), max_numdeps)
-            self.add_node(package.name,  width=node_size, height=node_size)
+            self.add_node(package.name, width=node_size, height=node_size)
         for package in packages:
             for imp in package.imports():
                 import_name = imp

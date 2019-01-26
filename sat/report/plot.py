@@ -22,8 +22,9 @@ _MAX_TREEMAP_ENTRIES = 25
 def plot_heatmap(data_frame, title, folder, file_name):
     number_of_entries = data_frame.shape[0]
     if number_of_entries > _MAX_HEATMAP_ENTRIES:
-        _LOGGER.warn("Number of entries is %d and exceeds limit of %d for heatmaps. Will skip creation of heatmap" % (
-            number_of_entries, _MAX_HEATMAP_ENTRIES))
+        _LOGGER.warn(
+            "Number of entries is %d and exceeds limit of %d for heatmaps. Will skip creation of heatmap" %
+            (number_of_entries, _MAX_HEATMAP_ENTRIES))
         return
     fontsize_pt = plt.rcParams['ytick.labelsize']
     # compute the required figure height
@@ -52,7 +53,7 @@ def _wrap_label(label, length):
     labellines = []
     offset = 5
     towrap = label
-    while len(towrap) > length+offset:
+    while len(towrap) > length + offset:
         l, r = towrap[:length], towrap[length:]
         labellines.extend([l, r])
         towrap = r
@@ -65,8 +66,9 @@ def plot_treemap(data, title, folder, file_name, value_name):
     # restrict number of values
     number_of_entries = data.shape[0]
     if number_of_entries > _MAX_TREEMAP_ENTRIES:
-        _LOGGER.warn("Number of entries  (%d) exceeds limit for treemaps. Will limit to max %d values" % (
-            len(data), _MAX_TREEMAP_ENTRIES))
+        _LOGGER.warn(
+            "Number of entries  (%d) exceeds limit for treemaps. Will limit to max %d values" %
+            (len(data), _MAX_TREEMAP_ENTRIES))
     names = data[data.columns[0]].values
     values = data[data.columns[1]].values
     labels = []
@@ -75,7 +77,7 @@ def plot_treemap(data, title, folder, file_name, value_name):
         if len(pname) > 30:
             label = _wrap_label(names, 25)
         value = values[index]
-        label = "\n".join([label, value_name+" "+"%.2f" % round(value, 2)])
+        label = "\n".join([label, value_name + " " + "%.2f" % round(value, 2)])
         labels.append(label)
     # the sum of the values must equal the total area to be laid out
     # i.e., sum(values) == width * height
@@ -117,9 +119,9 @@ def plot_stacked_barchart(data, ylabel, title, folder, file_name):
     bottom_plot = sns.barplot(x=labels, y=column_data_1, color="green")
     # Legend
     top_bar = plt.Rectangle((0, 0), 1, 1, fc="red", edgecolor='none')
-    bottom_bar = plt.Rectangle((0, 0), 1, 1, fc='green',  edgecolor='none')
-    legend = plt.legend([bottom_bar, top_bar], [data_column_1,
-                                                data_column_2], loc=1, ncol=2, prop={'size': 16})
+    bottom_bar = plt.Rectangle((0, 0), 1, 1, fc='green', edgecolor='none')
+    legend = plt.legend([bottom_bar, top_bar], [
+                        data_column_1, data_column_2], loc=1, ncol=2, prop={'size': 16})
     legend.draw_frame(False)
     bottom_plot.set_ylabel(ylabel)
     bottom_plot.set_title(title)
@@ -128,16 +130,19 @@ def plot_stacked_barchart(data, ylabel, title, folder, file_name):
     # trim labels
     for label in bottom_plot.get_xticklabels():
         if len(label._text) > 40:
-            label._text = "..."+label._text[-40:]
+            label._text = "..." + label._text[-40:]
     # rotate labels
     bottom_plot.set_xticklabels(bottom_plot.get_xticklabels(), rotation=80)
     _writeFigure(bottom_plot.get_figure(), folder, file_name)
 
+
 def plot_barchart(data, ylabel, title, folder, filename):
     if data.empty:
-        _LOGGER.info("No data available. While skip writing barchart: %s" % filename)
+        _LOGGER.info(
+            "No data available. While skip writing barchart: %s" %
+            filename)
     # Set general plot properties
-    # Plot 
+    # Plot
     labels = (data[data.columns[0]].values)[0:25]
     y = (data[data.columns[1]].values)[0:25]
     fig, axs = plt.subplots(1, 1, figsize=(24, 10))
@@ -151,17 +156,18 @@ def plot_barchart(data, ylabel, title, folder, filename):
         axs.annotate(
             s=str(_y),
             xy=(n, _y),
-            ha='center',va='center',
-            xytext=(0,10),
+            ha='center', va='center',
+            xytext=(0, 10),
             textcoords='offset points',
             color="black"
         )
     # Optional - Make plot look nicer
     for label in axs.get_xticklabels():
         if len(label._text) > 60:
-            label._text = "..."+label._text[-60:]
+            label._text = "..." + label._text[-60:]
     plt.xticks(rotation=90)
     _writeFigure(fig, folder, filename)
+
 
 def _writeFigure(figure, folder, filename):
     path = os.path.join(folder, filename)

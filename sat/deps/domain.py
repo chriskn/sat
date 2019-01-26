@@ -18,9 +18,18 @@ class Project:
             imports.extend(package.imports())
         return imports
 
+
 class Bundle:
 
-    def __init__(self, path, name, version, exported_packages, imported_packages, required_bundles, num_dependencies):
+    def __init__(
+            self,
+            path,
+            name,
+            version,
+            exported_packages,
+            imported_packages,
+            required_bundles,
+            num_dependencies):
         self.path = path.strip(" ")
         self.name = name.strip(" ")
         self.version = version.strip(" ")
@@ -33,7 +42,7 @@ class Bundle:
         return " ".join([self.name, self.version])
 
     def __hash__(self):
-        return (self.name.lower()+self.version).__hash__()
+        return (self.name.lower() + self.version).__hash__()
 
     def __eq__(self, other):
         return self.name.lower() == other.name.lower() and self.version == other.version
@@ -53,9 +62,18 @@ class Package:
                 imports.append(imp)
         return imports
 
+
 class SourceFile:
 
-    def __init__(self, name, language, imports, concrete_classes, abstract_classes, interfaces, enums):
+    def __init__(
+            self,
+            name,
+            language,
+            imports,
+            concrete_classes,
+            abstract_classes,
+            interfaces,
+            enums):
         self.name = name
         self.language = language
         self.imports = imports
@@ -98,7 +116,16 @@ class Enum():
 
 class Class():
 
-    def __init__(self, name, fqn, methods, attributes, implements, extends, modifiers, stereotype=""):
+    def __init__(
+            self,
+            name,
+            fqn,
+            methods,
+            attributes,
+            implements,
+            extends,
+            modifiers,
+            stereotype=""):
         self.name = name
         self.fqn = fqn
         self.methods = methods
