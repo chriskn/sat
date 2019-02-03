@@ -83,7 +83,7 @@ class TestChangeRepo(unittest.TestCase):
     def test_changes_returns_empty_list_if_oserror_occur_during_process_execution(
             self,
             executer):
-        resulting_changes = sut.changes("", "")
+        resulting_changes = sut.changes("bla", "")
         self.assertRaises(OSError, executer)
         self.assertEqual(len(resulting_changes), 0)
 
@@ -92,7 +92,7 @@ class TestChangeRepo(unittest.TestCase):
     def test_changes_returns_empty_list_if_processerror_occur_during_process_execution(
             self,
             executer):
-        resulting_changes = sut.changes("", "")
+        resulting_changes = sut.changes("blub", "")
         self.assertRaises(CalledProcessError, executer)
         self.assertEqual(len(resulting_changes), 0)
 

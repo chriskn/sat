@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import xlwt
+import os
 
 import pandas as pd
-import os
+import xlwt
 
 
 def write_data_frame(data, filename, outputdir, sheetname):
@@ -15,11 +15,11 @@ def write_data_frame(data, filename, outputdir, sheetname):
 
 
 def write_xls(sheet_name, rows, filepath):
-    wb = xlwt.Workbook()
-    ws = wb.add_sheet(sheet_name)
+    workbook = xlwt.Workbook()
+    sheet = workbook.add_sheet(sheet_name)
     for row_idx, row in enumerate(rows):
-        _write_row(ws, row_idx, row)
-    wb.save(filepath)
+        _write_row(sheet, row_idx, row)
+    workbook.save(filepath)
 
 
 def _write_row(sheet, row_idx, row):

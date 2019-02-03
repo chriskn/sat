@@ -3,7 +3,6 @@
 
 import os.path
 import re
-from collections import OrderedDict
 
 import pandas as pd
 
@@ -12,7 +11,6 @@ import report.plot as plot
 import report.xls as xls
 import scanner
 from app.analyser import Analyser
-from changes.domain import Change
 
 
 class ProjectChanges(Analyser):
@@ -28,12 +26,15 @@ class ProjectChanges(Analyser):
         self._since = since
         self._changes = []
         self._changes_per_project = []
+        self._working_dir = None
+        self._project_paths = None
+        self._analysis_result = None
 
     def load_data(self, workingdir, ignored_path_segments):
-        self._workingDir = workingdir
+        self._working_dir = workingdir
         self._changes = repo.changes(workingdir, self._since)
         self._project_paths = scanner.find_projects(
-            self._workingDir, ignored_path_segments)
+            self._working_dir, ignored_path_segments)
 
     def analyse(self, ignored_path_segments):
         self._logger.info("Analysing project changes.")
@@ -50,26 +51,26 @@ class ProjectChanges(Analyser):
                     lines_removed += change.lines_removed
             data.append((rel_proj_path, proj_name, lines_added +
                          lines_removed, lines_added, lines_removed))
-        df = pd.DataFrame(data=data, columns=ProjectChanges._COLUMNS)
-        self._analysis_result = df.sort_values(ProjectChanges._COLUMNS[2], ascending=False)
+        dataframe = pd.DataFrame(data=data, columns=ProjectChanges._COLUMNS)
+        self._analysis_result = dataframe.sort_values(ProjectChanges._COLUMNS[2], ascending=False)
         return self._analysis_result
 
     def _norm_path(self, full_project_path):
-        norm_package_path = full_project_path.replace(self._workingDir, "")
+        norm_package_path = full_project_path.replace(self._working_dir, "")
         rel_pattern = "^[.]*" + re.escape(os.sep)
         if re.match(rel_pattern, norm_package_path):
             norm_package_path = re.sub(rel_pattern, '', norm_package_path)
         return norm_package_path
 
-    def write_results(self, outputdir):
+    def write_results(self, outputfolder):
         xls.write_data_frame(self._analysis_result, "changed_lines_per_project.xls",
-                             outputdir, "Changes since " + self._since)
+                             outputfolder, "Changes since " + self._since)
         tm_data = self._create_tm_data()
         plot.plot_treemap(
             tm_data,
             "Number of changed lines per project since " +
             self._since,
-            outputdir,
+            outputfolder,
             "changed_lines_per_project.pdf",
             "changes:")
 

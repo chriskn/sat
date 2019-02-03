@@ -1,26 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import java
-import javalang
-from javalang.parser import JavaSyntaxError
+import os
+
 from javalang.tree import (ClassDeclaration, ConstructorDeclaration,
                            EnumDeclaration, InterfaceDeclaration,
                            MethodDeclaration)
 
+import java
+
+from comp.domain import Method, Type
 import comp.compcalculator as comp
-import os
-from comp.domain import Type, Method
 
 
 def is_method(body_element):
-    return isinstance(
-        body_element, ConstructorDeclaration) or isinstance(
-        body_element, MethodDeclaration)
+    return isinstance(body_element, (MethodDeclaration, ConstructorDeclaration))
 
 
-def is_type(type):
-    return isinstance(type, ClassDeclaration) or isinstance(
-        type, InterfaceDeclaration) or isinstance(type, EnumDeclaration)
+def is_type(type_):
+    return isinstance(type_, (ClassDeclaration, InterfaceDeclaration, EnumDeclaration))
 
 
 def parse(java_file):
@@ -36,8 +33,8 @@ def parse(java_file):
     return parsed_types
 
 
-def _filter_types(child, types):
-    children = child.children
+def _filter_types(node, types):
+    children = node.children
     for child in children:
         if isinstance(child, list):
             for ele in child:
@@ -54,6 +51,6 @@ def _parse_methods(ast_type):
         name = method.name
         body = method.body
         complexity = comp.complexity(body) if body else 0
-        compMethod = Method(name, complexity)
-        analysed_methods.append(compMethod)
+        comp_method = Method(name, complexity)
+        analysed_methods.append(comp_method)
     return analysed_methods

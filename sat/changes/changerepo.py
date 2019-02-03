@@ -7,22 +7,22 @@ import subprocess
 import os
 from changes.domain import Change
 
-_logger = logging.getLogger("ChangeRepo")
+_LOGGER = logging.getLogger("ChangeRepo")
 _LINES_CHANGED_PATTERN = re.compile(r"\d+\t\d+\t*")
-_changes_by_dir = dict()
+_CHANGES_BY_DIR = dict()
 
 
 def changes(workingdir, since):
-    existing_changes = _changes_by_dir.get(workingdir)
+    existing_changes = _CHANGES_BY_DIR.get(workingdir)
     if existing_changes:
         return existing_changes
-    changes = _parse_changes(workingdir, since)
-    _changes_by_dir[workingdir] = changes
-    return changes
+    num_changes = _parse_changes(workingdir, since)
+    _CHANGES_BY_DIR[workingdir] = num_changes
+    return num_changes
 
 
 def _parse_changes(workingdir, since):
-    changes = []
+    changes_for_dir = []
     command = 'git log --numstat --oneline --shortstat --after="' + \
         since + '" -- ' + workingdir
     result = _run_git_command(command, workingdir)
@@ -34,21 +34,21 @@ def _parse_changes(workingdir, since):
             path = os.path.normpath(split[2])
             lines_added = int(split[0])
             lines_removed = int(split[1])
-            changes.append(
+            changes_for_dir.append(
                 Change(path, lines_added, lines_removed)
             )
-    return changes
+    return changes_for_dir
 
 
 def _run_git_command(command, workingdir):
-    _logger.info("Running git command: %s", command)
+    _LOGGER.info("Running git command: %s", command)
     try:
         result = subprocess.run(
             command, stdout=subprocess.PIPE, cwd=workingdir, shell=True)
         return result.stdout
     except OSError as ose:
-        _logger.warning("OS Error while executing git command: " + str(ose))
-    except subprocess.CalledProcessError as pe:
-        _logger.warning(
-            "Process Error while executing git command. Return Code " + str(pe.returncode))
+        _LOGGER.warning("OS Error while executing git command: %s", str(ose))
+    except subprocess.CalledProcessError as process_error:
+        _LOGGER.warning(
+            "Process Error while executing git command. Return Code %s", str(process_error.returncode))
     return ""

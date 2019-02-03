@@ -6,43 +6,37 @@ from javalang.tree import (BinaryOperation, CatchClause, DoStatement,
 
 
 def complexity(body):
-    compl = 0
+    comp = 0
     for expr in body:
-        c = _count_recursive(expr)
-        compl += c
-    return compl
+        comp += _count_recursive(expr)
+    return comp
 
 
-def _count_recursive(expr, parent=None, count=0, nesting=0):
-    new_count = _calc_for_expression(expr, parent, nesting)
+def _count_recursive(expr, parent=None, comp=0, nesting=0):
+    # pylint: disable=W0612,W0613
+    new_comp = _calc_for_expression(expr, parent, nesting)
     new_nesting = nesting
     if isinstance(expr, Node):
         inc_neasting = _increments_nesting(expr, parent)
         if inc_neasting:
             new_nesting += 1
         for child in expr.children:
-            new_count += _count_recursive(child, expr,
-                                          new_count, new_nesting)
+            new_comp += _count_recursive(child, expr, new_comp, new_nesting)
         if inc_neasting:
             new_nesting -= 1
     if isinstance(expr, list):
         for child in expr:
-            new_count += _count_recursive(child, expr,
-                                          new_count, new_nesting)
-    return new_count
+            new_comp += _count_recursive(child, expr, new_comp, new_nesting)
+    return new_comp
 
 
 def _calc_for_expression(expr, parent, nesting):
     if isinstance(expr, BinaryOperation):
-        op = expr.operator
-        if op in  ("||", "&&"):
+        operator = expr.operator
+        if operator in ("||", "&&"):
             return 1
     if isinstance(expr, TernaryExpression):
         return 1
-    if isinstance(expr, SwitchStatement):
-        return 1 + nesting
-    if isinstance(expr, CatchClause):
-        return 1 + nesting
     if isinstance(expr, IfStatement):
         if _is_elseif(expr, parent):
             count = 1
@@ -53,11 +47,7 @@ def _calc_for_expression(expr, parent, nesting):
         if _has_else(expr):
             count += 1
         return count
-    if isinstance(expr, WhileStatement):
-        return 1 + nesting
-    if isinstance(expr, ForStatement):
-        return 1 + nesting
-    if isinstance(expr, DoStatement):
+    if _is_loop(expr) or isinstance(expr, (SwitchStatement, CatchClause)):
         return 1 + nesting
     return 0
 
@@ -69,10 +59,12 @@ def _increments_nesting(expr, parent):
         return True
     return False
 
+
 def _is_loop(expr):
     if isinstance(expr, (DoStatement, ForStatement, WhileStatement)):
         return True
     return False
+
 
 def _has_else(if_statement):
     if if_statement.else_statement and not isinstance(
