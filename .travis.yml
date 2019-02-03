@@ -6,9 +6,9 @@ matrix:
           python: 3.6
         - os: osx
           language: generic
+          env: TOXENV=py36
 script: pytest
-python:
-    - "3.6"
+
 install:
   - pip install pytest
   - pip install pytest-cov
