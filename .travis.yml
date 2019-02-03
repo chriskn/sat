@@ -9,7 +9,7 @@ matrix:
           python: 3.6
         - os: osx
           language: sh
-          install: pip3 install -e .[tests]
+          env: PYTHON=3.6
 script: pytest
 
 install:
