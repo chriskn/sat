@@ -6,7 +6,7 @@ matrix:
           python: 3.6
         - os: osx
           language: generic
-          env: TOXENV=py36
+          python: 3.6
 script: pytest
 
 install:
