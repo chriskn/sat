@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from app.analyser import Analyser
-from deps.parser.bundleparser import BundleParser
+import deps.parser.bundleparser as parser
 from deps.graph.bundlegraph import BundleGraph
 from deps.domain import Bundle
 import os
@@ -28,8 +28,7 @@ class BundleAnalyser(Analyser):
 
     def load_data(self, workingDir, ignoredPathSegments):
         self._logger.info("Loading bundle data...")
-        parser = BundleParser(workingDir, ignoredPathSegments)
-        self._bundles = parser.parse()
+        self._bundles = parser.parse(workingDir, ignoredPathSegments)
         self._bundlesForExports = self._map_bundles_on_exports(self._bundles)
         self._logger.info("Found %d bundle(s)" % len(self._bundles))
 

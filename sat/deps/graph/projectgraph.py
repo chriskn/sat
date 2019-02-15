@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from deps.graph.graph import Graph
 import re
 
+from deps.graph.graph import Graph
 
 class ProjectGraph(Graph):
 
     _CLASS_IMPORT_PATTERN = re.compile(r'.*\.[A-Z].*')
 
-    def __init__(self, projects=[]):
+    def __init__(self, projects):
         Graph.__init__(self)
         self._projects = projects
         numdeps = [len(p.imports()) for p in projects]
-        max_numdeps = max(numdeps) if len(numdeps) > 0 else 1
+        max_numdeps = max(numdeps) if numdeps else 1
         for project in projects:
             node_size = self.interpolate_node_size(
                 len(project.imports()), max_numdeps)
@@ -44,6 +44,6 @@ class ProjectGraph(Graph):
                             project.name, other_project.name, "imports")
 
     def cycle_graph(self, cycles):
-        graph = ProjectGraph()
-        Graph.cycle_graph(graph, self, cycles)
+        graph = ProjectGraph([])
+        Graph.create_cycle_graph(graph, self, cycles)
         return graph

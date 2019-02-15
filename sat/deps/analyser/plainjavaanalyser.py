@@ -11,7 +11,7 @@ import report.plot as plot
 from app.analyser import Analyser
 from deps.graph.packagegraph import PackageGraph
 from deps.graph.projectgraph import ProjectGraph
-from deps.parser.projectparser import ProjectParser
+import deps.parser.projectparser as parser
 from deps.graph.classdiagramm import ClassDiagramm
 
 _CLASS_IMPORT_PATTERN = re.compile(r'.*\.[A-Z].*')
@@ -26,8 +26,7 @@ class PlainJavaAnalyser(Analyser):
 
     def load_data(self, workingDir, ignoredPathSegments):
         self._logger.info("Loading project data...")
-        parser = ProjectParser(workingDir, ignoredPathSegments)
-        projects = parser.parse()
+        projects = parser.parse(workingDir, ignoredPathSegments)
         self._projects = projects
         self._packages = []
         for p in self._projects:
@@ -37,60 +36,69 @@ class PlainJavaAnalyser(Analyser):
         self._logger.info("Creating project dependency graph")
         self._projectGraph = ProjectGraph(self._projects)
         self._logger.info("Analysing project cycles")
-        self._projectCycles = self._projectGraph.cycles()
-        self._projectGraph.mark_cycles(self._projectCycles)
-        self._cycleProjectGraph = self._projectGraph.cycle_graph(
-            self._projectCycles)
+        self._project_cycles = self._projectGraph.cycles()
+        self._projectGraph.mark_cycles(self._project_cycles)
+        self._cycle_project_graph = self._projectGraph.cycle_graph(
+            self._project_cycles)
         self._logger.info("Creating project coupling map")
         self._logger.info("Analysed %d projects" % len(self._projects))
-        self._projectCouplingMap = self._project_coupling_data_frame(
+        self._project_coupling_map = self._project_coupling_data_frame(
             self._projects)
 
         self._logger.info("Creating package dependency graph")
-        self._packageGraph = PackageGraph(self._packages)
+        self._package_graph = PackageGraph(self._packages)
         self._logger.info("Analysing package cycles")
-        self._packageCycles = self._packageGraph.cycles()
-        self._packageGraph.mark_cycles(self._packageCycles)
-        self._cyclePackageGraph = self._packageGraph.cycle_graph(
-            self._packageCycles)
+        self._package_cycles = self._package_graph.cycles()
+        self._package_graph.mark_cycles(self._package_cycles)
+        self._cycle_package_graph = self._package_graph.cycle_graph(
+            self._package_cycles)
         self._logger.info("Creating package coupling map")
         self._packageCouplingMap = self._createPackageCouplingDataFrame(
             self._packages)
-        self._logger.info("Creating class diagramm")
-        self._classDiagramm = ClassDiagramm(self._packages)
         self._logger.info("Analysed %d packages" % len(self._packages))
+        self._logger.info("Creating class diagramm")
+        self._class_diagramm = ClassDiagramm(self._packages)
+        self._class_clycles = self._class_diagramm.cycles(grouped=True)
+        self._class_diagramm.mark_cycles(self._class_clycles, grouped=True)
+        self._cycle_class_diagramm = self._class_diagramm.cycle_graph(self._class_clycles)
 
-    def write_results(self, outputDir):
+    def write_results(self, output_dir):
         self._logger.info("Writing project analysis results")
         self._write_graphml(os.path.join(
-            outputDir, "project_dependencies.graphml"), self._projectGraph)
+            output_dir, "project_dependencies.graphml"), self._projectGraph)
         self._write_graphml(
             os.path.join(
-                outputDir,
+                output_dir,
                 "cyclic_project_dependencies.graphml"),
-            self._cycleProjectGraph)
+            self._cycle_project_graph)
         self._write_cycles_to_txt(os.path.join(
-            outputDir, "project_cycles.txt"), self._projectCycles)
-        plot.plot_heatmap(self._projectCouplingMap, "Project Coupling",
-                          outputDir, "project_coupling_heatmap.pdf")
+            output_dir, "project_cycles.txt"), self._project_cycles)
+        plot.plot_heatmap(self._project_coupling_map, "Project Coupling",
+                          output_dir, "project_coupling_heatmap.pdf")
 
         self._logger.info("Writing package analysis results")
         self._write_cycles_to_txt(os.path.join(
-            outputDir, "package_cycles.txt"), self._packageCycles)
+            output_dir, "package_cycles.txt"), self._package_cycles)
         self._write_graphml(os.path.join(
-            outputDir, "package_dependencies.graphml"), self._packageGraph)
+            output_dir, "package_dependencies.graphml"), self._package_graph)
         self._write_graphml(
             os.path.join(
-                outputDir,
+                output_dir,
                 "cyclic_package_dependencies.graphml"),
-            self._cyclePackageGraph)
+            self._cycle_package_graph)
         plot.plot_heatmap(self._packageCouplingMap, "Package Coupling",
-                          outputDir, "package_coupling_heatmap.pdf")
+                          output_dir, "package_coupling_heatmap.pdf")
+        # Classes
         self._write_graphml(
+            os.path.join(output_dir, "classdiagramm.graphml"),
+            self._class_diagramm)
+        self._write_cycles_to_txt(os.path.join(
+            output_dir, "class_cycles.txt"), self._class_clycles)
+        self._cycle_class_diagramm = self._write_graphml(
             os.path.join(
-                outputDir,
-                "classdiagramm.graphml"),
-            self._classDiagramm)
+                output_dir,
+                "cyclic_classes.graphml"),
+            self._cycle_class_diagramm)
 
     def _project_coupling_data_frame(self, projects):
         proj_names = []

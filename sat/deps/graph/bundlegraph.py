@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from deps.domain import Bundle
-from deps.graph.graph import Graph
 import logging
+
+from deps.graph.graph import Graph
 
 
 class BundleGraph(Graph):
@@ -38,8 +38,7 @@ class BundleGraph(Graph):
                                       height=node_size)
                     elif self.add_node(req_bundle, shape_fill=self._WHITE):
                         self._logger.info(
-                            "Bundle %s is not contained in workspace." %
-                            req_bundle)
+                            "Bundle %s is not contained in workspace.", req_bundle)
                     self.add_edge(bundle.name, req_bundle, label="requires")
                 for imported_package in bundle.imported_packages:
                     self._add_edge_for_package_import(
@@ -50,30 +49,29 @@ class BundleGraph(Graph):
 
     def _add_edge_for_package_import(
             self,
-            sourceBundle,
-            importedPackage,
-            bundlesForExports,
-            numDependenciesForBundle):
-        if importedPackage in bundlesForExports:
-            exportingBundle = bundlesForExports[importedPackage]
+            source_bundle,
+            imported_package,
+            bundles_for_exports,
+            num_dependencies_for_bundle):
+        if imported_package in bundles_for_exports:
+            exporting_bundle = bundles_for_exports[imported_package]
             ignored = any(
-                ignoredSegment in exportingBundle.path for ignoredSegment in self._ignored_path_segments)
+                ignored_segment in exporting_bundle.path for ignored_segment in self._ignored_path_segments)
             if not ignored:
-                nodeSize = self.interpolate_node_size(numDependenciesForBundle[exportingBundle.name], max(
-                    list(numDependenciesForBundle.values())))
-                self.add_node(exportingBundle.name,
-                              width=nodeSize, height=nodeSize)
-                self.add_edge(sourceBundle, exportingBundle.name,
-                              label="imports " + importedPackage)
+                node_size = self.interpolate_node_size(num_dependencies_for_bundle[exporting_bundle.name], max(
+                    list(num_dependencies_for_bundle.values())))
+                self.add_node(exporting_bundle.name,
+                              width=node_size, height=node_size)
+                self.add_edge(source_bundle, exporting_bundle.name,
+                              label="imports " + imported_package)
         else:
             ignored = any(
-                ignoredSegment in importedPackage for ignoredSegment in self._ignored_path_segments)
+                ignored_segment in imported_package for ignored_segment in self._ignored_path_segments)
             if not ignored:
                 if self.add_node(
-                        importedPackage,
+                        imported_package,
                         shape_fill=self._WHITE,
                         shape="rectangle"):
                     self._logger.info(
-                        "Exporting bundle not found for import %s. Created package node instead" %
-                        importedPackage)
-                self.add_edge(sourceBundle, importedPackage, label="imports")
+                        "Exporting bundle not found for import %s. Created package node instead", imported_package)
+                self.add_edge(source_bundle, imported_package, label="imports")

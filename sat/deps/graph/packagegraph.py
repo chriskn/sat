@@ -6,22 +6,20 @@ import re
 
 from deps.graph.graph import Graph
 
-logger = logging.getLogger(__name__)
+_LOGGER = logging.getLogger(__name__)
 
 
 class PackageGraph(Graph):
 
     _CLASS_IMPORT_PATTERN = re.compile(r'.*\.[A-Z].*')
 
-    def __init__(self, packages=[]):
+    def __init__(self, packages):
         Graph.__init__(self)
         _packages = packages
-        numdeps = [len(p.imports()) for p in packages]
-        max_numdeps = max(numdeps) if len(numdeps) > 0 else 1
-        for package in packages:
-            node_size = self.interpolate_node_size(
-                len(package.imports()), max_numdeps)
-            self.add_node(package.name, width=node_size, height=node_size)
+        self._add_packages(packages)
+        self._add_dependencies(packages)
+
+    def _add_dependencies(self, packages):
         for package in packages:
             for imp in package.imports():
                 import_name = imp
@@ -30,7 +28,15 @@ class PackageGraph(Graph):
                 if import_name in self._id_for_name:
                     self.add_edge(package.name, import_name, "imports")
 
+    def _add_packages(self, packages):
+        num_deps = [len(p.imports()) for p in packages]
+        max_num_deps = max(num_deps) if num_deps else 1
+        for package in packages:
+            node_size = self.interpolate_node_size(
+                len(package.imports()), max_num_deps)
+            self.add_node(package.name, width=node_size, height=node_size)
+
     def cycle_graph(self, cycles):
-        graph = PackageGraph()
-        Graph.cycle_graph(graph, self, cycles)
+        graph = PackageGraph([])
+        Graph.create_cycle_graph(graph, self, cycles)
         return graph

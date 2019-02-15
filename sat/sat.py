@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# pylint: disable=W0621,C0103
+
 import datetime
 import logging
 import os
 import sys
 
 from app.analyserrepo import AnalyserRepo
-from app.cli import Cli
+from app import cli
 
 _LOG_FORMAT = '%(asctime)s %(levelname)s %(name)s %(message)s'
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
@@ -58,12 +60,11 @@ def run_comp_analysers(
 if __name__ == '__main__':
     logger = logging.getLogger("SAT")
 
-    deps_analysers_by_name = AnalyserRepo.deps_analyser_classes_by_name()
-    change_analysers_by_name = AnalyserRepo.change_analyser_classes_by_name()
-    comp_analysers_by_name = AnalyserRepo.comp_analyser_classes_by_name()
+    deps_analysers = AnalyserRepo.deps_analyser_classes_by_name()
+    change_analysers = AnalyserRepo.change_analyser_classes_by_name()
+    comp_analysers = AnalyserRepo.comp_analyser_classes_by_name()
 
-    cli = Cli(deps_analysers_by_name.keys(),
-              change_analysers_by_name.keys(), comp_analysers_by_name)
+    cli.run_cli(deps_analysers.keys(), change_analysers.keys(), comp_analysers)
     workingdir, ignored_path_segments, analyser_group, analysers, outputbasedir, since = cli.parse()
     outputdir = os.path.join(outputbasedir, "sat", _OUTPUT_FOLDER_NAME)
     if not os.path.exists(outputdir):
@@ -77,16 +78,16 @@ if __name__ == '__main__':
     logger.info("Running the following analysers: %s", ", ".join(analysers))
 
     if analyser_group == "deps":
-        run_deps_analysers(analysers, deps_analysers_by_name,
+        run_deps_analysers(analysers, deps_analysers,
                            workingdir, ignored_path_segments, outputdir)
     if analyser_group == "changes":
         run_change_analysers(
             analysers,
-            change_analysers_by_name,
+            change_analysers,
             workingdir,
             ignored_path_segments,
             outputdir,
             since)
     if analyser_group == "comp":
-        run_comp_analysers(analysers, comp_analysers_by_name,
+        run_comp_analysers(analysers, comp_analysers,
                            workingdir, ignored_path_segments, outputdir)

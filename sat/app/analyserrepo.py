@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# pylint: disable=E0401
+
 from changes.analyser.filechanges import FileChanges
 from changes.analyser.packagechanges import PackageChanges
 from changes.analyser.projectchanges import ProjectChanges

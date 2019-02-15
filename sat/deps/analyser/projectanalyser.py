@@ -10,7 +10,7 @@ import pandas as pd
 import report.plot as plot
 from app.analyser import Analyser
 from deps.graph.projectgraph import ProjectGraph
-from deps.parser.projectparser import ProjectParser
+import deps.parser.projectparser as parser
 
 
 class ProjectAnalyser(Analyser):
@@ -21,9 +21,7 @@ class ProjectAnalyser(Analyser):
 
     def load_data(self, workingDir, ignoredPathSegments):
         self._logger.info("Loading project data...")
-        parser = ProjectParser(workingDir, ignoredPathSegments)
-        projects = parser.parse()
-        self._projects = projects
+        self._projects = parser.parse(workingDir, ignoredPathSegments)
 
     def analyse(self, ignoredPathSegments):
         self._logger.info("Creating project coupling graph")
@@ -40,7 +38,7 @@ class ProjectAnalyser(Analyser):
 
     def write_results(self, outputDir):
         self._logger.info("Writing project analysis results")
-        plot.plot_heatmap(self._projectCouplingMap, "Project Coupling",
+        plot.plot_heatmap(self._project_coupling_map, "Project Coupling",
                           outputDir, "project_coupling_heatmap.pdf")
         self._write_to_graphMl(os.path.join(
             outputDir, "project_dependencies.graphml"), self._projectGraph)
@@ -48,7 +46,7 @@ class ProjectAnalyser(Analyser):
             os.path.join(
                 outputDir,
                 "cyclic_project_dependencies.graphml"),
-            self._cycleProjectGraph)
+            self._cycle_project_graph)
 
     def _create_project_coupling_data_frame(self, projects):
         proj_name = []

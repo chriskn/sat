@@ -59,8 +59,8 @@ def _find_sourcepackages_for_sourcefolder(sourcefolder):
 
 
 def _find_sourcefolders_for_project(project_dir):
-    classpathFilePath = os.path.join(project_dir, ".classpath")
-    relative_sourcefolders = _parse_classpath(classpathFilePath)
+    classpath_file_path = os.path.join(project_dir, ".classpath")
+    relative_sourcefolders = _parse_classpath(classpath_file_path)
     sourcefolders = [os.path.normpath(os.path.join(
         project_dir, folder)) for folder in relative_sourcefolders]
     return sourcefolders

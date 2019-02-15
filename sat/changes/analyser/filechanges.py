@@ -36,7 +36,7 @@ class FileChanges(Analyser):
         data = []
         filepaths = {change.path for change in self._changes}
         for filepath in filepaths:
-            file_name = self._file_name(filepath)
+            file_name = _file_name(filepath)
             lines_added = 0
             lines_removed = 0
             for change in self._changes:
@@ -48,10 +48,6 @@ class FileChanges(Analyser):
         dataframe = pd.DataFrame(data=data, columns=FileChanges._COLUMNS)
         self._analysis_result = dataframe.sort_values(FileChanges._COLUMNS[2], ascending=False)
         return self._analysis_result
-
-    def _file_name(self, path):
-        head, tail = ntpath.split(path)
-        return tail or ntpath.basename(head)
 
     def write_results(self, outputfolder):
         xls.write_data_frame(self._analysis_result, "changed_lines_per_file.xls",
@@ -69,3 +65,8 @@ class FileChanges(Analyser):
         columns_to_drop = [FileChanges._COLUMNS[1], FileChanges._COLUMNS[2]]
         barchart_data = self._analysis_result.iloc[0:25].drop(columns=columns_to_drop)
         return barchart_data
+
+
+def _file_name(path):
+    head, tail = ntpath.split(path)
+    return tail or ntpath.basename(head)
