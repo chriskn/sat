@@ -27,9 +27,9 @@ class FileChanges(Analyser):
         self._working_dir = None
         self._analysis_result = None
 
-    def load_data(self, workingdir, ignored_path_segments):
-        self._working_dir = workingdir
-        self._changes = repo.changes(workingdir, self._since)
+    def load_data(self, working_dir, ignored_path_segments):
+        self._working_dir = working_dir
+        self._changes = repo.changes(working_dir, self._since)
 
     def analyse(self, ignored_path_segments):
         self._logger.info("Analysing file changes.")
@@ -49,16 +49,16 @@ class FileChanges(Analyser):
         self._analysis_result = dataframe.sort_values(FileChanges._COLUMNS[2], ascending=False)
         return self._analysis_result
 
-    def write_results(self, outputfolder):
+    def write_results(self, output_dir):
         xls.write_data_frame(self._analysis_result, "changed_lines_per_file.xls",
-                             outputfolder, "Changes since " + self._since)
+                             output_dir, "Changes since " + self._since)
         barchart_data = self._create_barchart_data()
         plot.plot_stacked_barchart(
             barchart_data,
             "Number of changed lines",
             "Number of changed lines for most changed files since " +
             self._since,
-            outputfolder,
+            output_dir,
             "most_changed_files.pdf")
 
     def _create_barchart_data(self):

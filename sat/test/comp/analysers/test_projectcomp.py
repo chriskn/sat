@@ -76,7 +76,7 @@ _PROJECTS = [
 ]
 
 
-class TestPackageComp(unittest.TestCase):
+class TestProjectComp(unittest.TestCase):
 
     def setUp(self):
         self.sut = ProjectComp()

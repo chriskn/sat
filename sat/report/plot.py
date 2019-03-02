@@ -47,8 +47,12 @@ def plot_heatmap(data_frame, title, folder, file_name):
 
 def plot_treemap(data, title, folder, file_name, value_name):
     # pylint: disable=R0914
-    # restrict number of values
+    if data.empty:
+        _LOGGER.info(
+            "No data available. Skip writing stacked barchart: %s", file_name) 
+        return 
     number_of_entries = data.shape[0]
+    # restrict number of values
     if number_of_entries > _MAX_TREEMAP_ENTRIES:
         _LOGGER.warning(
             "Number of entries  (%d) exceeds limit for treemaps. Will limit to max %d values",
@@ -59,7 +63,7 @@ def plot_treemap(data, title, folder, file_name, value_name):
     for index, name in enumerate(names):
         label = name
         if len(name) > 30:
-            label = _wrap_label(names, 25)
+            label = _wrap_label(name, 25)
         label = "\n".join([label, value_name + " " + "%.2f" % round(values[index], 2)])
         labels.append(label)
     # the sum of the values must equal the total area to be laid out
@@ -87,6 +91,10 @@ def plot_treemap(data, title, folder, file_name, value_name):
 
 
 def plot_stacked_barchart(data, ylabel, title, folder, file_name):
+    if data.empty:
+        _LOGGER.info(
+            "No data available. Skip writing stacked barchart: %s", file_name) 
+        return 
     data_column_1 = data.columns[1]
     data_column_2 = data.columns[2]
     column_data_1 = data[data_column_1].values
@@ -118,6 +126,7 @@ def plot_barchart(data, ylabel, title, folder, filename):
     if data.empty:
         _LOGGER.info(
             "No data available. While skip writing barchart: %s", filename)
+        return
     # Plot
     y_values = (data[data.columns[1]].values)[0:25]
     fig, axis = plt.subplots(1, 1, figsize=(24, 10))

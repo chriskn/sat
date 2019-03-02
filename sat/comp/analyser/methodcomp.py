@@ -21,8 +21,8 @@ class MethodComp(Analyser):
         self._types = None
         self._analysis_result = None
 
-    def load_data(self, workingdir, ignored_path_segments):
-        self._types = repo.types(workingdir, ignored_path_segments)
+    def load_data(self, working_dir, ignored_path_segments):
+        self._types = repo.types(working_dir, ignored_path_segments)
 
     def analyse(self, ignored_path_segments):
         self._logger.info("Analysing Method Complexity.")
@@ -37,16 +37,16 @@ class MethodComp(Analyser):
         self._analysis_result = method_dataframe.sort_values(complexity_col, ascending=False)
         return self._analysis_result
 
-    def write_results(self, outputfolder):
+    def write_results(self, output_dir):
         xls.write_data_frame(
             self._analysis_result, "cognitive_complexity_per_method.xls",
-            outputfolder, "Method Complexity")
+            output_dir, "Method Complexity")
         methods_with_comp_greater_null = self._create_barchart_data()
         plot.plot_barchart(
             methods_with_comp_greater_null,
             "Cognitive complexity",
             "Methods with highest cognitive complexity",
-            outputfolder,
+            output_dir,
             "most_complex_methods.pdf")
 
     def _create_barchart_data(self):

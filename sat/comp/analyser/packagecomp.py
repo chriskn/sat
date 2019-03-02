@@ -22,8 +22,8 @@ class PackageComp(Analyser):
         self._packages = None
         self._analysis_result = None
 
-    def load_data(self, workingdir, ignored_path_segments):
-        self._packages = prepo.packages(workingdir, ignored_path_segments)
+    def load_data(self, working_dir, ignored_path_segments):
+        self._packages = prepo.packages(working_dir, ignored_path_segments)
 
     def analyse(self, ignored_path_segments):
         self._logger.info("Analysing Package Complexity.")
@@ -49,21 +49,21 @@ class PackageComp(Analyser):
     #         num_methods += len(type_.methods)
     #     return num_methods
 
-    def write_results(self, outputfolder):
+    def write_results(self, output_dir):
         xls.write_data_frame(self._analysis_result, "cognitive_complexity_per_package.xls",
-                             outputfolder, "Package Complexity")
-        self._plot_treemaps(outputfolder)
+                             output_dir, "Package Complexity")
+        self._plot_treemaps(output_dir)
 
-    def _plot_treemaps(self, outputdir):
+    def _plot_treemaps(self, output_dir):
         total_comp = self._create_treemap_data(_COLUMNS[1])
         avm_comp = self._create_treemap_data(_COLUMNS[2])
         avt_comp = self._create_treemap_data(_COLUMNS[3])
         plot.plot_treemap(total_comp, "Cognitive complexity per package",
-                          outputdir, "cognitive_complexity_per_package.pdf", "complexity:")
+                          output_dir, "cognitive_complexity_per_package.pdf", "complexity:")
         plot.plot_treemap(avm_comp, "av method complexity per package",
-                          outputdir, "av_method_complexity_per_package.pdf", "avm complexity:")
+                          output_dir, "av_method_complexity_per_package.pdf", "avm complexity:")
         plot.plot_treemap(avt_comp, "av class complexity per package",
-                          outputdir, "av_class_complexity_per_package.pdf", "avc complexity:")
+                          output_dir, "av_class_complexity_per_package.pdf", "avc complexity:")
 
     def _create_treemap_data(self, data_column):
         columns_to_drop = list(_COLUMNS)

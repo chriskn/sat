@@ -18,13 +18,13 @@ class Analyser(ABC):
         return logging.getLogger(self.__class__.__name__)
 
     @abstractmethod
-    def load_data(self, workingdir, ignoredpathsegments):
+    def load_data(self, working_dir, ignored_path_segments):
         pass
 
     @abstractmethod
-    def analyse(self, ignoredpathsegments):
+    def analyse(self, ignored_path_segments):
         pass
 
     @abstractmethod
-    def write_results(self, outputfolder):
+    def write_results(self, output_dir):
         pass

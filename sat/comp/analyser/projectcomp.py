@@ -22,8 +22,8 @@ class ProjectComp(Analyser):
         self._projects = None
         self._analysis_result = None
 
-    def load_data(self, workingdir, ignored_path_segments):
-        self._projects = prepo.projects(workingdir, ignored_path_segments)
+    def load_data(self, working_dir, ignored_path_segments):
+        self._projects = prepo.projects(working_dir, ignored_path_segments)
 
     def analyse(self, ignored_path_segments):
         self._logger.info("Analysing Project Complexity.")
@@ -34,17 +34,17 @@ class ProjectComp(Analyser):
         self._analysis_result = project_data.sort_values(_COLUMNS[1], ascending=False)
         return self._analysis_result
 
-    def write_results(self, outputfolder):
+    def write_results(self, output_dir):
         xls.write_data_frame(
             self._analysis_result,
             "cognitive_complexity_per_project.xls",
-            outputfolder,
+            output_dir,
             "Project Complexity")
         tm_data = self._create_treemap_data()
         plot.plot_treemap(
             tm_data,
             "Cognitive complexity per project",
-            outputfolder,
+            output_dir,
             "cognitive_complexity_per_project.pdf",
             "complexity:")
 

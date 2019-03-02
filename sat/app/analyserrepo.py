@@ -12,9 +12,8 @@ from comp.analyser.packagecomp import PackageComp
 from comp.analyser.projectcomp import ProjectComp
 from deps.analyser.bundleanalyser import BundleAnalyser
 from deps.analyser.plainjavaanalyser import PlainJavaAnalyser
-from deps.analyser.projectanalyser import ProjectAnalyser
 
-_DEPS_ANALYSER_CLASSES = [PlainJavaAnalyser, ProjectAnalyser, BundleAnalyser]
+_DEPS_ANALYSER_CLASSES = [PlainJavaAnalyser, BundleAnalyser]
 _CHANGE_ANALYSER_CLASSES = [FileChanges, PackageChanges, ProjectChanges]
 _COMP_ANALYSER_CLASSES = [MethodComp, ClassComp, PackageComp, ProjectComp]
 
