@@ -13,8 +13,7 @@ from app.analyser import Analyser
 
 class FileChanges(Analyser):
 
-    _COLUMNS = ["Path", "File", "Total changes",
-                "Lines added", "Lines removed"]
+    _COLUMNS = ["Path", "File", "Total changes", "Lines added", "Lines removed"]
 
     @staticmethod
     def name():
@@ -37,29 +36,46 @@ class FileChanges(Analyser):
         filepaths = {change.path for change in self._changes}
         for filepath in filepaths:
             file_name = _file_name(filepath)
-            lines_added = 0
-            lines_removed = 0
-            for change in self._changes:
-                if change.path == filepath:
-                    lines_added += change.lines_added
-                    lines_removed += change.lines_removed
-            data.append((filepath, file_name, lines_added +
-                         lines_removed, lines_added, lines_removed))
+            lines_added, lines_removed = self._count_changed_lines(filepath)
+            data.append(
+                (
+                    filepath,
+                    file_name,
+                    lines_added + lines_removed,
+                    lines_added,
+                    lines_removed,
+                )
+            )
         dataframe = pd.DataFrame(data=data, columns=FileChanges._COLUMNS)
-        self._analysis_result = dataframe.sort_values(FileChanges._COLUMNS[2], ascending=False)
+        self._analysis_result = dataframe.sort_values(
+            FileChanges._COLUMNS[2], ascending=False
+        )
         return self._analysis_result
 
+    def _count_changed_lines(self, filepath):
+        lines_added = 0
+        lines_removed = 0
+        for change in self._changes:
+            if change.path == filepath:
+                lines_added += change.lines_added
+                lines_removed += change.lines_removed
+        return lines_added, lines_removed
+
     def write_results(self, output_dir):
-        xls.write_data_frame(self._analysis_result, "changed_lines_per_file.xls",
-                             output_dir, "Changes since " + self._since)
+        xls.write_data_frame(
+            self._analysis_result,
+            "changed_lines_per_file.xls",
+            output_dir,
+            "Changes since " + self._since,
+        )
         barchart_data = self._create_barchart_data()
         plot.plot_stacked_barchart(
             barchart_data,
             "Number of changed lines",
-            "Number of changed lines for most changed files since " +
-            self._since,
+            "Number of changed lines for most changed files since " + self._since,
             output_dir,
-            "most_changed_files.pdf")
+            "most_changed_files.pdf",
+        )
 
     def _create_barchart_data(self):
         columns_to_drop = [FileChanges._COLUMNS[1], FileChanges._COLUMNS[2]]

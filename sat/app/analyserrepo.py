@@ -18,15 +18,17 @@ _CHANGE_ANALYSER_CLASSES = [FileChanges, PackageChanges, ProjectChanges]
 _COMP_ANALYSER_CLASSES = [MethodComp, ClassComp, PackageComp, ProjectComp]
 
 _DEPS_ANALYSER_CLS_BY_NAME = {
-    analyser.name(): analyser for analyser in _DEPS_ANALYSER_CLASSES}
+    analyser.name(): analyser for analyser in _DEPS_ANALYSER_CLASSES
+}
 _CHANGE_ANALYSER_CLS_BY_NAME = {
-    analyser.name(): analyser for analyser in _CHANGE_ANALYSER_CLASSES}
+    analyser.name(): analyser for analyser in _CHANGE_ANALYSER_CLASSES
+}
 _COMP_ANALYSER_CLS_BY_NAME = {
-    analyser.name(): analyser for analyser in _COMP_ANALYSER_CLASSES}
+    analyser.name(): analyser for analyser in _COMP_ANALYSER_CLASSES
+}
 
 
 class AnalyserRepo:
-
     @staticmethod
     def deps_analyser_classes_by_name():
         return _DEPS_ANALYSER_CLS_BY_NAME

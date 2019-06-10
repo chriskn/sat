@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
@@ -7,7 +6,6 @@ import logging
 
 
 class Analyser(ABC):
-
     @staticmethod
     @abstractmethod
     def name():

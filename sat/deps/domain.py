@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# Too few public methods, too many args, too many attributes
+# pylint: disable=R0903,R0913,R0902
 
 
 class Project:
-
     def __init__(self, name, location, source_packages):
         self.name = name
         self.location = location
@@ -20,16 +21,16 @@ class Project:
 
 
 class Bundle:
-
     def __init__(
-            self,
-            path,
-            name,
-            version,
-            exported_packages,
-            imported_packages,
-            required_bundles,
-            num_dependencies):
+        self,
+        path,
+        name,
+        version,
+        exported_packages,
+        imported_packages,
+        required_bundles,
+        num_dependencies,
+    ):
         self.path = path.strip(" ")
         self.name = name.strip(" ")
         self.version = version.strip(" ")
@@ -49,7 +50,6 @@ class Bundle:
 
 
 class Package:
-
     def __init__(self, name, path, sourcefiles):
         self.name = name
         self.path = path
@@ -57,23 +57,23 @@ class Package:
 
     def imports(self):
         imports = []
-        for sourceFile in self.sourcefiles:
-            for imp in sourceFile.imports:
+        for source_file in self.sourcefiles:
+            for imp in source_file.imports:
                 imports.append(imp)
         return imports
 
 
 class SourceFile:
-
     def __init__(
-            self,
-            name,
-            language,
-            imports,
-            concrete_classes,
-            abstract_classes,
-            interfaces,
-            enums):
+        self,
+        name,
+        language,
+        imports,
+        concrete_classes,
+        abstract_classes,
+        interfaces,
+        enums,
+    ):
         self.name = name
         self.language = language
         self.imports = imports
@@ -91,8 +91,7 @@ class SourceFile:
         return tles
 
 
-class Interface():
-
+class Interface:
     def __init__(self, name, fqn, methods, attributes, extends, modifiers):
         self.name = name
         self.fqn = fqn
@@ -103,8 +102,7 @@ class Interface():
         self.stereotype = "interface"
 
 
-class Enum():
-
+class Enum:
     def __init__(self, name, fqn, constants, modifiers):
         self.name = name
         self.fqn = fqn
@@ -114,18 +112,18 @@ class Enum():
         self.stereotype = "enum"
 
 
-class Class():
-
+class Class:
     def __init__(
-            self,
-            name,
-            fqn,
-            methods,
-            attributes,
-            implements,
-            extends,
-            modifiers,
-            stereotype=""):
+        self,
+        name,
+        fqn,
+        methods,
+        attributes,
+        implements,
+        extends,
+        modifiers,
+        stereotype="",
+    ):
         self.name = name
         self.fqn = fqn
         self.methods = methods
@@ -136,8 +134,7 @@ class Class():
         self.stereotype = stereotype
 
 
-class Method():
-
+class Method:
     def __init__(self, name, return_type_name, modifiers, parameters):
         self.name = name
         self.return_type_name = return_type_name
@@ -145,8 +142,7 @@ class Method():
         self.parameters = parameters
 
 
-class Declaration():
-
+class Declaration:
     def __init__(self, name, type_name, modifiers):
         self.name = name
         self.typename = type_name

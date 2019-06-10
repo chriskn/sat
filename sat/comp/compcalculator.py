@@ -1,8 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from javalang.tree import (BinaryOperation, CatchClause, DoStatement,
-                           ForStatement, IfStatement, Node, SwitchStatement,
-                           TernaryExpression, WhileStatement)
+from javalang.tree import (
+    BinaryOperation,
+    CatchClause,
+    DoStatement,
+    ForStatement,
+    IfStatement,
+    Node,
+    SwitchStatement,
+    TernaryExpression,
+    WhileStatement,
+)
 
 
 def complexity(body):
@@ -54,8 +62,11 @@ def _calc_for_expression(expr, parent, nesting):
 
 def _increments_nesting(expr, parent):
     is_elseif = _is_elseif(expr, parent)
-    if (isinstance(expr, IfStatement) and not is_elseif) or isinstance(
-            expr, (SwitchStatement, CatchClause)) or _is_loop(expr):
+    if (
+        (isinstance(expr, IfStatement) and not is_elseif)
+        or isinstance(expr, (SwitchStatement, CatchClause))
+        or _is_loop(expr)
+    ):
         return True
     return False
 
@@ -68,13 +79,15 @@ def _is_loop(expr):
 
 def _has_else(if_statement):
     if if_statement.else_statement and not isinstance(
-            if_statement.else_statement, IfStatement):
+        if_statement.else_statement, IfStatement
+    ):
         return True
     return False
 
 
 def _is_elseif(expr, parent):
     return isinstance(parent, IfStatement) and parent.else_statement == expr
+
 
 # def _is_nullvalue(expr):
 #    if isinstance(expr, Literal):

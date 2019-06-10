@@ -30,18 +30,20 @@ _ABS_PACKAGE_PATH_5 = os.path.join(_PROJ_PATH_3, _REL_PACK_PATH_5)
 _PROJ_NAMES_FOR_PROJ_PATHS = {
     _PROJ_PATH_1: _PROJ_PATH_1.replace(os.sep, "."),
     _PROJ_PATH_2: _PROJ_PATH_2.replace(os.sep, "."),
-    ".." + os.sep + _PROJ_PATH_3: _PROJ_PATH_3.replace(os.sep, ".")
+    ".." + os.sep + _PROJ_PATH_3: _PROJ_PATH_3.replace(os.sep, "."),
 }
 
 _CHANGES = [
     Change(os.path.join(_ABS_PACKAGE_PATH_1, "dummy1.java"), 10, 20),
     Change(os.path.join(_ABS_PACKAGE_PATH_1_2, "dummy2.java"), 0, 20),
     Change(os.path.join(_ABS_PACKAGE_PATH_3, "dummy3.java"), 55, 20),
-    Change(os.path.join(_ABS_PACKAGE_PATH_4, "dummy4.java"), 0, 0)
+    Change(os.path.join(_ABS_PACKAGE_PATH_4, "dummy4.java"), 0, 0),
 ]
 
 
 class ProjectChangesTest(unittest.TestCase):
+    # allow protected-access
+    # pylint: disable = W0212
 
     def setUp(self):
         self.expected_since = "12.10.2018"
@@ -95,8 +97,9 @@ class ProjectChangesTest(unittest.TestCase):
 
     @mock.patch("report.plot.plot_treemap")
     @mock.patch("report.xls.write_data_frame")
-    def test_write_reults_calls_xls_writer_as_expected(
-            self, writer, dummy_plot):
+    def test_write_reults_calls_xls_writer_as_expected(self, writer, dummy_plot):
+        # disable unused param. only mocked to avoid error
+        # pylint: disable=W0613
         exp_output_folder = "dummy//folder"
         self.sut.load_data("", "")
         result = self.sut.analyse("")
@@ -106,12 +109,14 @@ class ProjectChangesTest(unittest.TestCase):
             result,
             "changed_lines_per_project.xls",
             exp_output_folder,
-            "Changes since " +
-            self.expected_since)
+            "Changes since " + self.expected_since,
+        )
 
     @mock.patch("report.plot.plot_treemap")
     @mock.patch("report.xls.write_data_frame")
     def test_write_reults_calls_plot_as_expected(self, dummy_writer, plot):
+        # disable unused param. only mocked to avoid error
+        # pylint: disable=W0613
         exp_output_folder = "dummy//folder"
         self.sut.load_data("", "")
         self.sut.analyse("")
@@ -120,18 +125,21 @@ class ProjectChangesTest(unittest.TestCase):
 
         plot.assert_called_once_with(
             ANY,
-            "Number of changed lines per project since " +
-            self.expected_since,
+            "Number of changed lines per project since " + self.expected_since,
             exp_output_folder,
             "changed_lines_per_project.pdf",
-            "changes:")
+            "changes:",
+        )
 
     @mock.patch("scanner.find_projects")
     @mock.patch("changes.changerepo.changes")
     @mock.patch("report.plot.plot_treemap")
     @mock.patch("report.xls.write_data_frame")
     def test_write_reults_plots_expected_dataframe(
-            self, dummy_writer, plot, change_repo, scanner):
+        self, dummy_writer, plot, change_repo, scanner
+    ):
+        # disable unused param. only mocked to avoid error
+        # pylint: disable=W0613
         change_repo.return_value = _CHANGES
         scanner.return_value = _PROJ_NAMES_FOR_PROJ_PATHS
         exp_output_folder = "dummy//folder"
@@ -141,8 +149,12 @@ class ProjectChangesTest(unittest.TestCase):
             columns=[
                 ProjectChanges._COLUMNS[0],
                 ProjectChanges._COLUMNS[3],
-                ProjectChanges._COLUMNS[4]])
-        exp_treemap_data = exp_treemap_data[exp_treemap_data[ProjectChanges._COLUMNS[2]] > 0]
+                ProjectChanges._COLUMNS[4],
+            ]
+        )
+        exp_treemap_data = exp_treemap_data[
+            exp_treemap_data[ProjectChanges._COLUMNS[2]] > 0
+        ]
 
         self.sut.write_results(exp_output_folder)
 

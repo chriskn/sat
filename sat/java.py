@@ -10,7 +10,7 @@ _LOGGER = logging.getLogger(__name__)
 
 def parse(file_):
     try:
-        with open(file_, 'r', encoding='utf-8') as open_file:
+        with open(file_, "r", encoding="utf-8") as open_file:
             file_content = open_file.read()
             return javalang.parse.parse(file_content)
     except FileNotFoundError as error:

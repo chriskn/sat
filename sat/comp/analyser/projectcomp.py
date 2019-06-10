@@ -12,8 +12,8 @@ from app.analyser import Analyser
 
 _COLUMNS = ["Project", "Complexity", "Path"]
 
-class ProjectComp(Analyser):
 
+class ProjectComp(Analyser):
     @staticmethod
     def name():
         return "projects"
@@ -39,14 +39,16 @@ class ProjectComp(Analyser):
             self._analysis_result,
             "cognitive_complexity_per_project.xls",
             output_dir,
-            "Project Complexity")
+            "Project Complexity",
+        )
         tm_data = self._create_treemap_data()
         plot.plot_treemap(
             tm_data,
             "Cognitive complexity per project",
             output_dir,
             "cognitive_complexity_per_project.pdf",
-            "complexity:")
+            "complexity:",
+        )
 
     def _create_treemap_data(self):
         tm_data = self._analysis_result.drop(columns=["Path"])

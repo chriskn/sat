@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 
 
-class Change():
+class Change:
     # pylint: disable=R0903
-
     def __init__(self, path, lines_added, lines_removed):
         self.path = path
         self.lines_added = int(lines_added)

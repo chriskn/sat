@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# pylint: disable=too-few-public-methods
 
-#pylint: disable=too-few-public-methods
 
-class Project():
-
+class Project:
     def __init__(self, path, name, packages):
         self.path = path
         self.name = name
@@ -12,8 +11,7 @@ class Project():
         self.complexity = sum(package.complexity for package in packages)
 
 
-class Package():
-
+class Package:
     def __init__(self, path, name, types):
         self.path = path
         self.name = name
@@ -21,8 +19,7 @@ class Package():
         self.complexity = sum(type_.complexity for type_ in types)
 
 
-class Type():
-
+class Type:
     def __init__(self, path, name, methods):
         self.path = path
         self.name = name
@@ -30,8 +27,7 @@ class Type():
         self.complexity = sum(method.complexity for method in methods)
 
 
-class Method():
-
+class Method:
     def __init__(self, name, complexity):
         self.name = name
         self.complexity = complexity

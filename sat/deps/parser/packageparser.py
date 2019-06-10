@@ -25,8 +25,7 @@ def _parse_sourcefolder(sourcefolder):
 
 
 def _parse_package(package_path, sourcefolder, java_filenames):
-    packagename = os.path.normpath(
-        package_path.replace(sourcefolder, ""))
+    packagename = os.path.normpath(package_path.replace(sourcefolder, ""))
     packagename = ".".join(packagename.strip(os.sep).split(os.sep))
     sourcefiles = repo.sourcefiles(java_filenames, package_path, packagename)
     return Package(packagename, package_path, sourcefiles)

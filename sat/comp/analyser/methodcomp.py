@@ -12,7 +12,6 @@ from app.analyser import Analyser
 
 
 class MethodComp(Analyser):
-
     @staticmethod
     def name():
         return "methods"
@@ -33,21 +32,29 @@ class MethodComp(Analyser):
                 path = type_.path
                 data.append((method.name, complexity, path))
         complexity_col = "Complexity"
-        method_dataframe = pd.DataFrame(data, columns=["Method", complexity_col, "Path"])
-        self._analysis_result = method_dataframe.sort_values(complexity_col, ascending=False)
+        method_dataframe = pd.DataFrame(
+            data, columns=["Method", complexity_col, "Path"]
+        )
+        self._analysis_result = method_dataframe.sort_values(
+            complexity_col, ascending=False
+        )
         return self._analysis_result
 
     def write_results(self, output_dir):
         xls.write_data_frame(
-            self._analysis_result, "cognitive_complexity_per_method.xls",
-            output_dir, "Method Complexity")
+            self._analysis_result,
+            "cognitive_complexity_per_method.xls",
+            output_dir,
+            "Method Complexity",
+        )
         methods_with_comp_greater_null = self._create_barchart_data()
         plot.plot_barchart(
             methods_with_comp_greater_null,
             "Cognitive complexity",
             "Methods with highest cognitive complexity",
             output_dir,
-            "most_complex_methods.pdf")
+            "most_complex_methods.pdf",
+        )
 
     def _create_barchart_data(self):
         methods_with_comp = self._analysis_result.drop(columns=["Path"])

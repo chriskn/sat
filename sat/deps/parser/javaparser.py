@@ -6,18 +6,23 @@ import os
 
 import javalang
 from javalang.parser import JavaSyntaxError
-from javalang.tree import (ClassDeclaration, ConstructorDeclaration,
-                           EnumDeclaration, FieldDeclaration,
-                           InterfaceDeclaration, MethodDeclaration)
+from javalang.tree import (
+    ClassDeclaration,
+    ConstructorDeclaration,
+    EnumDeclaration,
+    FieldDeclaration,
+    InterfaceDeclaration,
+    MethodDeclaration,
+)
 
 from deps.domain import Class, Declaration, Enum, Interface, Method, SourceFile
 
-_LOGGER = logging.getLogger(__name__)
+_LOGGER = logging.getLogger("JavaParser")
 
 
 def parse_java_sourcefile(file, packagename=""):
     try:
-        with open(file, 'r', encoding='utf-8') as open_file:
+        with open(file, "r", encoding="utf-8") as open_file:
             file_content = open_file.read()
             ast = javalang.parse.parse(file_content)
     except FileNotFoundError as error:
@@ -29,24 +34,35 @@ def parse_java_sourcefile(file, packagename=""):
     package_imports = {imp.path for imp in getattr(ast, "imports")}
     types = getattr(ast, "types")
     concrete_classes = [
-        parse_class(type, packagename) for type in types
-        if isinstance(type, ClassDeclaration) and 'abstract' not in type.modifiers]
+        parse_class(type, packagename)
+        for type in types
+        if isinstance(type, ClassDeclaration) and "abstract" not in type.modifiers
+    ]
     abstract_classes = [
-        parse_class(type, packagename, "abstract") for type in types
-        if isinstance(type, ClassDeclaration) and 'abstract' in type.modifiers]
+        parse_class(type, packagename, "abstract")
+        for type in types
+        if isinstance(type, ClassDeclaration) and "abstract" in type.modifiers
+    ]
     interfaces = [
-        parse_interface(type, packagename) for type in types
-        if isinstance(type, InterfaceDeclaration)]
-    enums = [parse_enum(type, packagename)
-             for type in types if isinstance(type, EnumDeclaration)]
+        parse_interface(type, packagename)
+        for type in types
+        if isinstance(type, InterfaceDeclaration)
+    ]
+    enums = [
+        parse_enum(type, packagename)
+        for type in types
+        if isinstance(type, EnumDeclaration)
+    ]
     filename, extension = os.path.splitext(os.path.basename(file))
-    return SourceFile(filename,
-                      extension[1:],
-                      package_imports,
-                      concrete_classes,
-                      abstract_classes,
-                      interfaces,
-                      enums)
+    return SourceFile(
+        filename,
+        extension[1:],
+        package_imports,
+        concrete_classes,
+        abstract_classes,
+        interfaces,
+        enums,
+    )
 
 
 def parse_enum(enum, packagename=""):
@@ -58,66 +74,63 @@ def parse_enum(enum, packagename=""):
 
 def parse_interface(interface, packagename=""):
     name = interface.name
-    extends = [
-        interface.name for interface in interface.extends] if interface.extends else ""
+    extends = (
+        [interface.name for interface in interface.extends] if interface.extends else ""
+    )
     modifiers = interface.modifiers
-    attributes = [_parse_attribute(attribute)
-                  for attribute in _filter_attributes(interface.body)]
-    methods = [_parse_method(methode)
-               for methode in _filter_methods(interface.body)]
+    attributes = [
+        _parse_attribute(attribute) for attribute in _filter_attributes(interface.body)
+    ]
+    methods = [_parse_method(methode) for methode in _filter_methods(interface.body)]
     return Interface(
-        name,
-        _fqn(
-            packagename,
-            name),
-        methods,
-        attributes,
-        extends,
-        modifiers)
+        name, _fqn(packagename, name), methods, attributes, extends, modifiers
+    )
 
 
 def parse_class(clazz, packagename="", stereotype=""):
     modifiers = clazz.modifiers
-    implements = [
-        impl.name for impl in clazz.implements] if clazz.implements else []
+    implements = [impl.name for impl in clazz.implements] if clazz.implements else []
     extends = clazz.extends.name if clazz.extends else ""
     name = clazz.name
-    attributes = [_parse_attribute(attribute)
-                  for attribute in _filter_attributes(clazz.body)]
-    methods = [_parse_method(methode)
-               for methode in _filter_methods(clazz.body)]
+    attributes = [
+        _parse_attribute(attribute) for attribute in _filter_attributes(clazz.body)
+    ]
+    methods = [_parse_method(methode) for methode in _filter_methods(clazz.body)]
     return Class(
         name,
-        _fqn(
-            packagename,
-            name),
+        _fqn(packagename, name),
         methods,
         attributes,
         implements,
         extends,
         modifiers,
-        stereotype)
+        stereotype,
+    )
 
 
 def _fqn(packagename, name):
     if packagename:
         return packagename + "." + name
-    else:
-        return name
+    return name
 
 
 def _filter_methods(body):
     return list(
         filter(
-            lambda type: isinstance(type, ((ConstructorDeclaration, MethodDeclaration))),
-            body))
+            lambda type: isinstance(
+                type, ((ConstructorDeclaration, MethodDeclaration))
+            ),
+            body,
+        )
+    )
 
 
 def _filter_attributes(body):
     return list(
         filter(
-            lambda type: isinstance(type, ((FieldDeclaration, EnumDeclaration))),
-            body))
+            lambda type: isinstance(type, ((FieldDeclaration, EnumDeclaration))), body
+        )
+    )
 
 
 def _parse_attribute(attribute):

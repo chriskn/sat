@@ -49,11 +49,13 @@ _CHANGES = [
     Change(_CHANGE_PATH_1, 10, 20),
     Change(_CHANGE_PATH_2, 0, 20),
     Change(_CHANGE_PATH_3, 55, 20),
-    Change(_CHANGE_PATH_4, 0, 0)
+    Change(_CHANGE_PATH_4, 0, 0),
 ]
 
 
 class FileChangesTest(unittest.TestCase):
+    # allow protected-access
+    # pylint: disable = W0212
 
     def setUp(self):
         self.expected_since = "12.10.2018"
@@ -100,8 +102,9 @@ class FileChangesTest(unittest.TestCase):
 
     @mock.patch("report.plot.plot_stacked_barchart")
     @mock.patch("report.xls.write_data_frame")
-    def test_write_results_calls_xls_writer_as_expected(
-            self, writer, dummy_plot):
+    def test_write_results_calls_xls_writer_as_expected(self, writer, dummy_plot):
+        # disable unused param. only mocked to avoid error
+        # pylint: disable=W0613
         exp_output_folder = "dummy//folder"
         self.sut.load_data("", "")
         result = self.sut.analyse("")
@@ -111,12 +114,14 @@ class FileChangesTest(unittest.TestCase):
             result,
             "changed_lines_per_file.xls",
             exp_output_folder,
-            "Changes since " +
-            self.expected_since)
+            "Changes since " + self.expected_since,
+        )
 
     @mock.patch("report.plot.plot_stacked_barchart")
     @mock.patch("report.xls.write_data_frame")
     def test_write_results_calls_plot_as_expected(self, dummy_writer, plot):
+        # disable unused param. only mocked to avoid error
+        # pylint: disable=W0613
         exp_output_folder = "dummy//folder"
         self.sut.load_data("", "")
         self.sut.analyse("")
@@ -125,25 +130,28 @@ class FileChangesTest(unittest.TestCase):
 
         plot.assert_called_once_with(
             ANY,
-            'Number of changed lines',
-            "Number of changed lines for most changed files since " +
-            self.expected_since,
+            "Number of changed lines",
+            "Number of changed lines for most changed files since "
+            + self.expected_since,
             exp_output_folder,
-            "most_changed_files.pdf")
+            "most_changed_files.pdf",
+        )
 
     @mock.patch("changes.changerepo.changes")
     @mock.patch("report.plot.plot_stacked_barchart")
     @mock.patch("report.xls.write_data_frame")
     def test_write_results_plots_expected_dataframe(
-            self, dummy_writer, plot, change_repo):
+        self, dummy_writer, plot, change_repo
+    ):
+        # disable unused param. only mocked to avoid error
+        # pylint: disable=W0613
         change_repo.return_value = _CHANGES
         exp_output_folder = "dummy//folder"
         self.sut.load_data("", "")
         result = self.sut.analyse("")
         exp_treemap_data = result.drop(
-            columns=[
-                FileChanges._COLUMNS[1],
-                FileChanges._COLUMNS[2]])
+            columns=[FileChanges._COLUMNS[1], FileChanges._COLUMNS[2]]
+        )
 
         self.sut.write_results(exp_output_folder)
 

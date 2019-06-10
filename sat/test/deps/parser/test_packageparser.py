@@ -2,23 +2,24 @@ import unittest
 import mock
 import deps.parser.packageparser as sut
 from deps.domain import SourceFile
-import os 
+import os
 
 
 class PackageParserTest(unittest.TestCase):
-
     def test_parse_packages_returns_empty_list_if_sourcefolders_are_empty(self):
         self.assertEqual(sut.parse_packages([]), [])
 
     @mock.patch("os.walk")
-    def test_parse_packages_returns_empty_list_if_no_sourcefiles_are_found(self, walker_mock):
+    def test_parse_packages_returns_empty_list_if_no_sourcefiles_are_found(
+        self, walker_mock
+    ):
         walker_mock.return_value = [("", [], [])]
 
         self.assertEqual(sut.parse_packages([""]), [])
 
     @mock.patch("os.walk")
     def test_parse_packages_analyses_given_sourcefolders(self, walker_mock):
-        source_folders = ["a","b","c"]
+        source_folders = ["a", "b", "c"]
 
         walker_mock.return_value = [("", [], [])]
 
@@ -31,28 +32,33 @@ class PackageParserTest(unittest.TestCase):
     @mock.patch("deps.repo.sourcerepo.sourcefiles")
     @mock.patch("os.walk")
     def test_parse_packages_parses_expected_path(self, walker_mock, source_repo_mock):
-        java_filenames = ['AbstractDummy.java', 'IDummy.java']
-        package_path = os.sep.join(['exampleprojects', 'dummy.project1','src'])
+        # disable no self use
+        # pylint: disable = R0201
+        java_filenames = ["AbstractDummy.java", "IDummy.java"]
+        package_path = os.sep.join(["exampleprojects", "dummy.project1", "src"])
         walker_mock.return_value = [(package_path, [], java_filenames)]
         source_repo_mock.return_value = []
 
-        sut.parse_packages(['exampleprojects']) 
-        
-        source_repo_mock.assert_called_once_with(java_filenames, package_path, 'dummy.project1.src')
-        
+        sut.parse_packages(["exampleprojects"])
+
+        source_repo_mock.assert_called_once_with(
+            java_filenames, package_path, "dummy.project1.src"
+        )
+
     @mock.patch("deps.repo.sourcerepo.sourcefiles")
     @mock.patch("os.walk")
-    def test_parse_packages_returns_expected_packages(self, walker_mock, source_repo_mock):
-        java_filenames = ['AbstractDummy.java', 'IDummy.java']
-        package_path = os.sep.join(['exampleprojects', 'dummy.project1','src'])
+    def test_parse_packages_returns_expected_packages(
+        self, walker_mock, source_repo_mock
+    ):
+        java_filenames = ["AbstractDummy.java", "IDummy.java"]
+        package_path = os.sep.join(["exampleprojects", "dummy.project1", "src"])
         source_file = SourceFile("DummyFile", "java", [], [], [], [], [])
         walker_mock.return_value = [(package_path, [], java_filenames)]
         source_repo_mock.return_value = [source_file]
 
-        result_packages = sut.parse_packages(['exampleprojects']) 
+        result_packages = sut.parse_packages(["exampleprojects"])
 
-        assert 1 == len(result_packages)
-        self.assertEqual(result_packages[0].name, 'dummy.project1.src')
+        assert len(result_packages) == 1
+        self.assertEqual(result_packages[0].name, "dummy.project1.src")
         self.assertEqual(result_packages[0].path, package_path)
         self.assertEqual(result_packages[0].sourcefiles, [source_file])
-        
