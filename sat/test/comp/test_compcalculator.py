@@ -16,14 +16,9 @@ _METHODS_BY_NAME = dict()
 class TestComplCalulator(unittest.TestCase):
     @classmethod
     def _filter_methods(cls, class_):
-        return list(
-            filter(
-                lambda type: isinstance(
-                    type, ConstructorDeclaration, MethodDeclaration
-                ),
-                class_,
-            )
-        )
+        return list(filter(
+            lambda type: isinstance(type, ConstructorDeclaration)
+            or isinstance(type, MethodDeclaration), class_))
 
     @classmethod
     def setUpClass(cls):
