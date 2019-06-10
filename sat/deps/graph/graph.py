@@ -256,7 +256,7 @@ class Graph:
             if node_id in group.nodes:
                 return group.nodes[node_id]
             return None
-
+            
     def nodes(self):
         return self._graph.nodes
 
