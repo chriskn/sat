@@ -3,12 +3,12 @@
 
 import pandas as pd
 
-import comp.repo.projectrepo as prepo
+import sat.comp.repo.projectrepo as prepo
 
-import report.plot as plot
-import report.xls as xls
+import sat.report.plot as plot
+import sat.report.xls as xls
 
-from app.analyser import Analyser
+from sat.app.analyser import Analyser
 
 _COLUMNS = ["Project", "Complexity", "Path"]
 

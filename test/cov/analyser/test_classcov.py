@@ -1,6 +1,8 @@
-import unittest
-from cov.analyser.classcov import ClassCov
 import os
+
+import unittest
+from sat.cov.analyser.classcov import ClassCov
+
 
 class ClassCovTest(unittest.TestCase):
     def test_class_cov(self):
@@ -12,4 +14,3 @@ class ClassCovTest(unittest.TestCase):
         sut.load_data("exampleProjects", [])
         sut.analyse([])
         sut.write_results(os.path.join(path_to_testdata[:-1], "classcov_out.pdf"))
-

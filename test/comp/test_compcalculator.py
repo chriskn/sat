@@ -7,7 +7,7 @@ import unittest
 import javalang
 from javalang.tree import ConstructorDeclaration, MethodDeclaration
 
-import comp.compcalculator as sut
+import sat.comp.compcalculator as sut
 
 _PATH_TO_TEST_DATA = os.path.join("data", "ComplDummy.java")
 _METHODS_BY_NAME = dict()
@@ -16,9 +16,13 @@ _METHODS_BY_NAME = dict()
 class TestComplCalulator(unittest.TestCase):
     @classmethod
     def _filter_methods(cls, class_):
-        return list(filter(
-            lambda type: isinstance(type, ConstructorDeclaration)
-            or isinstance(type, MethodDeclaration), class_))
+        return list(
+            filter(
+                lambda type: isinstance(type, ConstructorDeclaration)
+                or isinstance(type, MethodDeclaration),
+                class_,
+            )
+        )
 
     @classmethod
     def setUpClass(cls):

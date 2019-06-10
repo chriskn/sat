@@ -6,8 +6,8 @@ import unittest
 from unittest.mock import ANY
 import mock
 
-from comp.analyser.projectcomp import ProjectComp
-from comp.domain import Method, Type, Package, Project
+from sat.comp.analyser.projectcomp import ProjectComp
+from sat.comp.domain import Method, Type, Package, Project
 
 _PROJ_PATH_1 = "..\\my\\dummy\\path\\proj1"
 _PROJ_PATH_2 = "..\\my\\dummy\\proj2"
@@ -88,7 +88,7 @@ class TestProjectComp(unittest.TestCase):
     def setUp(self):
         self.sut = ProjectComp()
 
-    @mock.patch("comp.repo.projectrepo.projects")
+    @mock.patch("sat.comp.repo.projectrepo.projects")
     def test_load_data_calls_typerepo(self, project_mock_repo):
         wdir = "dummy/dir"
         ignored = "foo.bar"
@@ -98,7 +98,7 @@ class TestProjectComp(unittest.TestCase):
     def test_name_is_methods(self):
         self.assertEqual(ProjectComp.name(), "projects")
 
-    @mock.patch("comp.repo.projectrepo.projects")
+    @mock.patch("sat.comp.repo.projectrepo.projects")
     def test_analyse_creates_expected_dataframe(self, mock_project_repo):
         mock_project_repo.return_value = _PROJECTS
         self.sut.load_data("", "")
@@ -111,9 +111,9 @@ class TestProjectComp(unittest.TestCase):
         self.assertEqual(paths, [_PROJ_PATH_2, _PROJ_PATH_1, _PROJ_PATH_3])
         self.assertEqual(len(result.columns), 3, "Columns with unexpected lengths.")
 
-    @mock.patch("report.plot.plot_treemap")
-    @mock.patch("report.xls.write_data_frame")
-    @mock.patch("comp.repo.projectrepo.projects")
+    @mock.patch("sat.report.plot.plot_treemap")
+    @mock.patch("sat.report.xls.write_data_frame")
+    @mock.patch("sat.comp.repo.projectrepo.projects")
     def test_write_results_calls_write_data_frame(
         self, mock_project_repo, write_xls, plot_treemap
     ):
@@ -128,9 +128,9 @@ class TestProjectComp(unittest.TestCase):
             ANY, "cognitive_complexity_per_project.xls", odir, "Project Complexity"
         )
 
-    @mock.patch("report.plot.plot_treemap")
-    @mock.patch("report.xls.write_data_frame")
-    @mock.patch("comp.repo.projectrepo.projects")
+    @mock.patch("sat.report.plot.plot_treemap")
+    @mock.patch("sat.report.xls.write_data_frame")
+    @mock.patch("sat.comp.repo.projectrepo.projects")
     def test_write_results_calls_plot_treemap_for_total_comp(
         self, mock_project_repo, write_xls, plot_treemap
     ):
@@ -150,9 +150,9 @@ class TestProjectComp(unittest.TestCase):
         )
         plot_treemap.assert_has_calls([expected_total_call], any_order=True)
 
-    @mock.patch("report.plot.plot_treemap")
-    @mock.patch("report.xls.write_data_frame")
-    @mock.patch("comp.repo.projectrepo.projects")
+    @mock.patch("sat.report.plot.plot_treemap")
+    @mock.patch("sat.report.xls.write_data_frame")
+    @mock.patch("sat.comp.repo.projectrepo.projects")
     def test_write_results_plots_expected_data_for_total_comp(
         self, mock_project_repo, write_xls, plot_treemap
     ):

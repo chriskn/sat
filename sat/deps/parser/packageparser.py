@@ -3,8 +3,8 @@
 
 import os
 
-import deps.repo.sourcerepo as repo
-from deps.domain import Package
+import sat.deps.repo.sourcerepo as repo
+from sat.deps.domain import Package
 
 
 def parse_packages(sourcefolders):

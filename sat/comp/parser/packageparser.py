@@ -3,7 +3,7 @@
 
 import logging
 import os
-from comp.domain import Package
+from sat.comp.domain import Package
 
 _LOGGER = logging.getLogger("PackageParser")
 

@@ -5,10 +5,10 @@ import ntpath
 
 import pandas as pd
 
-import changes.changerepo as repo
-import report.plot as plot
-import report.xls as xls
-from app.analyser import Analyser
+import sat.changes.changerepo as repo
+import sat.report.plot as plot
+import sat.report.xls as xls
+from sat.app.analyser import Analyser
 
 
 class FileChanges(Analyser):

@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 
-import comp.repo.packagerepo as prepo
+import sat.comp.repo.packagerepo as prepo
 
-import report.plot as plot
-import report.xls as xls
+import sat.report.plot as plot
+import sat.report.xls as xls
 
-from app.analyser import Analyser
+from sat.app.analyser import Analyser
 
 _COLUMNS = [
     "Package",

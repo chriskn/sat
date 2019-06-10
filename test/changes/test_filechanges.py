@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import unittest
-from changes.analyser.filechanges import FileChanges
-from changes.domain import Change
+from unittest.mock import ANY
+
 import mock
 from pandas.util.testing import assert_frame_equal
-from unittest.mock import ANY
-import os
+
+from sat.changes.analyser.filechanges import FileChanges
+from sat.changes.domain import Change
 
 _PROJ_PATH_1 = os.path.join("my", "dummy", "proj1")
 _PROJ_PATH_2 = os.path.join("my", "dummy", "proj2")
@@ -64,13 +66,13 @@ class FileChangesTest(unittest.TestCase):
     def test_name_is_files(self):
         self.assertEqual(FileChanges.name(), "files")
 
-    @mock.patch("changes.changerepo.changes")
+    @mock.patch("sat.changes.changerepo.changes")
     def test_load_data_calls_change_repo_as_expected(self, change_repo):
         exp_working_dir = "dummy/dir"
         self.sut.load_data(exp_working_dir, "")
         change_repo.assert_called_with(exp_working_dir, self.expected_since)
 
-    @mock.patch("changes.changerepo.changes")
+    @mock.patch("sat.changes.changerepo.changes")
     def test_analyse_creates_expected_result(self, change_repo):
         change_repo.return_value = _CHANGES
 
@@ -100,8 +102,8 @@ class FileChangesTest(unittest.TestCase):
         lines_removed = list(result[FileChanges._COLUMNS[4]])
         self.assertListEqual(lines_removed, [20, 20, 20, 0])
 
-    @mock.patch("report.plot.plot_stacked_barchart")
-    @mock.patch("report.xls.write_data_frame")
+    @mock.patch("sat.report.plot.plot_stacked_barchart")
+    @mock.patch("sat.report.xls.write_data_frame")
     def test_write_results_calls_xls_writer_as_expected(self, writer, dummy_plot):
         # disable unused param. only mocked to avoid error
         # pylint: disable=W0613
@@ -117,8 +119,8 @@ class FileChangesTest(unittest.TestCase):
             "Changes since " + self.expected_since,
         )
 
-    @mock.patch("report.plot.plot_stacked_barchart")
-    @mock.patch("report.xls.write_data_frame")
+    @mock.patch("sat.report.plot.plot_stacked_barchart")
+    @mock.patch("sat.report.xls.write_data_frame")
     def test_write_results_calls_plot_as_expected(self, dummy_writer, plot):
         # disable unused param. only mocked to avoid error
         # pylint: disable=W0613
@@ -137,9 +139,9 @@ class FileChangesTest(unittest.TestCase):
             "most_changed_files.pdf",
         )
 
-    @mock.patch("changes.changerepo.changes")
-    @mock.patch("report.plot.plot_stacked_barchart")
-    @mock.patch("report.xls.write_data_frame")
+    @mock.patch("sat.changes.changerepo.changes")
+    @mock.patch("sat.report.plot.plot_stacked_barchart")
+    @mock.patch("sat.report.xls.write_data_frame")
     def test_write_results_plots_expected_dataframe(
         self, dummy_writer, plot, change_repo
     ):

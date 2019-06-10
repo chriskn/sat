@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import changes.changeparser as parser
+import sat.changes.changeparser as parser
 
 _CHANGES_BY_DIR = dict()
 

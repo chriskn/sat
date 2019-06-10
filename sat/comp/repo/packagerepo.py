@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import scanner
+import sat.scanner as scanner
 
-import comp.repo.typerepo as typerepo
-from comp.parser import packageparser
+import sat.comp.repo.typerepo as typerepo
+from sat.comp.parser import packageparser
 
 _PACKAGES = dict()
 

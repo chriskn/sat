@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import scanner
-import comp.parser.typeparser as parser
+import sat.scanner as scanner
+import sat.comp.parser.typeparser as parser
 
 _TYPES = dict()
 _LOGGER = logging.getLogger("TypeRepo")

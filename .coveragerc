@@ -1,3 +1,3 @@
 [run]
 source = sat/
-omit = /*/test/*, /*/__init__.py
+omit = /*/test/*, /*/test_*.py, /*/__init__.py

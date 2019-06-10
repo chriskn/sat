@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import scanner
+import sat.scanner as scanner
 
-import comp.repo.packagerepo as package_repo
-from comp.parser import projectparser
+import sat.comp.repo.packagerepo as package_repo
+from sat.comp.parser import projectparser
 
 _PROJECTS = dict()
 

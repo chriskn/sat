@@ -1,3 +1,0 @@
-[run]
-source = example/
-omit = /*/test/*, /*/__init__.py

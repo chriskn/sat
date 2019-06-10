@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
-from comp.domain import Project
+from sat.comp.domain import Project
 
 _LOGGER = logging.getLogger("ProjectParser")
 

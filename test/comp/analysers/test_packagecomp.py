@@ -7,8 +7,8 @@ from unittest.mock import ANY
 import mock
 
 
-from comp.analyser.packagecomp import PackageComp
-from comp.domain import Method, Type, Package
+from sat.comp.analyser.packagecomp import PackageComp
+from sat.comp.domain import Method, Type, Package
 
 _PACKAGE_1 = "src.main.dummy1.domian"
 _PACKAGE_2 = "src.main.dummy2.gui"
@@ -73,7 +73,7 @@ class TestPackageComp(unittest.TestCase):
     def setUp(self):
         self.sut = PackageComp()
 
-    @mock.patch("comp.repo.packagerepo.packages")
+    @mock.patch("sat.comp.repo.packagerepo.packages")
     def test_load_data_calls_typerepo(self, package_mock_repo):
         wdir = "dummy/dir"
         ignored = "foo.bar"
@@ -83,7 +83,7 @@ class TestPackageComp(unittest.TestCase):
     def test_name_is_methods(self):
         self.assertEqual(PackageComp.name(), "packages")
 
-    @mock.patch("comp.repo.packagerepo.packages")
+    @mock.patch("sat.comp.repo.packagerepo.packages")
     def test_analyse_creates_expected_dataframe(self, mock_package_repo):
         mock_package_repo.return_value = _PACKAGES
         self.sut.load_data("", "")
@@ -122,9 +122,9 @@ class TestPackageComp(unittest.TestCase):
         )
         self.assertEqual(len(result.columns), 5, "Columns with unexpected lengths.")
 
-    @mock.patch("report.plot.plot_treemap")
-    @mock.patch("report.xls.write_data_frame")
-    @mock.patch("comp.repo.packagerepo.packages")
+    @mock.patch("sat.report.plot.plot_treemap")
+    @mock.patch("sat.report.xls.write_data_frame")
+    @mock.patch("sat.comp.repo.packagerepo.packages")
     def test_write_results_calls_write_data_frame(
         self, mock_package_repo, write_xls, plot_treemap
     ):
@@ -139,9 +139,9 @@ class TestPackageComp(unittest.TestCase):
             ANY, "cognitive_complexity_per_package.xls", odir, "Package Complexity"
         )
 
-    @mock.patch("report.plot.plot_treemap")
-    @mock.patch("report.xls.write_data_frame")
-    @mock.patch("comp.repo.packagerepo.packages")
+    @mock.patch("sat.report.plot.plot_treemap")
+    @mock.patch("sat.report.xls.write_data_frame")
+    @mock.patch("sat.comp.repo.packagerepo.packages")
     def test_write_results_calls_plot_treemap_for_total_comp(
         self, mock_package_repo, write_xls, plot_treemap
     ):
@@ -161,9 +161,9 @@ class TestPackageComp(unittest.TestCase):
         )
         plot_treemap.assert_has_calls([expected_total_call], any_order=True)
 
-    @mock.patch("report.plot.plot_treemap")
-    @mock.patch("report.xls.write_data_frame")
-    @mock.patch("comp.repo.packagerepo.packages")
+    @mock.patch("sat.report.plot.plot_treemap")
+    @mock.patch("sat.report.xls.write_data_frame")
+    @mock.patch("sat.comp.repo.packagerepo.packages")
     def test_write_results_calls_plot_treemap_for_av_type_comp(
         self, mock_package_repo, write_xls, plot_treemap
     ):
@@ -183,9 +183,9 @@ class TestPackageComp(unittest.TestCase):
         )
         plot_treemap.assert_has_calls([expected_avt_call], any_order=True)
 
-    @mock.patch("report.plot.plot_treemap")
-    @mock.patch("report.xls.write_data_frame")
-    @mock.patch("comp.repo.packagerepo.packages")
+    @mock.patch("sat.report.plot.plot_treemap")
+    @mock.patch("sat.report.xls.write_data_frame")
+    @mock.patch("sat.comp.repo.packagerepo.packages")
     def test_write_results_calls_plot_treemap_for_av_method_comp(
         self, mock_package_repo, write_xls, plot_treemap
     ):
@@ -205,9 +205,9 @@ class TestPackageComp(unittest.TestCase):
         )
         plot_treemap.assert_has_calls([expected_avm_call], any_order=True)
 
-    @mock.patch("report.plot.plot_treemap")
-    @mock.patch("report.xls.write_data_frame")
-    @mock.patch("comp.repo.packagerepo.packages")
+    @mock.patch("sat.report.plot.plot_treemap")
+    @mock.patch("sat.report.xls.write_data_frame")
+    @mock.patch("sat.comp.repo.packagerepo.packages")
     def test_write_results_plots_expected_data_for_total_comp(
         self, mock_package_repo, write_xls, plot_treemap
     ):
@@ -229,9 +229,9 @@ class TestPackageComp(unittest.TestCase):
             len(used_dataframes.columns), 2, "Columns with unexpected lengths."
         )
 
-    @mock.patch("report.plot.plot_treemap")
-    @mock.patch("report.xls.write_data_frame")
-    @mock.patch("comp.repo.packagerepo.packages")
+    @mock.patch("sat.report.plot.plot_treemap")
+    @mock.patch("sat.report.xls.write_data_frame")
+    @mock.patch("sat.comp.repo.packagerepo.packages")
     def test_write_results_plots_expected_data_for_av_class_comp(
         self, mock_package_repo, write_xls, plot_treemap
     ):
@@ -253,9 +253,9 @@ class TestPackageComp(unittest.TestCase):
             len(used_dataframes.columns), 2, "Columns with unexpected lengths."
         )
 
-    @mock.patch("report.plot.plot_treemap")
-    @mock.patch("report.xls.write_data_frame")
-    @mock.patch("comp.repo.packagerepo.packages")
+    @mock.patch("sat.report.plot.plot_treemap")
+    @mock.patch("sat.report.xls.write_data_frame")
+    @mock.patch("sat.comp.repo.packagerepo.packages")
     def test_write_results_plots_expected_data_for_av_method_comp(
         self, mock_package_repo, write_xls, plot_treemap
     ):

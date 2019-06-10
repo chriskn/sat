@@ -1,8 +1,10 @@
-import unittest
-import mock
-import deps.parser.packageparser as sut
-from deps.domain import SourceFile
 import os
+import unittest
+
+import mock
+
+import sat.deps.parser.packageparser as sut
+from sat.deps.domain import SourceFile
 
 
 class PackageParserTest(unittest.TestCase):
@@ -29,7 +31,7 @@ class PackageParserTest(unittest.TestCase):
         walker_mock.assert_any_call(source_folders[2])
         assert len(source_folders) == walker_mock.call_count
 
-    @mock.patch("deps.repo.sourcerepo.sourcefiles")
+    @mock.patch("sat.deps.repo.sourcerepo.sourcefiles")
     @mock.patch("os.walk")
     def test_parse_packages_parses_expected_path(self, walker_mock, source_repo_mock):
         # disable no self use
@@ -45,7 +47,7 @@ class PackageParserTest(unittest.TestCase):
             java_filenames, package_path, "dummy.project1.src"
         )
 
-    @mock.patch("deps.repo.sourcerepo.sourcefiles")
+    @mock.patch("sat.deps.repo.sourcerepo.sourcefiles")
     @mock.patch("os.walk")
     def test_parse_packages_returns_expected_packages(
         self, walker_mock, source_repo_mock

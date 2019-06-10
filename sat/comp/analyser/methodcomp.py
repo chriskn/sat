@@ -3,12 +3,12 @@
 
 import pandas as pd
 
-import report.plot as plot
-import report.xls as xls
+import sat.report.plot as plot
+import sat.report.xls as xls
 
-import comp.repo.typerepo as repo
+import sat.comp.repo.typerepo as repo
 
-from app.analyser import Analyser
+from sat.app.analyser import Analyser
 
 
 class MethodComp(Analyser):

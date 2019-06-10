@@ -6,12 +6,12 @@ import re
 
 import pandas as pd
 
-import changes.changerepo as repo
-import scanner
-from app.analyser import Analyser
+import sat.changes.changerepo as repo
+import sat.scanner as scanner
+from sat.app.analyser import Analyser
 
-import report.plot as plot
-import report.xls as xls
+import sat.report.plot as plot
+import sat.report.xls as xls
 
 
 class PackageChanges(Analyser):

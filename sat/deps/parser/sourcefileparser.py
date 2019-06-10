@@ -3,7 +3,7 @@
 
 import os
 
-import deps.parser.javaparser as javaParser
+import sat.deps.parser.javaparser as javaParser
 
 
 def parse_sourcefiles(java_filenames, package_path, packagename=""):

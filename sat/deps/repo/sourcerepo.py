@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import deps.parser.sourcefileparser as parser
+import sat.deps.parser.sourcefileparser as parser
 
 _SOURCE_FILES = dict()
 

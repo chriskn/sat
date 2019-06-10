@@ -15,7 +15,7 @@ from javalang.tree import (
     MethodDeclaration,
 )
 
-from deps.domain import Class, Declaration, Enum, Interface, Method, SourceFile
+from sat.deps.domain import Class, Declaration, Enum, Interface, Method, SourceFile
 
 _LOGGER = logging.getLogger("JavaParser")
 

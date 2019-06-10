@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import comp.repo.projectrepo as sut
-from comp.domain import Package
-import unittest
-import mock
 import os
+import unittest
+
+import mock
+
+import sat.comp.repo.projectrepo as sut
+from sat.comp.domain import Package
 
 
 class TestProjectRepo(unittest.TestCase):
@@ -13,7 +15,7 @@ class TestProjectRepo(unittest.TestCase):
         # pylint: disable = W0212
         sut._projects = dict()
 
-    @mock.patch("comp.parser.projectparser.parse_projects")
+    @mock.patch("sat.comp.parser.projectparser.parse_projects")
     def test_projects_not_calls_parse_projects_twice_for_same_input(
         self, parse_projects
     ):
@@ -23,7 +25,7 @@ class TestProjectRepo(unittest.TestCase):
         sut.projects(workingdir, ignored)
         self.assertEqual(parse_projects.call_count, 1)
 
-    @mock.patch("comp.parser.projectparser.parse_projects")
+    @mock.patch("sat.comp.parser.projectparser.parse_projects")
     def test_projects_calls_parse_projects_depending_on_dir_and_ignored(
         self, parse_projects
     ):
@@ -36,12 +38,12 @@ class TestProjectRepo(unittest.TestCase):
         sut.projects(workingdir + "another", ignored)
         self.assertEqual(parse_projects.call_count, 3)
 
-    @mock.patch("comp.parser.projectparser.parse_projects")
+    @mock.patch("sat.comp.parser.projectparser.parse_projects")
     def test_projects_calls_parse_projects(self, parse_projects):
         sut.projects("someworkingdir", "")
         self.assertEqual(parse_projects.call_count, 1)
 
-    @mock.patch("scanner.find_projects", return_value=dict())
+    @mock.patch("sat.scanner.find_projects", return_value=dict())
     def test_scanner_is_called_with_expected_params(self, scanner):
         # disabled not self use. test must be checked anyway
         # pylint: disable = R0201
@@ -51,13 +53,13 @@ class TestProjectRepo(unittest.TestCase):
         # self.assertEqual(scanner.call_count, 1)
         scanner.assert_called_with(workingdir, ignored)
 
-    @mock.patch("comp.parser.typeparser.parse")
+    @mock.patch("sat.comp.parser.typeparser.parse")
     def test_parser_is_not_called_if_no_file_found(self, parser):
         sut.projects("", "")
         self.assertEqual(parser.call_count, 0)
 
-    @mock.patch("scanner.find_projects")
-    @mock.patch("comp.repo.packagerepo.packages")
+    @mock.patch("sat.scanner.find_projects")
+    @mock.patch("sat.comp.repo.packagerepo.packages")
     def test_parser_creates_expected_projects(self, packagerepo, scanner):
         scanner_result = {
             "foo//bar//proj1//a1/b1//": "a1" + os.sep + "b1",

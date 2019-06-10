@@ -7,7 +7,7 @@ from subprocess import CalledProcessError, CompletedProcess
 
 import mock
 
-import changes.changerepo as sut
+import sat.changes.changerepo as sut
 
 _PATH_TO_TESTDATA = os.path.join("data", "git_changes_test.log")
 
@@ -17,7 +17,7 @@ class TestChangeRepo(unittest.TestCase):
         # pylint: disable = W0212
         sut._changes_by_dir = dict()
 
-    @mock.patch("changes.changeparser.parse_changes")
+    @mock.patch("sat.changes.changeparser.parse_changes")
     def test_changes_does_run_command_twice_for_same_params(self, parse_changes):
         workingdir = "foo"
         since = "01.01.2018"
@@ -27,7 +27,7 @@ class TestChangeRepo(unittest.TestCase):
 
         self.assertEqual(parse_changes.call_count, 1)
 
-    @mock.patch("changes.changeparser._run_git_command")
+    @mock.patch("sat.changes.changeparser._run_git_command")
     def test_changes_return_expected_amount_of_changes(self, git_executer):
         git_executer.return_value = TestChangeRepo._load_executer_testdata()
         expected_size = 53

@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import pandas as pd
-from comp.analyser.classcomp import ClassComp
-from app.analyser import Analyser
+from sat.comp.analyser.classcomp import ClassComp
+from sat.app.analyser import Analyser
 
 _COLUMNS = [
     "GROUP",

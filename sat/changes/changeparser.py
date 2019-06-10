@@ -3,7 +3,7 @@ import re
 import logging
 import subprocess
 import os
-from changes.domain import Change
+from sat.changes.domain import Change
 
 _LOGGER = logging.getLogger("ChangeRepo")
 _LINES_CHANGED_PATTERN = re.compile(r"\d+\t\d+\t*")

@@ -10,10 +10,10 @@ from javalang.tree import (
     MethodDeclaration,
 )
 
-import java
+import sat.java as java
 
-from comp.domain import Method, Type
-import comp.compcalculator as comp
+from sat.comp.domain import Method, Type
+import sat.comp.compcalculator as comp
 
 
 def is_method(body_element):
