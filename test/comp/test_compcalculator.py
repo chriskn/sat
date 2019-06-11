@@ -18,8 +18,9 @@ class TestComplCalulator(unittest.TestCase):
     def _filter_methods(cls, class_):
         return list(
             filter(
-                lambda type: isinstance(type, ConstructorDeclaration)
-                or isinstance(type, MethodDeclaration),
+                lambda type: isinstance(
+                    type, (MethodDeclaration, ConstructorDeclaration)
+                ),
                 class_,
             )
         )

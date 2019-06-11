@@ -6,12 +6,15 @@ install:
   - pip install pytest
   - pip install pytest-cov
   - pip install coveralls
-  #- pip install flake8
-  #- pip install pylint 
-  # Project specific dependencies
+  - pip install pylint 
+  - pip install black
   - pip install -r requirements.txt
 script:
-  - pytest --cov=sat
+  - black sat --diff --check
+  - black test --diff --check
+  - python -m pylint sat --rcfile conf/.pylintrc
+  - python -m pylint test --rcfile conf/.pylintrc
+  - pytest --cov=. --cov-config=.coveragerc
   #- python -m flake8
   #- python -m pylint sat/sat sat/comp sat/report sat/changes sat/deps sat/app sat/test
 after_success:

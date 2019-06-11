@@ -227,6 +227,7 @@ class Graph:
             min_ancestor[node] = min(min_ancestor[node], dfs_pos[adjacent])
 
     def _get_scn_from_stack(self, node, stack, on_stack):
+        # pylint: disable = R0201
         node_from_stack = -1
         cycle = []
         while node_from_stack != node:
@@ -256,7 +257,7 @@ class Graph:
             if node_id in group.nodes:
                 return group.nodes[node_id]
             return None
-            
+
     def nodes(self):
         return self._graph.nodes
 
