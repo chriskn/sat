@@ -3,8 +3,8 @@
 
 import logging
 
-from deps.domain import Class, Enum, Interface
-from deps.graph.graph import Graph
+from sat.deps.domain import Class, Enum, Interface
+from sat.deps.graph.graph import Graph
 
 _BUILD_IN_TYPES = ["int", "boolean", "String", "double", "float", "byte"]
 _LOGGER = logging.getLogger(__name__)

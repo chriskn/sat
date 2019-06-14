@@ -4,8 +4,8 @@
 import os
 import xml.etree.ElementTree
 
-import deps.parser.packageparser as parser
-from deps.domain import Project
+import sat.deps.parser.packageparser as parser
+from sat.deps.domain import Project
 
 
 def parse(directory, ignored_path_segments):

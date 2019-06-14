@@ -4,7 +4,7 @@
 import logging
 import re
 
-from deps.graph.graph import Graph
+from sat.deps.graph.graph import Graph
 
 _LOGGER = logging.getLogger(__name__)
 

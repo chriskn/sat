@@ -3,15 +3,15 @@
 
 # pylint: disable=E0401
 
-from changes.analyser.filechanges import FileChanges
-from changes.analyser.packagechanges import PackageChanges
-from changes.analyser.projectchanges import ProjectChanges
-from comp.analyser.classcomp import ClassComp
-from comp.analyser.methodcomp import MethodComp
-from comp.analyser.packagecomp import PackageComp
-from comp.analyser.projectcomp import ProjectComp
-from deps.analyser.bundleanalyser import BundleAnalyser
-from deps.analyser.plainjavaanalyser import PlainJavaAnalyser
+from sat.changes.analyser.filechanges import FileChanges
+from sat.changes.analyser.packagechanges import PackageChanges
+from sat.changes.analyser.projectchanges import ProjectChanges
+from sat.comp.analyser.classcomp import ClassComp
+from sat.comp.analyser.methodcomp import MethodComp
+from sat.comp.analyser.packagecomp import PackageComp
+from sat.comp.analyser.projectcomp import ProjectComp
+from sat.deps.analyser.bundleanalyser import BundleAnalyser
+from sat.deps.analyser.plainjavaanalyser import PlainJavaAnalyser
 
 _DEPS_ANALYSER_CLASSES = [PlainJavaAnalyser, BundleAnalyser]
 _CHANGE_ANALYSER_CLASSES = [FileChanges, PackageChanges, ProjectChanges]

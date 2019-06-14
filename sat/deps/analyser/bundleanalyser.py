@@ -3,10 +3,10 @@
 
 import os
 
-from app.analyser import Analyser
+from sat.app.analyser import Analyser
 
-import deps.parser.bundleparser as parser
-from deps.graph.bundlegraph import BundleGraph
+import sat.deps.parser.bundleparser as parser
+from sat.deps.graph.bundlegraph import BundleGraph
 
 _OUTPUT_HEADER = [
     "Name",

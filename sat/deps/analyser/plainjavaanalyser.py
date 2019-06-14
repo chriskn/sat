@@ -6,13 +6,13 @@ import re
 
 import pandas as pd
 
-import report.plot as plot
-from app.analyser import Analyser
+import sat.report.plot as plot
+from sat.app.analyser import Analyser
 
-import deps.parser.projectparser as parser
-from deps.graph.classdiagramm import ClassDiagramm
-from deps.graph.packagegraph import PackageGraph
-from deps.graph.projectgraph import ProjectGraph
+import sat.deps.parser.projectparser as parser
+from sat.deps.graph.classdiagramm import ClassDiagramm
+from sat.deps.graph.packagegraph import PackageGraph
+from sat.deps.graph.projectgraph import ProjectGraph
 
 _CLASS_IMPORT_PATTERN = re.compile(r".*\.[A-Z].*")
 _LIST_SEPARATOR = ", "

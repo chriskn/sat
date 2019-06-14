@@ -4,7 +4,7 @@
 import os
 import re
 
-from deps.domain import Bundle
+from sat.deps.domain import Bundle
 
 
 def parse(directory, ignored_path_segments):

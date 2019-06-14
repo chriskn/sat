@@ -3,7 +3,7 @@
 
 import re
 
-from deps.graph.graph import Graph
+from sat.deps.graph.graph import Graph
 
 
 class ProjectGraph(Graph):
