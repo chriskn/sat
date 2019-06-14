@@ -4,6 +4,7 @@
 import pyyed
 
 
+# pylint: disable=W0212,R0913,R0914,R1710
 class Graph:
 
     _GREEN = "#00DB43"
@@ -26,7 +27,8 @@ class Graph:
                     shape=node.shape,
                     width=node.geom["width"],
                     height=node.geom["height"],
-                    shape_fill=node.shape_fill)
+                    shape_fill=node.shape_fill,
+                )
             for edge in old_graph.edges().values():
                 from_node = getattr(edge, "node1")
                 to_node = getattr(edge, "node2")
@@ -35,7 +37,11 @@ class Graph:
                 label = getattr(edge, "label")
                 if from_node_label in cycle and to_node_label in cycle:
                     if grouped:
-                        new_graph.add_edge(from_node_label.split(".")[-1], to_node_label.split(".")[-1], label)
+                        new_graph.add_edge(
+                            from_node_label.split(".")[-1],
+                            to_node_label.split(".")[-1],
+                            label,
+                        )
                     else:
                         new_graph.add_edge(from_node_label, to_node_label, label)
         return new_graph
@@ -48,15 +54,16 @@ class Graph:
         self._name_for_id = dict()
 
     def add_node(
-            self,
-            label,
-            package_group=None,
-            shape="rectangle",
-            width="50",
-            height="50",
-            shape_fill=_GREEN,
-            node_type="ShapeNode",
-            uml=False):
+        self,
+        label,
+        package_group=None,
+        shape="rectangle",
+        width="50",
+        height="50",
+        shape_fill=_GREEN,
+        node_type="ShapeNode",
+        uml=False,
+    ):
         if label not in self._id_for_name:
             if package_group:
                 fqn = package_group.label + "." + label
@@ -68,7 +75,8 @@ class Graph:
                     height=height,
                     shape_fill=shape_fill,
                     node_type=node_type,
-                    UML=uml)
+                    UML=uml,
+                )
                 self._id_for_name[fqn] = self._node_id
                 self._name_for_id[self._node_id] = fqn
             else:
@@ -80,7 +88,8 @@ class Graph:
                     height=height,
                     shape_fill=shape_fill,
                     node_type=node_type,
-                    UML=uml)
+                    UML=uml,
+                )
                 self._id_for_name[label] = self._node_id
                 self._name_for_id[self._node_id] = label
             self._node_id += 1
@@ -88,26 +97,20 @@ class Graph:
         return False
 
     def add_edge(
-            self,
-            source,
-            target,
-            label="",
-            line_type="line",
-            arrowhead="standard"):
+        self, source, target, label="", line_type="line", arrowhead="standard"
+    ):
         source_id = self._id_for_name[source]
         target_id = self._id_for_name[target]
         self._graph.add_edge(
-            source_id,
-            target_id,
-            label=label,
-            line_type=line_type,
-            arrowhead=arrowhead)
+            source_id, target_id, label=label, line_type=line_type, arrowhead=arrowhead
+        )
 
     def add_group(self, label, shape="rectangle", fill="#ffd35b"):
         self._id_for_name[label] = self._node_id
         self._name_for_id[self._node_id] = label
         group = self._graph.add_group(
-            str(self._node_id), label=label, shape=shape, fill=fill)
+            str(self._node_id), label=label, shape=shape, fill=fill
+        )
         self._node_id += 1
         return group
 
@@ -133,10 +136,19 @@ class Graph:
         for node in range(0, num_nodes):
             visited = dfs_pos[node] != -1
             if not visited:
-                self._scns(node, min_ancestor, dfs_pos,
-                           stack_member, [], strongly_connected_nodes, grouped, nodes)
-        cycles = [cycle for cycle in strongly_connected_nodes if cycle
-                  and len(cycle) > 1]
+                self._scns(
+                    node,
+                    min_ancestor,
+                    dfs_pos,
+                    stack_member,
+                    [],
+                    strongly_connected_nodes,
+                    grouped,
+                    nodes,
+                )
+        cycles = [
+            cycle for cycle in strongly_connected_nodes if cycle and len(cycle) > 1
+        ]
         if grouped:
             g_cycles = []
             for cycle in cycles:
@@ -145,7 +157,9 @@ class Graph:
             return g_cycles
         return cycles
 
-    def _scns(self, node, min_ancestor, dfs_pos, on_stack, stack, cycles, grouped, nodes):
+    def _scns(
+        self, node, min_ancestor, dfs_pos, on_stack, stack, cycles, grouped, nodes
+    ):
         dfs_pos[node] = self._time
         min_ancestor[node] = self._time
         self._time += 1
@@ -153,8 +167,8 @@ class Graph:
         on_stack[node] = True
         adjacents = []
         node_names = []
-        for n in nodes:
-            node_names.append(n.node_name)
+        for adj_node in nodes:
+            node_names.append(adj_node.node_name)
         if grouped:
             for edge in self._graph.edges.values():
                 source_node_name = edge.node1
@@ -165,38 +179,54 @@ class Graph:
                     adjacents.append(target_id)
         else:
             adjacents = list(
-                [edge.node2 for edge in self._graph.edges.values() if edge.node1 == node])
+                [
+                    edge.node2
+                    for edge in self._graph.edges.values()
+                    if edge.node1 == node
+                ]
+            )
 
         for adjacent in adjacents:
             self._find_scns_in_adjacents(
-                dfs_pos, adjacent, on_stack, min_ancestor, stack, cycles, node, grouped, nodes)
+                dfs_pos,
+                adjacent,
+                on_stack,
+                min_ancestor,
+                stack,
+                cycles,
+                node,
+                grouped,
+                nodes,
+            )
         is_head = min_ancestor[node] == dfs_pos[node]
         if is_head:
-            scn = self._get_scn_from_stack(node, stack, on_stack)
+            scn = Graph._get_scn_from_stack(node, stack, on_stack)
             cycles.append(scn)
 
     def _find_scns_in_adjacents(
-            self,
-            dfs_pos,
-            adjacent,
-            on_stack,
-            min_ancestor,
-            stack,
-            cycles,
-            node,
-            grouped,
-            nodes):
+        self,
+        dfs_pos,
+        adjacent,
+        on_stack,
+        min_ancestor,
+        stack,
+        cycles,
+        node,
+        grouped,
+        nodes,
+    ):
         is_dfs_child = dfs_pos[adjacent] == -1
         visited = on_stack[adjacent]
         if is_dfs_child:
             self._scns(
-                adjacent, min_ancestor, dfs_pos, on_stack, stack, cycles, grouped, nodes)
-            min_ancestor[node] = min(
-                min_ancestor[node], min_ancestor[adjacent])
+                adjacent, min_ancestor, dfs_pos, on_stack, stack, cycles, grouped, nodes
+            )
+            min_ancestor[node] = min(min_ancestor[node], min_ancestor[adjacent])
         elif visited:
             min_ancestor[node] = min(min_ancestor[node], dfs_pos[adjacent])
 
-    def _get_scn_from_stack(self, node, stack, on_stack):
+    @staticmethod
+    def _get_scn_from_stack(node, stack, on_stack):
         node_from_stack = -1
         cycle = []
         while node_from_stack != node:
@@ -225,7 +255,6 @@ class Graph:
         for group in self._graph.groups.values():
             if node_id in group.nodes:
                 return group.nodes[node_id]
-        
 
     def nodes(self):
         return self._graph.nodes
@@ -238,5 +267,7 @@ class Graph:
 
     def interpolate_node_size(self, num_deps, max_num_deps):
         divisor = max_num_deps if max_num_deps > 0 else 1
-        result = (num_deps / divisor) * (self._MAX_NODE_SIZE - self._MIN_NODE_SIZE) + self._MIN_NODE_SIZE
+        result = (num_deps / divisor) * (
+            self._MAX_NODE_SIZE - self._MIN_NODE_SIZE
+        ) + self._MIN_NODE_SIZE
         return str(round(result, 0))
