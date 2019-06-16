@@ -8,4 +8,5 @@ xlwt
 coverage
 pytest
 mock
+pillow
 -e git://github.com/chriskn/pyyed.git@master#egg=pyyed
