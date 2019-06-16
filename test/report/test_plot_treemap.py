@@ -40,19 +40,19 @@ class PlotTreemapTest(unittest.TestCase):
             self._test_results_folder, self._used_file_name
         )
 
-    def test_plot_scatterplot(self):
-        # pylint: disable=R0201
-        # work in progress
-        used_coverage = os.path.join(self._cur_dir, "coverage.csv")
+    # def test_plot_scatterplot(self):
+    # pylint: disable=R0201
+    # work in progress
+    # used_coverage = os.path.join(self._cur_dir, "coverage.csv")
 
-        # data = pd.read_csv(path_to_testdata)
-        # columns_to_drop = list(_COLUMNS)
-        # columns_to_drop.remove(_COLUMNS[2])
-        # columns_to_drop.remove(_COLUMNS[3])
-        # columns_to_drop.remove(_COLUMNS[4])
-        # columns_to_drop.remove(_COLUMNS[9])
-        # dropped = data.drop(columns=columns_to_drop)
-        # sut.plot_scatterplot(dropped, os.path.dirname(path_to_testdata), "test")
+    # data = pd.read_csv(path_to_testdata)
+    # columns_to_drop = list(_COLUMNS)
+    # columns_to_drop.remove(_COLUMNS[2])
+    # columns_to_drop.remove(_COLUMNS[3])
+    # columns_to_drop.remove(_COLUMNS[4])
+    # columns_to_drop.remove(_COLUMNS[9])
+    # dropped = data.drop(columns=columns_to_drop)
+    # sut.plot_scatterplot(dropped, os.path.dirname(path_to_testdata), "test")
 
     @mock.patch("sat.report.plot._write_figure")
     def test_plot_treemap_does_not_plot_if_dataframe_empty(self, mock_writer):

@@ -79,6 +79,7 @@ class PlotHeatmapTest(unittest.TestCase):
                 ],
             )
 
+    @pytest.mark.integration
     def test_plot_heatmap_plots_exp_heatmap(self):
         dummy_values = list(range(0, 5))
         dummy_dataframe = pd.DataFrame(

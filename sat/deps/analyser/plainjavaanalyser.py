@@ -164,9 +164,9 @@ def _project_coupling_data_frame(projects):
 def _calculate_project_coupling(projects, proj_imports):
     proj_data = []
     for other_project in projects:
-        other_project_packages = set(
-            [package.name for package in other_project.source_packages]
-        )
+        other_project_packages = {
+            package.name for package in other_project.source_packages
+        }
         proj_deps = sum(
             [
                 proj_imports.count(other_package_package)

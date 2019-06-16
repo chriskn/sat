@@ -5,7 +5,6 @@ import logging
 import os
 
 import matplotlib.pyplot as plt
-from matplotlib import colors as mcolors
 import numpy as np
 import seaborn as sns
 import squarify
@@ -16,13 +15,14 @@ _DPI = 72.27
 _LOGGER = logging.getLogger(__name__)
 _MAX_HEATMAP_ENTRIES = 200
 _MAX_TREEMAP_ENTRIES = 20
+_MAX_BARCHART_ENTRIES = 60
 
 
-def plot_heatmap(df, title, folder, file_name):
-    if df.empty:
+def plot_heatmap(dataframe, title, folder, file_name):
+    if dataframe.empty:
         _LOGGER.info("No data available. Skip writing heatmap: %s", file_name)
         return
-    number_of_entries = df.shape[0]
+    number_of_entries = dataframe.shape[0]
     if number_of_entries > _MAX_HEATMAP_ENTRIES:
         _LOGGER.info(
             "Number of entries is %d and exceeds limit of %d for heatmaps. Will skip creation of heatmap: %s",
@@ -45,7 +45,7 @@ def plot_heatmap(df, title, folder, file_name):
     axis.set_title(title)
     # plot
     sns.heatmap(
-        df,
+        dataframe,
         square=True,
         fmt="d",
         ax=axis,
@@ -62,55 +62,30 @@ def plot_heatmap(df, title, folder, file_name):
     _write_figure(fig, folder, file_name)
 
 
-def plot_scatterplot(data, folder, file_name):
-    sns.set_context({"figure.figsize": (24, 10)})
-    cmap = sns.cubehelix_palette(dark=0.3, light=0.8, as_cmap=True)
-    axes = sns.scatterplot(
-        x="INSTRUCTION_MISSED",
-        y="INSTRUCTION_COVERED",
-        hue="COMPLEXITY_MISSED",
-        size="COMPLEXITY_MISSED",
-        palette=cmap,
-        data=data,
-    )
-    for line in range(0, data.shape[0]):
-        axes.text(
-            data.INSTRUCTION_MISSED[line] + 0.2,
-            data.INSTRUCTION_COVERED[line] + 0.05,
-            data.CLASS[line],
-            horizontalalignment="left",
-            size="medium",
-            color="black",
-            weight="semibold",
-        )
-    # plt.show()
-    _write_figure(axes.get_figure(), folder, file_name)
-
-
-def plot_treemap(df, title, folder, file_name, value_label):
+def plot_treemap(data_frame, title, folder, file_name, value_label):
     # pylint: disable=R0914
-    if df.empty:
+    if data_frame.empty:
         _LOGGER.info("No data available. Skip writing treemap: %s", file_name)
         return
-    number_of_entries = df.shape[0]
+    number_of_entries = data_frame.shape[0]
     # restrict number of values to ensure readability
     if number_of_entries > _MAX_TREEMAP_ENTRIES:
         _LOGGER.info(
             "Number of entries (%d) exceeds limit for treemaps. Limiting entries to %d for treemap: %s",
-            len(df),
+            len(data_frame),
             _MAX_TREEMAP_ENTRIES,
             file_name,
         )
         number_of_entries = _MAX_TREEMAP_ENTRIES
-    values = df[df.columns[1]].values[:number_of_entries]
+    values = data_frame[data_frame.columns[1]].values[:number_of_entries]
     # would result in division by zero
     if 0 in values:
         _LOGGER.info(
             "Can't create treemap with 0 values. Skip writing treemap: %s", file_name
         )
         return
-    names = df[df.columns[0]].values[:number_of_entries]
-    labels = create_treemap_labels(names, value_label, values)
+    names = data_frame[data_frame.columns[0]].values[:number_of_entries]
+    labels = _create_treemap_labels(names, value_label, values)
     # norm values based on image size
     norm_values = squarify.normalize_sizes(values, 700.0, 433.0)
     # colors
@@ -136,30 +111,19 @@ def plot_treemap(df, title, folder, file_name, value_label):
     _write_figure(fig, folder, file_name)
 
 
-def create_treemap_labels(names, value_label, values):
-    labels = []
-    for index, name in enumerate(names):
-        label = name
-        if len(name) > 30:
-            label = _wrap_label(name, 25)
-        label = "\n".join([label, value_label + " " + "%.2f" % round(values[index], 2)])
-        labels.append(label)
-    return labels
-
-
-def plot_stacked_barchart(data, ylabel, title, folder, file_name):
-    if data.empty:
+def plot_stacked_barchart(data_frame, ylabel, title, folder, file_name):
+    if data_frame.empty:
         _LOGGER.info("No data available. Skip writing stacked barchart: %s", file_name)
         return
-    data_column_1 = data.columns[1]
-    data_column_2 = data.columns[2]
-    column_data_1 = data[data_column_1].values
-    column_data_2 = data[data_column_2].values
+    data_column_1 = data_frame.columns[1]
+    data_column_2 = data_frame.columns[2]
+    column_data_1 = data_frame[data_column_1].values
+    column_data_2 = data_frame[data_column_2].values
     total = column_data_1 + column_data_2
     # Set general plot properties
     sns.set_style("white")
     sns.set_context({"figure.figsize": (24, 10)})
-    labels = _trim_labels(data[data.columns[0]].values, 40)
+    labels = _trim_labels(data_frame[data_frame.columns[0]].values, 40)
     # Plot 1 - background - "total" (top) series
     sns.barplot(x=labels, y=total, color="red")
     # Plot 2 - overlay - "bottom" series
@@ -184,15 +148,26 @@ def plot_stacked_barchart(data, ylabel, title, folder, file_name):
     _write_figure(bottom_plot.get_figure(), folder, file_name)
 
 
-def plot_barchart(data, ylabel, title, folder, filename):
-    if data.empty:
-        _LOGGER.info("No data available. While skip writing barchart: %s", filename)
+def plot_barchart(data_frame, ylabel, title, folder, file_name):
+    if data_frame.empty:
+        _LOGGER.info("No data available. Skip writing barchart: %s", file_name)
         return
+    number_of_entries = data_frame.shape[0]
+    if number_of_entries > _MAX_BARCHART_ENTRIES:
+        _LOGGER.info(
+            "Number of entries (%d) exceeds limit for treemaps. Limiting entries to %d for treemap: %s",
+            len(data_frame),
+            _MAX_TREEMAP_ENTRIES,
+            file_name,
+        )
+        number_of_entries = _MAX_BARCHART_ENTRIES
     # Plot
-    y_values = (data[data.columns[1]].values)[0:25]
+    y_values = (data_frame[data_frame.columns[1]].values)[:number_of_entries]
     fig, axis = plt.subplots(1, 1, figsize=(24, 10))
     # Labels
-    labels = _trim_labels((data[data.columns[0]].values)[0:25], 60)
+    labels = _trim_labels(
+        (data_frame[data_frame.columns[0]].values)[:number_of_entries], 60
+    )
     labels_pos = np.arange(len(labels))
     axis.bar(labels_pos, y_values, color="green")
     plt.xticks(labels_pos, labels)
@@ -209,7 +184,7 @@ def plot_barchart(data, ylabel, title, folder, filename):
             color="black",
         )
     plt.xticks(rotation=90)
-    _write_figure(fig, folder, filename)
+    _write_figure(fig, folder, file_name)
 
 
 def _trim_labels(orig_labels, max_length):
@@ -217,6 +192,17 @@ def _trim_labels(orig_labels, max_length):
     for label in orig_labels:
         if len(label) > max_length:
             label = "..." + label[-max_length:]
+        labels.append(label)
+    return labels
+
+
+def _create_treemap_labels(names, value_label, values):
+    labels = []
+    for index, name in enumerate(names):
+        label = name
+        if len(name) > 30:
+            label = _wrap_label(name, 25)
+        label = "\n".join([label, value_label + " %.2f" % round(values[index], 2)])
         labels.append(label)
     return labels
 
@@ -237,3 +223,28 @@ def _write_figure(figure, folder, filename):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     figure.savefig(path, bbox_inches="tight")
     plt.close(figure)
+
+
+# def plot_scatterplot(data, folder, file_name):
+#     sns.set_context({"figure.figsize": (24, 10)})
+#     cmap = sns.cubehelix_palette(dark=0.3, light=0.8, as_cmap=True)
+#     axes = sns.scatterplot(
+#         x="INSTRUCTION_MISSED",
+#         y="INSTRUCTION_COVERED",
+#         hue="COMPLEXITY_MISSED",
+#         size="COMPLEXITY_MISSED",
+#         palette=cmap,
+#         data=data,
+#     )
+#     for line in range(0, data.shape[0]):
+#         axes.text(
+#             data.INSTRUCTION_MISSED[line] + 0.2,
+#             data.INSTRUCTION_COVERED[line] + 0.05,
+#             data.CLASS[line],
+#             horizontalalignment="left",
+#             size="medium",
+#             color="black",
+#             weight="semibold",
+#         )
+#     # plt.show()
+#     _write_figure(axes.get_figure(), folder, file_name)

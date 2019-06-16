@@ -47,9 +47,9 @@ class MethodComp(Analyser):
             output_dir,
             "Method Complexity",
         )
-        methods_with_comp_greater_null = self._create_barchart_data()
+        methods_with_comp_greater_zero = self._create_barchart_data()
         plot.plot_barchart(
-            methods_with_comp_greater_null,
+            methods_with_comp_greater_zero,
             "Cognitive complexity",
             "Methods with highest cognitive complexity",
             output_dir,
@@ -58,4 +58,5 @@ class MethodComp(Analyser):
 
     def _create_barchart_data(self):
         methods_with_comp = self._analysis_result.drop(columns=["Path"])
+        print(methods_with_comp)
         return methods_with_comp[methods_with_comp.Complexity > 0]

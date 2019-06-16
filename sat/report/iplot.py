@@ -1,4 +1,4 @@
-import plotly.plotly as py
+""" import plotly.plotly as py
 import plotly.figure_factory as ff
 import plotly.graph_objs as go
 from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
@@ -16,3 +16,4 @@ def plot_interactive_headmap():
         z, x=x, y=y, annotation_text=z_text, colorscale="Viridis"
     )
     plot(fig, filename="annotated_heatmap_text")
+ """
