@@ -5,6 +5,7 @@ import logging
 import os
 
 import matplotlib.pyplot as plt
+from matplotlib import colors as mcolors
 import numpy as np
 import seaborn as sns
 import squarify
@@ -14,16 +15,20 @@ sns.set()
 _DPI = 72.27
 _LOGGER = logging.getLogger(__name__)
 _MAX_HEATMAP_ENTRIES = 200
-_MAX_TREEMAP_ENTRIES = 25
+_MAX_TREEMAP_ENTRIES = 20
 
 
-def plot_heatmap(data_frame, title, folder, file_name):
-    number_of_entries = data_frame.shape[0]
+def plot_heatmap(df, title, folder, file_name):
+    if df.empty:
+        _LOGGER.info("No data available. Skip writing heatmap: %s", file_name)
+        return
+    number_of_entries = df.shape[0]
     if number_of_entries > _MAX_HEATMAP_ENTRIES:
-        _LOGGER.warning(
-            "Number of entries is %d and exceeds limit of %d for heatmaps. Will skip creation of heatmap",
+        _LOGGER.info(
+            "Number of entries is %d and exceeds limit of %d for heatmaps. Will skip creation of heatmap: %s",
             number_of_entries,
             _MAX_HEATMAP_ENTRIES,
+            file_name,
         )
         return
     fontsize_pt = plt.rcParams["ytick.labelsize"]
@@ -34,12 +39,13 @@ def plot_heatmap(data_frame, title, folder, file_name):
     figure_size = int(round(matrix_height_in + entry_offset))
     # colors
     color_map = plt.get_cmap("autumn_r", 10)
+    color_map.set_under("white")
     # build figure
     fig, axis = plt.subplots(figsize=(figure_size, figure_size))
     axis.set_title(title)
     # plot
     sns.heatmap(
-        data_frame,
+        df,
         square=True,
         fmt="d",
         ax=axis,
@@ -51,6 +57,7 @@ def plot_heatmap(data_frame, title, folder, file_name):
         cmap=color_map,
         linewidths=0.5,
         linecolor="grey",
+        vmin=1,
     )
     _write_figure(fig, folder, file_name)
 
@@ -80,30 +87,31 @@ def plot_scatterplot(data, folder, file_name):
     _write_figure(axes.get_figure(), folder, file_name)
 
 
-def plot_treemap(data, title, folder, file_name, value_name):
+def plot_treemap(df, title, folder, file_name, value_label):
     # pylint: disable=R0914
-    if data.empty:
-        _LOGGER.info("No data available. Skip writing stacked barchart: %s", file_name)
+    if df.empty:
+        _LOGGER.info("No data available. Skip writing treemap: %s", file_name)
         return
-    number_of_entries = data.shape[0]
-    # restrict number of values
+    number_of_entries = df.shape[0]
+    # restrict number of values to ensure readability
     if number_of_entries > _MAX_TREEMAP_ENTRIES:
-        _LOGGER.warning(
-            "Number of entries  (%d) exceeds limit for treemaps. Will limit to max %d values",
-            len(data),
+        _LOGGER.info(
+            "Number of entries (%d) exceeds limit for treemaps. Limiting entries to %d for treemap: %s",
+            len(df),
             _MAX_TREEMAP_ENTRIES,
+            file_name,
         )
-    values = data[data.columns[1]].values
-    names = data[data.columns[0]].values
-    labels = []
-    for index, name in enumerate(names):
-        label = name
-        if len(name) > 30:
-            label = _wrap_label(name, 25)
-        label = "\n".join([label, value_name + " " + "%.2f" % round(values[index], 2)])
-        labels.append(label)
-    # the sum of the values must equal the total area to be laid out
-    # i.e., sum(values) == width * height
+        number_of_entries = _MAX_TREEMAP_ENTRIES
+    values = df[df.columns[1]].values[:number_of_entries]
+    # would result in division by zero
+    if 0 in values:
+        _LOGGER.info(
+            "Can't create treemap with 0 values. Skip writing treemap: %s", file_name
+        )
+        return
+    names = df[df.columns[0]].values[:number_of_entries]
+    labels = create_treemap_labels(names, value_label, values)
+    # norm values based on image size
     norm_values = squarify.normalize_sizes(values, 700.0, 433.0)
     # colors
     color_map = plt.get_cmap("autumn_r", len(labels))
@@ -123,8 +131,20 @@ def plot_treemap(data, title, folder, file_name, value_name):
     img_data = np.expand_dims(img_data, axis=0)
     img = plt.imshow(img_data, cmap=color_map)
     img.set_visible(False)
+    # shrink colorbar
     fig.colorbar(img, orientation="vertical", shrink=0.96)
-    _write_figure(plt.gcf(), folder, file_name)
+    _write_figure(fig, folder, file_name)
+
+
+def create_treemap_labels(names, value_label, values):
+    labels = []
+    for index, name in enumerate(names):
+        label = name
+        if len(name) > 30:
+            label = _wrap_label(name, 25)
+        label = "\n".join([label, value_label + " " + "%.2f" % round(values[index], 2)])
+        labels.append(label)
+    return labels
 
 
 def plot_stacked_barchart(data, ylabel, title, folder, file_name):
@@ -214,5 +234,6 @@ def _wrap_label(label, length):
 
 def _write_figure(figure, folder, filename):
     path = os.path.join(folder, filename)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     figure.savefig(path, bbox_inches="tight")
     plt.close(figure)

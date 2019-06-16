@@ -63,7 +63,9 @@ class PlainJavaAnalyser(Analyser):
         )
         self._logger.info("Creating project coupling map")
         self._logger.info("Analysed %d projects", len(self._projects))
-        self._project_coupling_data_frame = _project_coupling_data_frame(self._projects)
+        self._project_coupling_data_frame = _project_coupling_data_frame(
+            sorted(self._projects)
+        )
 
     def _analyse_packages(self, ignored_path_segments):
         self._logger.info("Creating package dependency graph")
@@ -154,15 +156,25 @@ def _project_coupling_data_frame(projects):
     for project in reversed(projects):
         proj_imports = [_to_package_import(imp) for imp in project.imports()]
         proj_names.append(project.name)
-        proj_data = []
-        for other_project in projects:
-            proj_deps = 0
-            for other_package in other_project.source_packages:
-                occurences = proj_imports.count(other_package.name)
-                proj_deps += occurences
-            proj_data.append(proj_deps)
+        proj_data = _calculate_project_coupling(projects, proj_imports)
         data.append(proj_data)
     return pd.DataFrame(data=data, index=proj_names, columns=list(reversed(proj_names)))
+
+
+def _calculate_project_coupling(projects, proj_imports):
+    proj_data = []
+    for other_project in projects:
+        other_project_packages = set(
+            [package.name for package in other_project.source_packages]
+        )
+        proj_deps = sum(
+            [
+                proj_imports.count(other_package_package)
+                for other_package_package in other_project_packages
+            ]
+        )
+        proj_data.append(proj_deps)
+    return proj_data
 
 
 def _create_package_coupling_data_frame(packages):

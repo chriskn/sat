@@ -235,7 +235,7 @@ class TestPackageComp(unittest.TestCase):
     def test_write_results_plots_expected_data_for_av_class_comp(
         self, mock_package_repo, write_xls, plot_treemap
     ):
-        # disable unused param. only mocked to avoid error
+        # disable unused param. write_xls only mocked to avoid error
         # pylint: disable=W0613
         mock_package_repo.return_value = _PACKAGES
         self.sut.load_data("", "")
@@ -259,7 +259,7 @@ class TestPackageComp(unittest.TestCase):
     def test_write_results_plots_expected_data_for_av_method_comp(
         self, mock_package_repo, write_xls, plot_treemap
     ):
-        # disable unused param. only mocked to avoid error
+        # disable unused param. write_xls only mocked to avoid error
         # pylint: disable=W0613
         mock_package_repo.return_value = _PACKAGES
         self.sut.load_data("", "")
