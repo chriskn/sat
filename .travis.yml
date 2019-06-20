@@ -12,12 +12,7 @@ install:
 script:
   - black sat --diff --check
   - black test --diff --check
-  - python -m pylint sat --rcfile conf/.pylintrc
-  - python -m pylint test --rcfile conf/.pylintrc
-  - python -m pylint test --rcfile conf/.pylintrc
-
-  - pytest --cov=. --cov-config=conf/.coveragerc
-  #- python -m flake8
-  #- python -m pylint sat/sat sat/comp sat/report sat/changes sat/deps sat/app sat/test
+  - python -m pylint sat test test_integration --rcfile conf/.pylintrc
+  - pytest --cov=. --cov-config=conf/.coveragerc -m "not integration"
 after_success:
   - coveralls
