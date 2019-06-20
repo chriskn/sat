@@ -4,8 +4,4 @@ repos:
   rev: stable
   hooks:
   - id: black
-- repo: https://github.com/pre-commit/mirrors-pylint
-  rev: v2.3.1  
-  hooks:
-  - id: pylint 
-    args: [--rcfile=conf/.pylintrc]
+    args: [sat,test,test_integration]

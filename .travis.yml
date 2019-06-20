@@ -14,7 +14,9 @@ script:
   - black test --diff --check
   - python -m pylint sat --rcfile conf/.pylintrc
   - python -m pylint test --rcfile conf/.pylintrc
-  - pytest --cov=. --cov-config=.coveragerc
+  - python -m pylint test --rcfile conf/.pylintrc
+
+  - pytest --cov=. --cov-config=conf/.coveragerc
   #- python -m flake8
   #- python -m pylint sat/sat sat/comp sat/report sat/changes sat/deps sat/app sat/test
 after_success:

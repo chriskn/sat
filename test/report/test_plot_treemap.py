@@ -1,13 +1,9 @@
-import os
 import unittest
-import shutil
 import mock
-import pytest
 
 import pandas as pd
 
 import sat.report.plot as sut
-import test.report.report_test_utils as reporttest
 
 _COLUMNS = [
     "GROUP",
@@ -27,18 +23,6 @@ _COLUMNS = [
 
 
 class PlotTreemapTest(unittest.TestCase):
-    def setUp(self):
-        self._cur_dir = os.path.dirname(os.path.abspath(__file__))
-        self._ref_data_folder = os.path.join(self._cur_dir, "test_data")
-        self._ref_treemap_path = os.path.join(self._ref_data_folder, "ref_treemap.png")
-        self._ref_treemap_path_longlabels = os.path.join(
-            self._ref_data_folder, "ref_treemap_long_labels.png"
-        )
-        self._test_results_folder = os.path.join(self._cur_dir, "test_results")
-        self._used_file_name = "test_treemap.png"
-        self._treemap_output_path = os.path.join(
-            self._test_results_folder, self._used_file_name
-        )
 
     # def test_plot_scatterplot(self):
     # pylint: disable=R0201
@@ -71,7 +55,8 @@ class PlotTreemapTest(unittest.TestCase):
 
         self.assertFalse(mock_writer.called)
 
-    def test_plot_treemap_logs_exp_message_for_empty_dataframe(self):
+    @mock.patch("sat.report.plot._write_figure")
+    def test_plot_treemap_logs_exp_message_for_empty_dataframe(self, mock_writer):
         used_file_name = "dummyFileName"
         exp_logger_name = sut.__name__
 
@@ -88,7 +73,12 @@ class PlotTreemapTest(unittest.TestCase):
                 ],
             )
 
-    def test_plot_treemap_logs_exp_message_if_dataframe_contains_zero(self):
+        self.assertFalse(mock_writer.called)
+
+    @mock.patch("sat.report.plot._write_figure")
+    def test_plot_treemap_logs_exp_message_if_dataframe_contains_zero(
+        self, mock_writer
+    ):
         used_file_name = "dummyFileName"
         exp_logger_name = sut.__name__
         dummy_data = [
@@ -109,7 +99,10 @@ class PlotTreemapTest(unittest.TestCase):
                 ],
             )
 
-    def test_plot_treemap_logs_exp_message_if_data_extends_max_limit(self):
+        self.assertFalse(mock_writer.called)
+
+    @mock.patch("sat.report.plot._write_figure")
+    def test_plot_treemap_logs_exp_message_if_data_extends_max_limit(self, mock_writer):
         used_file_name = "test_treemap.png"
         exp_logger_name = sut.__name__
         dummy_data = [
@@ -118,13 +111,7 @@ class PlotTreemapTest(unittest.TestCase):
         dummy_dataframe = pd.DataFrame(dummy_data)
 
         with self.assertLogs(exp_logger_name, level="INFO") as mock_log:
-            sut.plot_treemap(
-                dummy_dataframe,
-                "dummyTitle",
-                self._test_results_folder,
-                used_file_name,
-                "",
-            )
+            sut.plot_treemap(dummy_dataframe, "dummyTitle", "", used_file_name, "")
 
             self.assertEqual(
                 mock_log.output,
@@ -136,44 +123,4 @@ class PlotTreemapTest(unittest.TestCase):
                 ],
             )
 
-    @pytest.mark.integration
-    def test_plot_treemap_plots_exp_treemap_if_data_extends_max_limit(self):
-        dummy_data = [
-            ["Entry name %s" % dummy_val, dummy_val] for dummy_val in list(range(1, 22))
-        ]
-        dummy_dataframe = pd.DataFrame(dummy_data)
-
-        sut.plot_treemap(
-            dummy_dataframe,
-            "dummyTitle",
-            self._test_results_folder,
-            self._used_file_name,
-            "value label",
-        )
-
-        reporttest.assert_images_equal(
-            self._treemap_output_path, self._ref_treemap_path
-        )
-
-    @pytest.mark.integration
-    def test_plot_treemap_wraps_long_labels(self):
-        dummy_data = [
-            ["Entry name with long long long label %s" % dummy_val, dummy_val]
-            for dummy_val in list(range(1, 21))
-        ]
-        dummy_dataframe = pd.DataFrame(dummy_data)
-
-        sut.plot_treemap(
-            dummy_dataframe,
-            "dummyTitle",
-            self._test_results_folder,
-            self._used_file_name,
-            "",
-        )
-
-        reporttest.assert_images_equal(
-            self._treemap_output_path, self._ref_treemap_path_longlabels
-        )
-
-    def tearDown(self):
-        shutil.rmtree(self._test_results_folder, ignore_errors=True)
+        self.assertTrue(mock_writer.called)

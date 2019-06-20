@@ -154,8 +154,8 @@ def _project_coupling_data_frame(projects):
     proj_names = []
     data = []
     for project in reversed(projects):
-        proj_imports = [_to_package_import(imp) for imp in project.imports()]
         proj_names.append(project.name)
+        proj_imports = [_to_package_import(imp) for imp in project.imports()]
         proj_data = _calculate_project_coupling(projects, proj_imports)
         data.append(proj_data)
     return pd.DataFrame(data=data, index=proj_names, columns=list(reversed(proj_names)))

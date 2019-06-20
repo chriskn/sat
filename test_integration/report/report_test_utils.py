@@ -13,4 +13,5 @@ def assert_images_equal(path_one, path_two):
     image_one = Image.open(path_one)
     image_two = Image.open(path_two)
     diff = ImageChops.difference(image_one, image_two)
+    # diff.show()
     assert diff.getbbox() is None, "Images differ: %s != %s" % (path_one, path_two)
