@@ -5,3 +5,8 @@ repos:
   hooks:
   - id: black
     args: [sat,test,test_integration]
+- repo: https://github.com/pre-commit/mirrors-pylint
+  rev: v2.3.1  
+  hooks:
+  - id: pylint 
+    args: [sat,test,test_integration,--rcfile=conf/.pylintrc,--disable=E0401]
