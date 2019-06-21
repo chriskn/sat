@@ -2,6 +2,7 @@ javalang==0.11.0
 seaborn==0.9.0
 squarify==0.3.0
 matplotlib==3.0.1
+plotly
 pandas
 xlwt
 
