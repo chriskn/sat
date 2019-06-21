@@ -7,6 +7,7 @@ import re
 import pandas as pd
 
 import sat.report.plot as plot
+import sat.report.iplot as iplot
 from sat.app.analyser import Analyser
 
 import sat.deps.parser.projectparser as parser
@@ -135,6 +136,12 @@ class PlainJavaAnalyser(Analyser):
             output_dir,
             "package_coupling_heatmap.pdf",
         )
+        # why does it not work with these labels
+        # x_labels = [index+"1" for index in self._package_coupling_data_frame.index.tolist()]
+        # y_labels = [column+"2" for column in self._package_coupling_data_frame.columns.tolist()]
+        data = self._package_coupling_data_frame.values.tolist()
+
+        iplot.heatmap([], [], data)
 
     def _write_results_for_classes(self, output_dir):
         # Classes

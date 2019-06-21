@@ -58,5 +58,4 @@ class MethodComp(Analyser):
 
     def _create_barchart_data(self):
         methods_with_comp = self._analysis_result.drop(columns=["Path"])
-        print(methods_with_comp)
         return methods_with_comp[methods_with_comp.Complexity > 0]
