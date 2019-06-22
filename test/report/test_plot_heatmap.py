@@ -14,18 +14,17 @@ class PlotHeatmapTest(unittest.TestCase):
         self.assertFalse(mock_writer.called)
 
     @mock.patch("sat.report.plot._write_figure_and_reset")
-    def test_plot_heatmap_does_not_plot_if_dataframe_extends_max_limit(
-        self, mock_writer
-    ):
+    @mock.patch("seaborn.heatmap")
+    def test_plot_heatmap_does_plot(self, heatmap_mock, mock_writer):
         dummy_data = [
-            ["Entry name %s" % dummy_val, dummy_val]
-            for dummy_val in list(range(0, 201))
+            ["Entry name %s" % dummy_val, dummy_val] for dummy_val in list(range(1, 10))
         ]
         dummy_dataframe = pd.DataFrame(dummy_data)
 
         sut.plot_heatmap(dummy_dataframe, "", "", "")
 
-        self.assertFalse(mock_writer.called)
+        self.assertTrue(mock_writer.called)
+        self.assertTrue(heatmap_mock.called)
 
     def test_plot_heatmap_logs_exp_message_for_empty_dataframe(self):
         used_file_name = "dummyFileName"

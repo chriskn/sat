@@ -142,43 +142,16 @@ def plot_stacked_barchart(data_frame, ylabel, title, folder, file_name):
     axis.spines["right"].set_visible(False)
     # Plot 1 - background - "total" (top) series
     top_plot = sns.barplot(x=labels, y=data_total, color="red")
-    for index, total in enumerate(data_total):
-        top_plot.annotate(
-            s=str(data_top[index]),
-            xy=(index, total),
-            ha="center",
-            va="center",
-            xytext=(0, -10 if total > 0 else 10),
-            textcoords="offset points",
-            color="black",
-        )
+    _labels_bars(data_total, top_plot, data_top)
     # grid
     top_plot.yaxis.grid()
-    top_plot.set_ylim(min(data_total), max(data_total))
     # Plot 2 - overlay - "bottom" series
     bottom_plot = sns.barplot(x=labels, y=data_bottom, color="green")
-    for index, y_value in enumerate(data_bottom):
-        bottom_plot.annotate(
-            s=str(y_value),
-            xy=(index, y_value),
-            ha="center",
-            va="center",
-            xytext=(0, -10 if y_value > 0 else 10),
-            textcoords="offset points",
-            color="black",
-        )
+    _labels_bars(data_bottom, bottom_plot, data_bottom)
     # Legend
     top_bar = plt.Rectangle((0, 0), 1, 1, fc="red", edgecolor="none")
     bottom_bar = plt.Rectangle((0, 0), 1, 1, fc="green", edgecolor="none")
-    legend = plt.legend(
-        [bottom_bar, top_bar],
-        [data_column_bottom, data_column_top],
-        ncol=2,
-        prop={"size": 14},
-        bbox_to_anchor=(0.9, 0.99),
-        bbox_transform=plt.gcf().transFigure,
-    )
-    legend.draw_frame(False)
+    _legend([bottom_bar, top_bar], [data_column_bottom, data_column_top])
     bottom_plot.set_ylabel(ylabel)
     bottom_plot.set_title(title, fontsize=16)
     # rotate labels
@@ -218,20 +191,17 @@ def plot_barchart(data_frame, ylabel, title, folder, file_name):
     plt.xticks(labels_pos, labels)
     axis.set_ylabel(ylabel)
     axis.set_title(title, fontsize=16)
-    for index, y_value in enumerate(y_values):
-        axis.annotate(
-            s=str(y_value),
-            xy=(index, y_value),
-            ha="center",
-            va="center",
-            xytext=(0, -10 if y_value > 0 else 10),
-            textcoords="offset points",
-            color="black",
-        )
+    _labels_bars(y_values, axis, y_values)
     legend_bar = plt.Rectangle((0, 0), 1, 1, fc="green", edgecolor="none")
+    _legend([legend_bar], [column_name])
+    plt.xticks(rotation=90)
+    _write_figure_and_reset(fig, folder, file_name)
+
+
+def _legend(bars, names):
     legend = plt.legend(
-        [legend_bar],
-        [column_name],
+        bars,
+        names,
         ncol=2,
         prop={"size": 14},
         bbox_to_anchor=(0.9, 0.99),
@@ -239,8 +209,19 @@ def plot_barchart(data_frame, ylabel, title, folder, file_name):
     )
     legend.draw_frame(False)
 
-    plt.xticks(rotation=90)
-    _write_figure_and_reset(fig, folder, file_name)
+
+def _labels_bars(y_positions, plot, values):
+    for index, y_pos in enumerate(y_positions):
+        if values[index] != 0:
+            plot.annotate(
+                s=str(values[index]),
+                xy=(index, y_pos),
+                ha="center",
+                va="center",
+                xytext=(0, -10 if y_pos > 0 else 10),
+                textcoords="offset points",
+                color="black",
+            )
 
 
 def _trim_labels(orig_labels, max_length):

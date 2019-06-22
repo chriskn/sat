@@ -45,4 +45,3 @@ class PlotBarchartTest(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(reporttest.TEST_RESULTS_FOLDER, ignore_errors=True)
-        # pass

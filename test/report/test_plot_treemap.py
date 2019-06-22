@@ -45,6 +45,17 @@ class PlotTreemapTest(unittest.TestCase):
         self.assertFalse(mock_writer.called)
 
     @mock.patch("sat.report.plot._write_figure_and_reset")
+    def test_plot_treemap_does_not_plot(self, mock_writer):
+        dummy_data = [
+            ["Entry name %s" % dummy_val, dummy_val] for dummy_val in list(range(1, 10))
+        ]
+        dummy_dataframe = pd.DataFrame(dummy_data)
+
+        sut.plot_treemap(dummy_dataframe, "", "", "", "")
+
+        self.assertTrue(mock_writer.called)
+
+    @mock.patch("sat.report.plot._write_figure_and_reset")
     def test_plot_treemap_does_not_plot_if_dataframe_contains_zero(self, mock_writer):
         dummy_data = [
             ["Entry name %s" % dummy_val, dummy_val] for dummy_val in list(range(0, 22))
@@ -106,7 +117,8 @@ class PlotTreemapTest(unittest.TestCase):
         used_file_name = "test_treemap.png"
         exp_logger_name = sut.__name__
         dummy_data = [
-            ["Entry name %s" % dummy_val, dummy_val] for dummy_val in list(range(1, 22))
+            ["Entry name with long long long long label %s" % dummy_val, dummy_val]
+            for dummy_val in list(range(1, 22))
         ]
         dummy_dataframe = pd.DataFrame(dummy_data)
 
