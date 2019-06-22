@@ -2,10 +2,12 @@ language: python
 script: pytest
 python:
     - "3.6"
+env: 
+  secure: CODECOV_TOKEN="fe9672dd-1bbc-476a-9a48-4efa7bc73373"
 install:
   - pip install pytest
   - pip install pytest-cov
-  - pip install coveralls
+  - pip install codecov
   - pip install pylint 
   - pip install black
   - pip install -r requirements.txt
@@ -15,4 +17,4 @@ script:
   - python -m pylint sat test test_integration --rcfile conf/.pylintrc
   - pytest --cov=. --cov-config=conf/.coveragerc -m "not integration"
 after_success:
-  - coveralls
+  - codecov

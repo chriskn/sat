@@ -22,12 +22,12 @@ def parse_changes(workingdir, since):
     for line in lines:
         decoded = line.decode("utf-8")
         if _LINES_CHANGED_PATTERN.match(decoded):
-            change = _read_change(decoded)
+            change = _parse_change(decoded)
             changes_for_dir.append(change)
     return changes_for_dir
 
 
-def _read_change(decoded):
+def _parse_change(decoded):
     split = decoded.split("\t")
     path = os.path.normpath(split[2])
     lines_added = int(split[0])
