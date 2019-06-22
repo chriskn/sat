@@ -7,7 +7,7 @@ import sat.report.plot as sut
 
 
 class PlotBarchartTest(unittest.TestCase):
-    @mock.patch("sat.report.plot._write_figure")
+    @mock.patch("sat.report.plot._write_figure_and_reset")
     def test_plot_barchart_does_not_plot_if_dataframe_empty(self, mock_writer):
         sut.plot_barchart(pd.DataFrame(), "", "", "", "")
 

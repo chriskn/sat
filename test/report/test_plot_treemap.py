@@ -38,13 +38,13 @@ class PlotTreemapTest(unittest.TestCase):
     # dropped = data.drop(columns=columns_to_drop)
     # sut.plot_scatterplot(dropped, os.path.dirname(path_to_testdata), "test")
 
-    @mock.patch("sat.report.plot._write_figure")
+    @mock.patch("sat.report.plot._write_figure_and_reset")
     def test_plot_treemap_does_not_plot_if_dataframe_empty(self, mock_writer):
         sut.plot_treemap(pd.DataFrame(), "", "", "", "")
 
         self.assertFalse(mock_writer.called)
 
-    @mock.patch("sat.report.plot._write_figure")
+    @mock.patch("sat.report.plot._write_figure_and_reset")
     def test_plot_treemap_does_not_plot_if_dataframe_contains_zero(self, mock_writer):
         dummy_data = [
             ["Entry name %s" % dummy_val, dummy_val] for dummy_val in list(range(0, 22))
@@ -55,7 +55,7 @@ class PlotTreemapTest(unittest.TestCase):
 
         self.assertFalse(mock_writer.called)
 
-    @mock.patch("sat.report.plot._write_figure")
+    @mock.patch("sat.report.plot._write_figure_and_reset")
     def test_plot_treemap_logs_exp_message_for_empty_dataframe(self, mock_writer):
         used_file_name = "dummyFileName"
         exp_logger_name = sut.__name__
@@ -75,7 +75,7 @@ class PlotTreemapTest(unittest.TestCase):
 
         self.assertFalse(mock_writer.called)
 
-    @mock.patch("sat.report.plot._write_figure")
+    @mock.patch("sat.report.plot._write_figure_and_reset")
     def test_plot_treemap_logs_exp_message_if_dataframe_contains_zero(
         self, mock_writer
     ):
@@ -101,7 +101,7 @@ class PlotTreemapTest(unittest.TestCase):
 
         self.assertFalse(mock_writer.called)
 
-    @mock.patch("sat.report.plot._write_figure")
+    @mock.patch("sat.report.plot._write_figure_and_reset")
     def test_plot_treemap_logs_exp_message_if_data_extends_max_limit(self, mock_writer):
         used_file_name = "test_treemap.png"
         exp_logger_name = sut.__name__

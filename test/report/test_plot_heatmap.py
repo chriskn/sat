@@ -7,13 +7,13 @@ import sat.report.plot as sut
 
 
 class PlotHeatmapTest(unittest.TestCase):
-    @mock.patch("sat.report.plot._write_figure")
+    @mock.patch("sat.report.plot._write_figure_and_reset")
     def test_plot_heatmap_does_not_plot_if_dataframe_empty(self, mock_writer):
         sut.plot_heatmap(pd.DataFrame(), "", "", "")
 
         self.assertFalse(mock_writer.called)
 
-    @mock.patch("sat.report.plot._write_figure")
+    @mock.patch("sat.report.plot._write_figure_and_reset")
     def test_plot_heatmap_does_not_plot_if_dataframe_extends_max_limit(
         self, mock_writer
     ):

@@ -9,13 +9,15 @@ import numpy as np
 import seaborn as sns
 import squarify
 
-sns.set()
-
 _DPI = 72.27
 _LOGGER = logging.getLogger(__name__)
 _MAX_HEATMAP_ENTRIES = 200
 _MAX_TREEMAP_ENTRIES = 20
 _MAX_BARCHART_ENTRIES = 60
+
+sns.set()
+
+# pylint: disable = R0914
 
 
 def plot_heatmap(dataframe, title, folder, file_name):
@@ -59,7 +61,7 @@ def plot_heatmap(dataframe, title, folder, file_name):
         linecolor="grey",
         vmin=1,
     )
-    _write_figure(fig, folder, file_name)
+    _write_figure_and_reset(fig, folder, file_name)
 
 
 def plot_treemap(data_frame, title, folder, file_name, value_label):
@@ -92,7 +94,7 @@ def plot_treemap(data_frame, title, folder, file_name, value_label):
     color_map = plt.get_cmap("autumn_r", len(labels))
     colors = [color_map(i) for i in range(len(norm_values))][::-1]
     # plot
-    plt.rc("font", size=8)
+    # plt.rc("font", size=8)
     fig = plt.figure(figsize=(12, 10))
     axis = fig.add_subplot(111)
     axis = squarify.plot(
@@ -108,44 +110,80 @@ def plot_treemap(data_frame, title, folder, file_name, value_label):
     img.set_visible(False)
     # shrink colorbar
     fig.colorbar(img, orientation="vertical", shrink=0.96)
-    _write_figure(fig, folder, file_name)
+    _write_figure_and_reset(fig, folder, file_name)
 
 
 def plot_stacked_barchart(data_frame, ylabel, title, folder, file_name):
     if data_frame.empty:
         _LOGGER.info("No data available. Skip writing stacked barchart: %s", file_name)
         return
-    data_column_1 = data_frame.columns[1]
-    data_column_2 = data_frame.columns[2]
-    column_data_1 = data_frame[data_column_1].values
-    column_data_2 = data_frame[data_column_2].values
-    total = column_data_1 + column_data_2
+    number_of_entries = data_frame.shape[0]
+    if number_of_entries > _MAX_BARCHART_ENTRIES:
+        _LOGGER.info(
+            "Number of entries (%d) exceeds limit for treemaps. Limiting entries to %d for barchart: %s",
+            len(data_frame),
+            _MAX_TREEMAP_ENTRIES,
+            file_name,
+        )
+        number_of_entries = _MAX_BARCHART_ENTRIES
+    label_column = data_frame.columns[0]
+    data_column_top = data_frame.columns[2]
+    data_column_bottom = data_frame.columns[1]
+    label_data = data_frame[label_column].values[:number_of_entries]
+    data_top = data_frame[data_column_top].values[:number_of_entries]
+    data_bottom = data_frame[data_column_bottom].values[:number_of_entries]
+    data_total = data_bottom + data_top
     # Set general plot properties
     sns.set_style("white")
-    sns.set_context({"figure.figsize": (24, 10)})
-    labels = _trim_labels(data_frame[data_frame.columns[0]].values, 40)
+    labels = _trim_labels(label_data, 40)
+    # Fig and axis
+    fig, axis = plt.subplots(1, 1, figsize=(24, 10))
+    axis.spines["top"].set_visible(False)
+    axis.spines["right"].set_visible(False)
     # Plot 1 - background - "total" (top) series
-    sns.barplot(x=labels, y=total, color="red")
+    top_plot = sns.barplot(x=labels, y=data_total, color="red")
+    for index, total in enumerate(data_total):
+        top_plot.annotate(
+            s=str(data_top[index]),
+            xy=(index, total),
+            ha="center",
+            va="center",
+            xytext=(0, -10 if total > 0 else 10),
+            textcoords="offset points",
+            color="black",
+        )
+    # grid
+    top_plot.yaxis.grid()
+    top_plot.set_ylim(min(data_total), max(data_total))
     # Plot 2 - overlay - "bottom" series
-    bottom_plot = sns.barplot(x=labels, y=column_data_1, color="green")
+    bottom_plot = sns.barplot(x=labels, y=data_bottom, color="green")
+    for index, y_value in enumerate(data_bottom):
+        bottom_plot.annotate(
+            s=str(y_value),
+            xy=(index, y_value),
+            ha="center",
+            va="center",
+            xytext=(0, -10 if y_value > 0 else 10),
+            textcoords="offset points",
+            color="black",
+        )
     # Legend
     top_bar = plt.Rectangle((0, 0), 1, 1, fc="red", edgecolor="none")
     bottom_bar = plt.Rectangle((0, 0), 1, 1, fc="green", edgecolor="none")
     legend = plt.legend(
         [bottom_bar, top_bar],
-        [data_column_1, data_column_2],
-        loc=1,
+        [data_column_bottom, data_column_top],
         ncol=2,
-        prop={"size": 16},
+        prop={"size": 14},
+        bbox_to_anchor=(0.9, 0.99),
+        bbox_transform=plt.gcf().transFigure,
     )
     legend.draw_frame(False)
     bottom_plot.set_ylabel(ylabel)
-    bottom_plot.set_title(title)
-    # remove spines
-    sns.despine(left=True)
+    bottom_plot.set_title(title, fontsize=16)
     # rotate labels
     bottom_plot.set_xticklabels(bottom_plot.get_xticklabels(), rotation=80)
-    _write_figure(bottom_plot.get_figure(), folder, file_name)
+    _write_figure_and_reset(fig, folder, file_name)
 
 
 def plot_barchart(data_frame, ylabel, title, folder, file_name):
@@ -155,15 +193,22 @@ def plot_barchart(data_frame, ylabel, title, folder, file_name):
     number_of_entries = data_frame.shape[0]
     if number_of_entries > _MAX_BARCHART_ENTRIES:
         _LOGGER.info(
-            "Number of entries (%d) exceeds limit for treemaps. Limiting entries to %d for treemap: %s",
+            "Number of entries (%d) exceeds limit for treemaps. Limiting entries to %d for barchart: %s",
             len(data_frame),
             _MAX_TREEMAP_ENTRIES,
             file_name,
         )
         number_of_entries = _MAX_BARCHART_ENTRIES
+    sns.set_style("white")
     # Plot
+    column_name = data_frame.columns[1]
     y_values = (data_frame[data_frame.columns[1]].values)[:number_of_entries]
     fig, axis = plt.subplots(1, 1, figsize=(24, 10))
+    # y axis and grid
+    axis.spines["top"].set_visible(False)
+    axis.spines["right"].set_visible(False)
+    axis.yaxis.grid()
+    axis.set_ylim(min(y_values), max(y_values))
     # Labels
     labels = _trim_labels(
         (data_frame[data_frame.columns[0]].values)[:number_of_entries], 60
@@ -172,19 +217,30 @@ def plot_barchart(data_frame, ylabel, title, folder, file_name):
     axis.bar(labels_pos, y_values, color="green")
     plt.xticks(labels_pos, labels)
     axis.set_ylabel(ylabel)
-    axis.set_title(title)
+    axis.set_title(title, fontsize=16)
     for index, y_value in enumerate(y_values):
         axis.annotate(
             s=str(y_value),
             xy=(index, y_value),
             ha="center",
             va="center",
-            xytext=(0, 10),
+            xytext=(0, -10 if y_value > 0 else 10),
             textcoords="offset points",
             color="black",
         )
+    legend_bar = plt.Rectangle((0, 0), 1, 1, fc="green", edgecolor="none")
+    legend = plt.legend(
+        [legend_bar],
+        [column_name],
+        ncol=2,
+        prop={"size": 14},
+        bbox_to_anchor=(0.9, 0.99),
+        bbox_transform=plt.gcf().transFigure,
+    )
+    legend.draw_frame(False)
+
     plt.xticks(rotation=90)
-    _write_figure(fig, folder, file_name)
+    _write_figure_and_reset(fig, folder, file_name)
 
 
 def _trim_labels(orig_labels, max_length):
@@ -218,33 +274,17 @@ def _wrap_label(label, length):
     return "\n".join(labellines)
 
 
-def _write_figure(figure, folder, filename):
+def _write_figure_and_reset(figure, folder, filename):
     path = os.path.join(folder, filename)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     figure.savefig(path, bbox_inches="tight")
     plt.close(figure)
+    _reset()
 
 
-# def plot_scatterplot(data, folder, file_name):
-#     sns.set_context({"figure.figsize": (24, 10)})
-#     cmap = sns.cubehelix_palette(dark=0.3, light=0.8, as_cmap=True)
-#     axes = sns.scatterplot(
-#         x="INSTRUCTION_MISSED",
-#         y="INSTRUCTION_COVERED",
-#         hue="COMPLEXITY_MISSED",
-#         size="COMPLEXITY_MISSED",
-#         palette=cmap,
-#         data=data,
-#     )
-#     for line in range(0, data.shape[0]):
-#         axes.text(
-#             data.INSTRUCTION_MISSED[line] + 0.2,
-#             data.INSTRUCTION_COVERED[line] + 0.05,
-#             data.CLASS[line],
-#             horizontalalignment="left",
-#             size="medium",
-#             color="black",
-#             weight="semibold",
-#         )
-#     # plt.show()
-#     _write_figure(axes.get_figure(), folder, file_name)
+def _reset():
+    sns.reset_orig()
+    sns.set_style(None)
+    sns.set()
+    plt.clf()
+    plt.cla()
