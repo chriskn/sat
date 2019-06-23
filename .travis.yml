@@ -15,5 +15,6 @@ script:
   - black sat test test_integration --diff --check
   - python -m pylint sat test test_integration --rcfile conf/.pylintrc
   - coverage run --source=sat --branch -m pytest --cov-config=conf/.coveragerc -m "not integration"
+  - coverage report
 after_success:
   - codecov
