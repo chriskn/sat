@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import pyyed
+from sat.deps.graph import trajan
 
 
 # pylint: disable=W0212,R0913,R0914,R1710
@@ -49,7 +50,6 @@ class Graph:
     def __init__(self):
         self._graph = pyyed.Graph()
         self._node_id = 0
-        self._time = 0
         self._id_for_name = dict()
         self._name_for_id = dict()
 
@@ -115,125 +115,11 @@ class Graph:
         return group
 
     def cycles(self, grouped=False):
-        cycles = self._do_trajan(grouped)
+        cycles = trajan.do_trajan(self._graph, grouped)
         named_cycles = []
         for cycle in cycles:
             named_cycles.append([self._name_for_id[_id] for _id in cycle])
         return named_cycles
-
-    def _do_trajan(self, grouped):
-        nodes = []
-        if grouped:
-            for group in self._graph.groups.values():
-                nodes.extend(group.nodes.values())
-        else:
-            nodes = self._graph.nodes.values()
-        num_nodes = len(nodes)
-        dfs_pos = [-1] * (num_nodes)
-        min_ancestor = [-1] * (num_nodes)
-        stack_member = [False] * (num_nodes)
-        strongly_connected_nodes = []
-        for node in range(0, num_nodes):
-            visited = dfs_pos[node] != -1
-            if not visited:
-                self._scns(
-                    node,
-                    min_ancestor,
-                    dfs_pos,
-                    stack_member,
-                    [],
-                    strongly_connected_nodes,
-                    grouped,
-                    nodes,
-                )
-        cycles = [
-            cycle for cycle in strongly_connected_nodes if cycle and len(cycle) > 1
-        ]
-        if grouped:
-            g_cycles = []
-            for cycle in cycles:
-                g_cycle = [nodes[n].node_name for n in cycle]
-                g_cycles.append(g_cycle)
-            return g_cycles
-        return cycles
-
-    def _scns(
-        self, node, min_ancestor, dfs_pos, on_stack, stack, cycles, grouped, nodes
-    ):
-        dfs_pos[node] = self._time
-        min_ancestor[node] = self._time
-        self._time += 1
-        stack.append(node)
-        on_stack[node] = True
-        adjacents = []
-        node_names = []
-        for adj_node in nodes:
-            node_names.append(adj_node.node_name)
-        if grouped:
-            for edge in self._graph.edges.values():
-                source_node_name = edge.node1
-                source_node_index = node_names.index(source_node_name)
-                if source_node_index == node:
-                    target_node_id = edge.node2
-                    target_id = node_names.index(target_node_id)
-                    adjacents.append(target_id)
-        else:
-            adjacents = list(
-                [
-                    edge.node2
-                    for edge in self._graph.edges.values()
-                    if edge.node1 == node
-                ]
-            )
-
-        for adjacent in adjacents:
-            self._find_scns_in_adjacents(
-                dfs_pos,
-                adjacent,
-                on_stack,
-                min_ancestor,
-                stack,
-                cycles,
-                node,
-                grouped,
-                nodes,
-            )
-        is_head = min_ancestor[node] == dfs_pos[node]
-        if is_head:
-            scn = Graph._get_scn_from_stack(node, stack, on_stack)
-            cycles.append(scn)
-
-    def _find_scns_in_adjacents(
-        self,
-        dfs_pos,
-        adjacent,
-        on_stack,
-        min_ancestor,
-        stack,
-        cycles,
-        node,
-        grouped,
-        nodes,
-    ):
-        is_dfs_child = dfs_pos[adjacent] == -1
-        visited = on_stack[adjacent]
-        if is_dfs_child:
-            self._scns(
-                adjacent, min_ancestor, dfs_pos, on_stack, stack, cycles, grouped, nodes
-            )
-            min_ancestor[node] = min(min_ancestor[node], min_ancestor[adjacent])
-        elif visited:
-            min_ancestor[node] = min(min_ancestor[node], dfs_pos[adjacent])
-
-    @staticmethod
-    def _get_scn_from_stack(node, stack, on_stack):
-        node_from_stack = -1
-        cycle = []
-        while node_from_stack != node:
-            node_from_stack = stack.pop()
-            cycle.append(node_from_stack)
-            on_stack[node_from_stack] = False
-        return cycle
 
     def mark_cycles(self, cycles, grouped=False):
         for cycle in cycles:
