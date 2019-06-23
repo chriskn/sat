@@ -114,3 +114,98 @@ class GraphTest(unittest.TestCase):
 
         self.assertTrue(len(cycles) == 1)
         self.assertEqual(cycles, [["6", "5", "4", "3", "2", "1"]])
+
+    def test_create_cycle_graph_creates_expected_graph_for_simple_cycle(self):
+        sut = Graph()
+        sut.add_node("1")
+        sut.add_node("2")
+        sut.add_node("3")
+        sut.add_node("4")
+        # cycle 1
+        sut.add_edge("1", "2")
+        sut.add_edge("2", "3")
+        sut.add_edge("3", "1")
+
+        cycle_graph = Graph.create_cycle_graph(Graph(), sut, sut.cycles())
+        nodes = cycle_graph.nodes().values()
+
+        self.assertEqual(len(nodes), 3)
+        self.assertEqual([node.label for node in nodes], ["3", "2", "1"])
+
+    def test_create_cycle_graph_creates_empty_graph_for_graph_without_cycles(self):
+        sut = Graph()
+        sut.add_node("1")
+        sut.add_node("2")
+        sut.add_node("3")
+        # cycle 1
+        sut.add_edge("1", "2")
+        sut.add_edge("2", "3")
+
+        cycle_graph = Graph.create_cycle_graph(Graph(), sut, sut.cycles())
+        nodes = cycle_graph.nodes()
+
+        self.assertEqual(len(nodes), 0)
+
+    def test_create_cycle_graph_creates_empty_graph_for_empty_graph(self):
+        sut = Graph()
+
+        cycle_graph = Graph.create_cycle_graph(Graph(), sut, sut.cycles())
+        nodes = cycle_graph.nodes()
+
+        self.assertEqual(len(nodes), 0)
+
+    def test_mark_cycle_marks_only_cyclic_nodes(self):
+        sut = Graph()
+        sut.add_node("1")
+        sut.add_node("2")
+        sut.add_node("3")
+        sut.add_node("4")
+        sut.add_node("5")
+        # cycle 1
+        sut.add_edge("1", "2")
+        sut.add_edge("2", "3")
+        sut.add_edge("3", "1")
+
+        sut.add_edge("4", "1")
+
+        exp_color_cycle = "#FF0000"  # red
+        exp_color_no_cycle = "#00DB43"  # green
+
+        sut.mark_cycles(sut.cycles())
+        node_colors = [node.shape_fill for node in sut.nodes().values()]
+
+        self.assertEqual(
+            node_colors,
+            [
+                exp_color_cycle,
+                exp_color_cycle,
+                exp_color_cycle,
+                exp_color_no_cycle,
+                exp_color_no_cycle,
+            ],
+        )
+
+    def test_mark_cycle_marks_only_cyclic_edges(self):
+        sut = Graph()
+        sut.add_node("1")
+        sut.add_node("2")
+        sut.add_node("3")
+        sut.add_node("4")
+        sut.add_node("5")
+        # cycle 1
+        sut.add_edge("1", "2")
+        sut.add_edge("2", "3")
+        sut.add_edge("3", "1")
+
+        sut.add_edge("4", "1")
+
+        exp_color_cycle = "#FF0000"  # red
+        exp_color_no_cycle = "#000000"  # black
+
+        sut.mark_cycles(sut.cycles())
+        edge_colors = [node.color for node in sut.edges().values()]
+
+        self.assertEqual(
+            edge_colors,
+            [exp_color_cycle, exp_color_cycle, exp_color_cycle, exp_color_no_cycle],
+        )

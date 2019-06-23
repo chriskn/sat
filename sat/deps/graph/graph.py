@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import pyyed
-from sat.deps.graph import trajan
+from sat.deps.graph import tarjan
 
 
 # pylint: disable=W0212,R0913,R0914,R1710
@@ -115,7 +115,7 @@ class Graph:
         return group
 
     def cycles(self, grouped=False):
-        cycles = trajan.do_trajan(self._graph, grouped)
+        cycles = tarjan.scns(self._graph, grouped)
         named_cycles = []
         for cycle in cycles:
             named_cycles.append([self._name_for_id[_id] for _id in cycle])

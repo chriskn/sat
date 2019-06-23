@@ -5,8 +5,8 @@
 # pylint: disable=R0914,R0913
 
 
-def do_trajan(graph, grouped=False):
-    time = 0
+def scns(graph, grouped=False):
+    repetition = 0
     nodes = []
     if grouped:
         for group in graph.groups.values():
@@ -14,24 +14,26 @@ def do_trajan(graph, grouped=False):
     else:
         nodes = graph.nodes.values()
     num_nodes = len(nodes)
-    dfs_pos = [-1] * (num_nodes)
+    edges = graph.edges.values()
+    df_search_pos = [-1] * (num_nodes)
     min_ancestor = [-1] * (num_nodes)
     stack_member = [False] * (num_nodes)
+    stack = []
     strongly_connected_nodes = []
-    for node in range(0, num_nodes):
-        visited = dfs_pos[node] != -1
+    for node_id in range(0, num_nodes):
+        visited = df_search_pos[node_id] != -1
         if not visited:
-            _scns(
-                node,
-                graph,
+            _find_scns(
+                node_id,
+                nodes,
+                edges,
                 min_ancestor,
-                dfs_pos,
+                df_search_pos,
                 stack_member,
-                [],
+                stack,
                 strongly_connected_nodes,
                 grouped,
-                nodes,
-                time,
+                repetition,
             )
     cycles = [cycle for cycle in strongly_connected_nodes if cycle and len(cycle) > 1]
     if grouped:
@@ -43,84 +45,89 @@ def do_trajan(graph, grouped=False):
     return cycles
 
 
-def _scns(
-    node, graph, min_ancestor, dfs_pos, on_stack, stack, cycles, grouped, nodes, time
+def _find_scns(
+    node_id,
+    nodes,
+    edges,
+    min_ancestor,
+    df_search_pos,
+    on_stack,
+    stack,
+    strongly_connected_nodes,
+    grouped,
+    repetition,
 ):
-    dfs_pos[node] = time
-    min_ancestor[node] = time
-    time += 1
-    stack.append(node)
-    on_stack[node] = True
+    df_search_pos[node_id] = repetition
+    min_ancestor[node_id] = repetition
+    repetition += 1
+    stack.append(node_id)
+    on_stack[node_id] = True
     adjacents = []
-    node_names = []
-    for adj_node in nodes:
-        node_names.append(adj_node.node_name)
+    node_names = [node.node_name for node in nodes]
     if grouped:
-        for edge in graph.edges.values():
+        for edge in edges:
             source_node_name = edge.node1
             source_node_index = node_names.index(source_node_name)
-            if source_node_index == node:
+            if source_node_index == node_id:
                 target_node_id = edge.node2
                 target_id = node_names.index(target_node_id)
                 adjacents.append(target_id)
     else:
-        adjacents = list(
-            [edge.node2 for edge in graph.edges.values() if edge.node1 == node]
-        )
+        adjacents = list([edge.node2 for edge in edges if edge.node1 == node_id])
     for adjacent in adjacents:
         _find_scns_in_adjacents(
-            graph,
-            dfs_pos,
+            node_id,
+            nodes,
+            edges,
+            df_search_pos,
             adjacent,
             on_stack,
             min_ancestor,
             stack,
-            cycles,
-            node,
+            strongly_connected_nodes,
             grouped,
-            nodes,
-            time,
+            repetition,
         )
-    is_head = min_ancestor[node] == dfs_pos[node]
+    is_head = min_ancestor[node_id] == df_search_pos[node_id]
     if is_head:
-        scn = _scn_from_stack(node, stack, on_stack)
-        cycles.append(scn)
+        scn_cycle = _cycle_from_stack(node_id, stack, on_stack)
+        strongly_connected_nodes.append(scn_cycle)
 
 
 def _find_scns_in_adjacents(
-    graph,
-    dfs_pos,
+    node_id,
+    nodes,
+    edges,
+    df_search_pos,
     adjacent,
     on_stack,
     min_ancestor,
     stack,
-    cycles,
-    node,
+    strongly_connected_nodes,
     grouped,
-    nodes,
-    time,
+    repetition,
 ):
-    is_dfs_child = dfs_pos[adjacent] == -1
+    was_not_part_in_dfs = df_search_pos[adjacent] == -1
     visited = on_stack[adjacent]
-    if is_dfs_child:
-        _scns(
+    if was_not_part_in_dfs:
+        _find_scns(
             adjacent,
-            graph,
+            nodes,
+            edges,
             min_ancestor,
-            dfs_pos,
+            df_search_pos,
             on_stack,
             stack,
-            cycles,
+            strongly_connected_nodes,
             grouped,
-            nodes,
-            time,
+            repetition,
         )
-        min_ancestor[node] = min(min_ancestor[node], min_ancestor[adjacent])
+        min_ancestor[node_id] = min(min_ancestor[node_id], min_ancestor[adjacent])
     elif visited:
-        min_ancestor[node] = min(min_ancestor[node], dfs_pos[adjacent])
+        min_ancestor[node_id] = min(min_ancestor[node_id], df_search_pos[adjacent])
 
 
-def _scn_from_stack(node, stack, on_stack):
+def _cycle_from_stack(node, stack, on_stack):
     node_from_stack = -1
     cycle = []
     while node_from_stack != node:
