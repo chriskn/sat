@@ -264,8 +264,6 @@ def _write_figure_and_reset(figure, folder, filename):
 
 
 def _reset():
-    sns.reset_orig()
-    sns.set_style(None)
     sns.set()
     plt.clf()
     plt.cla()
