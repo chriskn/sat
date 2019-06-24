@@ -7,6 +7,11 @@ from sat.deps.graph.graph import Graph
 
 
 class GraphTest(unittest.TestCase):
+    def setUp(self):
+        self._exp_color_cycle = "#FF0000"  # red
+        self._exp_color_non_cycle_edge = "#000000"  # black
+        self._exp_color_non_cycle_node = "#00DB43"  # green
+
     def test_cycles_returns_exp_for_one_cycle(self):
         sut = Graph()
         sut.add_node("1")
@@ -129,7 +134,6 @@ class GraphTest(unittest.TestCase):
         cycle_graph = Graph.create_cycle_graph(Graph(), sut, sut.cycles())
         nodes = cycle_graph.nodes().values()
 
-        self.assertEqual(len(nodes), 3)
         self.assertEqual([node.label for node in nodes], ["3", "2", "1"])
 
     def test_create_cycle_graph_creates_empty_graph_for_graph_without_cycles(self):
@@ -154,6 +158,24 @@ class GraphTest(unittest.TestCase):
 
         self.assertEqual(len(nodes), 0)
 
+    def test_cycles_are_supported_for_numerical_and_string_ids(self):
+        sut = Graph()
+        sut.add_node("alpha")
+        sut.add_node(2)
+        sut.add_node(3)
+        sut.add_node("4")
+        sut.add_node("5")
+        # cycle 1
+        sut.add_edge("alpha", 2)
+        sut.add_edge(2, 3)
+        sut.add_edge(3, "alpha")
+
+        sut.add_edge("4", "alpha")
+
+        cycles = sut.cycles()
+
+        self.assertEqual(cycles[0], [3, 2, "alpha"])
+
     def test_mark_cycle_marks_only_cyclic_nodes(self):
         sut = Graph()
         sut.add_node("1")
@@ -168,20 +190,17 @@ class GraphTest(unittest.TestCase):
 
         sut.add_edge("4", "1")
 
-        exp_color_cycle = "#FF0000"  # red
-        exp_color_no_cycle = "#00DB43"  # green
-
         sut.mark_cycles(sut.cycles())
         node_colors = [node.shape_fill for node in sut.nodes().values()]
 
         self.assertEqual(
             node_colors,
             [
-                exp_color_cycle,
-                exp_color_cycle,
-                exp_color_cycle,
-                exp_color_no_cycle,
-                exp_color_no_cycle,
+                self._exp_color_cycle,
+                self._exp_color_cycle,
+                self._exp_color_cycle,
+                self._exp_color_non_cycle_node,
+                self._exp_color_non_cycle_node,
             ],
         )
 
@@ -199,13 +218,15 @@ class GraphTest(unittest.TestCase):
 
         sut.add_edge("4", "1")
 
-        exp_color_cycle = "#FF0000"  # red
-        exp_color_no_cycle = "#000000"  # black
-
         sut.mark_cycles(sut.cycles())
         edge_colors = [node.color for node in sut.edges().values()]
 
         self.assertEqual(
             edge_colors,
-            [exp_color_cycle, exp_color_cycle, exp_color_cycle, exp_color_no_cycle],
+            [
+                self._exp_color_cycle,
+                self._exp_color_cycle,
+                self._exp_color_cycle,
+                self._exp_color_non_cycle_edge,
+            ],
         )
