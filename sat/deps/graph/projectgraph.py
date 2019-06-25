@@ -4,6 +4,7 @@
 import re
 
 from sat.deps.graph.graph import Graph
+import sat.deps.graph.cyclegraph as cyclegraph
 
 
 class ProjectGraph(Graph):
@@ -45,5 +46,5 @@ class ProjectGraph(Graph):
 
     def cycle_graph(self, cycles):
         graph = ProjectGraph([])
-        Graph.create_cycle_graph(graph, self, cycles)
+        cyclegraph.create(graph, self, cycles)
         return graph

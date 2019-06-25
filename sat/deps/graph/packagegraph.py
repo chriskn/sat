@@ -5,6 +5,7 @@ import logging
 import re
 
 from sat.deps.graph.graph import Graph
+import sat.deps.graph.cyclegraph as cyclegraph
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -37,5 +38,5 @@ class PackageGraph(Graph):
 
     def cycle_graph(self, cycles):
         graph = PackageGraph([])
-        Graph.create_cycle_graph(graph, self, cycles)
+        cyclegraph.create(graph, self, cycles)
         return graph

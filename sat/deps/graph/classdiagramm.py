@@ -5,6 +5,8 @@ import logging
 
 from sat.deps.domain import Class, Enum, Interface
 from sat.deps.graph.graph import Graph
+import sat.deps.graph.cyclegraph as cyclegraph
+
 
 _BUILD_IN_TYPES = ["int", "boolean", "String", "double", "float", "byte"]
 _LOGGER = logging.getLogger(__name__)
@@ -120,7 +122,7 @@ class ClassDiagramm(Graph):
 
     def cycle_graph(self, cycles):
         graph = ClassDiagramm([])
-        Graph.create_cycle_graph(graph, self, cycles, grouped=True)
+        cyclegraph.create(graph, self, cycles, grouped=True)
         return graph
 
 
