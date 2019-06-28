@@ -6,6 +6,7 @@ import os
 import pytest
 
 from sat.deps.graph.classdiagramm import ClassDiagramm
+
 from sat.deps.parser import projectparser
 import test_integration.deps.graph.graph_test_utils as graphtest
 
@@ -31,4 +32,22 @@ class ClassDiagrammIntTest(unittest.TestCase):
 
         self.assertEqual(
             graphtest.encrypt(sut.serialize()), graphtest.encrypt(exp_graphml)
+        )
+
+    @pytest.mark.graph
+    def test_cycle_classdiagramm_looks_like_expected(self):
+        exp_graphml = open(
+            os.path.join(graphtest.REF_DATA_FOLDER, "ref_cycle_classdiagramm.graphml"),
+            "r",
+            encoding="utf-8",
+        ).read()
+
+        sut = ClassDiagramm(self.packages)
+        cycles = sut.cycles(grouped=True)
+        sut.mark_cycles(cycles, grouped=True)
+
+        cgraph = sut.cycle_graph(cycles)
+
+        self.assertEqual(
+            graphtest.encrypt(cgraph.serialize()), graphtest.encrypt(exp_graphml)
         )

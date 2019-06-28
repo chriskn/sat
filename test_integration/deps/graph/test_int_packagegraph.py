@@ -29,6 +29,8 @@ class PackageGraphTest(unittest.TestCase):
         sut = PackageGraph(self.packages)
         sut.mark_cycles(sut.cycles())
 
+        graphtest.write_test_graph(sut, "test_packagegraph.graphml")
+
         self.assertEqual(
             graphtest.encrypt(sut.serialize()), graphtest.encrypt(exp_graphml)
         )

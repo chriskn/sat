@@ -15,7 +15,7 @@ class PackageGraphTest(unittest.TestCase):
         self.projects = projectparser.parse(graphtest.EXAMPLE_PROJECTS_LOCATION, [])
 
     @pytest.mark.graph
-    def test_packagegraph_looks_like_expected(self):
+    def test_projectgraph_looks_like_expected(self):
         exp_graphml = open(
             os.path.join(graphtest.REF_DATA_FOLDER, "ref_projectgraph.graphml"),
             "r",
