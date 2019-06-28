@@ -3,6 +3,7 @@
 
 import unittest
 import os
+import pytest
 
 from sat.deps.graph.classdiagramm import ClassDiagramm
 from sat.deps.parser import projectparser
@@ -17,6 +18,7 @@ class ClassDiagrammIntTest(unittest.TestCase):
             packages.extend(project.source_packages)
         self.packages = packages
 
+    @pytest.mark.graph
     def test_classdiagramm_looks_like_expected(self):
         exp_graphml = open(
             os.path.join(graphtest.REF_DATA_FOLDER, "ref_classdiagramm.graphml"),

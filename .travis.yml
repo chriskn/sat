@@ -1,20 +1,49 @@
 language: python
-script: pytest
+fast_finish: true
+dist: xenial
+cache: pip
+
 python:
-    - "3.6"
+- 3.7
+- 3.6
+
+_def_windows_os: &windows_os
+  os: windows
+  language: shell
+  before_install: choco install python
+  env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
+
+stages:
+- name: quality
+- name: test
+
 install:
   - pip install pytest
   - pip install pytest-cov
   - pip install codecov
-  - pip install pylint 
-  - pip install black
   - pip install coveralls
   - pip install -r requirements.txt
-  - pip install coverage
-script:
-  - black sat test test_integration --diff --check
-  - python -m pylint sat test test_integration --rcfile conf/.pylintrc
-  - coverage run --source=sat --branch -m pytest --cov-config=conf/.coveragerc -m "not plot"
-  - coverage report
-after_success:
-  - codecov
+
+script: pytest --ignore=test_integration
+
+jobs:
+  include:
+  - <<: *windows_os
+    name: Integration test using Python 3.7.3 on Windows
+    script: coverage run --source=sat --branch -m pytest --cov-config=conf/.coveragerc
+    after_success: codecov
+
+  - stage: quality
+    name: style checks and linting 
+    install:
+    - pip install black
+    - pip install pylint
+    - pip install -r requirements.txt
+    script:
+     - black sat test test_integration --diff --check
+     - python -m pylint sat test test_integration --rcfile conf/.pylintrc
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always

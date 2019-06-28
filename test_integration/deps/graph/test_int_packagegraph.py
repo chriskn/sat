@@ -3,6 +3,7 @@
 
 import unittest
 import os
+import pytest
 
 from sat.deps.graph.packagegraph import PackageGraph
 from sat.deps.parser import projectparser
@@ -17,6 +18,7 @@ class PackageGraphTest(unittest.TestCase):
             packages.extend(project.source_packages)
         self.packages = packages
 
+    @pytest.mark.graph
     def test_packagegraph_looks_like_expected(self):
         exp_graphml = open(
             os.path.join(graphtest.REF_DATA_FOLDER, "ref_packagegraph.graphml"),
