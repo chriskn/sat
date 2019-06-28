@@ -22,7 +22,7 @@ class PlotHeatmapIntTest(unittest.TestCase):
             reporttest.TEST_RESULTS_FOLDER, self._used_file_name
         )
 
-    @pytest.mark.integration
+    @pytest.mark.plot
     def test_plot_heatmap_plots_exp_heatmap(self):
         dummy_values = list(range(0, 5))
         dummy_dataframe = pd.DataFrame(

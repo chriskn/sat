@@ -25,7 +25,7 @@ class PlotBarchartTest(unittest.TestCase):
             reporttest.TEST_RESULTS_FOLDER, self._used_file_name
         )
 
-    @pytest.mark.integration
+    @pytest.mark.plot
     def test_plot_barchart_plots_expected_barchart_if_dataframe_extends_max_limit(self):
         """Make shure barcharts are limit to _MAX_BARCHART_ENTRIES"""
         dummy_dataframe = pd.DataFrame(

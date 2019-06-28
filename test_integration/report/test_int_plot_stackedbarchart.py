@@ -22,7 +22,7 @@ class PlotStackedBarchartTest(unittest.TestCase):
             reporttest.TEST_RESULTS_FOLDER, self._used_file_name
         )
 
-    @pytest.mark.integration
+    @pytest.mark.plot
     def test_plot_stacked_barchart_plots_expected_barchart_if_dataframe_extends_max_limit(
         self
     ):

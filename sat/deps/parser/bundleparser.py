@@ -9,7 +9,7 @@ from sat.deps.domain import Bundle
 
 def parse(directory, ignored_path_segments):
     bundle_paths = _scan_for_bundles(directory, ignored_path_segments)
-    bundles = [_parse_bundle(bundlPath) for bundlPath in bundle_paths]
+    bundles = sorted([_parse_bundle(bundlPath) for bundlPath in bundle_paths])
     return bundles
 
 

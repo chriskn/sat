@@ -10,11 +10,11 @@ class BundleGraph(Graph):
 
     _WHITE = "#FFFFFF"
 
-    def __init__(self, bundles, bundles_for_exports, ignored_path_segments):
+    def __init__(self, bundles, ignored_path_segments):
         Graph.__init__(self)
         self._logger = logging.getLogger(self.__class__.__name__)
         self._bundles = bundles
-        self._bundles_for_exports = bundles_for_exports
+        self._bundles_for_exports = _map_bundles_on_exports(bundles)
         self._ignored_path_segments = ignored_path_segments
         self._create_dependency_graph()
 
@@ -59,7 +59,7 @@ class BundleGraph(Graph):
         bundles_for_exports,
         num_dependencies_for_bundle,
     ):
-        if imported_package in bundles_for_exports:
+        if imported_package in sorted(bundles_for_exports):
             exporting_bundle = bundles_for_exports[imported_package]
             ignored = any(
                 ignored_segment in exporting_bundle.path
@@ -90,3 +90,11 @@ class BundleGraph(Graph):
                         imported_package,
                     )
                 self.add_edge(source_bundle, imported_package, label="imports")
+
+
+def _map_bundles_on_exports(bundles):
+    bundles_for_exports = {}
+    for bundle in bundles:
+        for export in bundle.exported_packages:
+            bundles_for_exports[export] = bundle
+    return bundles_for_exports

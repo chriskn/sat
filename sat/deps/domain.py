@@ -48,6 +48,9 @@ class Bundle:
     def __eq__(self, other):
         return self.name.lower() == other.name.lower() and self.version == other.version
 
+    def __lt__(self, other):
+        return self.name < other.name
+
 
 class Package:
     def __init__(self, name, path, sourcefiles):

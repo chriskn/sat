@@ -35,14 +35,11 @@ class BundleAnalyser(Analyser):
     def load_data(self, working_dir, ignored_path_segments):
         self._logger.info("Loading bundle data...")
         self._bundles = parser.parse(working_dir, ignored_path_segments)
-        self._bundles_for_exports = _map_bundles_on_exports(self._bundles)
         self._logger.info("Found %d bundle(s)", len(self._bundles))
 
     def analyse(self, ignored_path_segments):
         self._logger.info("Creating dependency graph...")
-        graph = BundleGraph(
-            self._bundles, self._bundles_for_exports, ignored_path_segments
-        )
+        graph = BundleGraph(self._bundles, ignored_path_segments)
         self._logger.info("Created dependency graph")
         self._logger.info("Searching for cycles...")
         cycles = graph.cycles()
@@ -60,14 +57,6 @@ class BundleAnalyser(Analyser):
         _write_graph_to_graphml(
             os.path.join(output_dir, "dependencies.graphml"), self._graph
         )
-
-
-def _map_bundles_on_exports(bundles):
-    bundles_for_exports = {}
-    for bundle in bundles:
-        for export in bundle.exported_packages:
-            bundles_for_exports[export] = bundle
-    return bundles_for_exports
 
 
 def _write_cycles_to_txt(path, cycles):

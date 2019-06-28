@@ -53,7 +53,7 @@ class PlotTreemapIntTest(unittest.TestCase):
     # dropped = data.drop(columns=columns_to_drop)
     # sut.plot_scatterplot(dropped, os.path.dirname(path_to_testdata), "test")
 
-    @pytest.mark.integration
+    @pytest.mark.plot
     def test_plot_treemap_plots_exp_treemap_if_data_extends_max_limit(self):
         dummy_data = [
             ["Entry name %s" % dummy_val, dummy_val] for dummy_val in list(range(1, 22))
@@ -72,7 +72,7 @@ class PlotTreemapIntTest(unittest.TestCase):
             self._treemap_output_path, self._ref_treemap_path
         )
 
-    @pytest.mark.integration
+    @pytest.mark.plot
     def test_plot_treemap_wraps_long_labels(self):
         dummy_data = [
             ["Entry name with long long long label %s" % dummy_val, dummy_val]
