@@ -112,7 +112,7 @@ class TestProjectComp(unittest.TestCase):
         self.assertEqual(len(result.columns), 3, "Columns with unexpected lengths.")
 
     @mock.patch("sat.report.plot.plot_treemap")
-    @mock.patch("sat.report.xls.write_data_frame")
+    @mock.patch("sat.report.writer.write_dataframe_to_xls")
     @mock.patch("sat.comp.repo.projectrepo.projects")
     def test_write_results_calls_write_data_frame(
         self, mock_project_repo, write_xls, plot_treemap
@@ -129,7 +129,7 @@ class TestProjectComp(unittest.TestCase):
         )
 
     @mock.patch("sat.report.plot.plot_treemap")
-    @mock.patch("sat.report.xls.write_data_frame")
+    @mock.patch("sat.report.writer.write_dataframe_to_xls")
     @mock.patch("sat.comp.repo.projectrepo.projects")
     def test_write_results_calls_plot_treemap_for_total_comp(
         self, mock_project_repo, write_xls, plot_treemap
@@ -151,7 +151,7 @@ class TestProjectComp(unittest.TestCase):
         plot_treemap.assert_has_calls([expected_total_call], any_order=True)
 
     @mock.patch("sat.report.plot.plot_treemap")
-    @mock.patch("sat.report.xls.write_data_frame")
+    @mock.patch("sat.report.writer.write_dataframe_to_xls")
     @mock.patch("sat.comp.repo.projectrepo.projects")
     def test_write_results_plots_expected_data_for_total_comp(
         self, mock_project_repo, write_xls, plot_treemap

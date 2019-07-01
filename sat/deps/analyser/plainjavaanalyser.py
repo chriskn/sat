@@ -2,20 +2,15 @@
 # -*- coding: utf-8 -*-
 
 import os
-import re
 
-import pandas as pd
-
-import sat.report.plot as plot
-from sat.app.analyser import Analyser
-
+import sat.deps.coupling as coupling
 import sat.deps.parser.projectparser as parser
+import sat.report.plot as plot
+import sat.report.writer as writer
+from sat.app.analyser import Analyser
 from sat.deps.graph.classdiagramm import ClassDiagramm
 from sat.deps.graph.packagegraph import PackageGraph
 from sat.deps.graph.projectgraph import ProjectGraph
-
-_CLASS_IMPORT_PATTERN = re.compile(r".*\.[A-Z].*")
-_LIST_SEPARATOR = ", "
 
 
 class PlainJavaAnalyser(Analyser):
@@ -63,7 +58,7 @@ class PlainJavaAnalyser(Analyser):
         )
         self._logger.info("Creating project coupling map")
         self._logger.info("Analysed %d projects", len(self._projects))
-        self._project_coupling_data_frame = _project_coupling_data_frame(
+        self._project_coupling_data_frame = coupling.project_coupling_dataframe(
             sorted(self._projects)
         )
 
@@ -77,7 +72,7 @@ class PlainJavaAnalyser(Analyser):
             self._package_cycles
         )
         self._logger.info("Creating package coupling map")
-        self._package_coupling_data_frame = _create_package_coupling_data_frame(
+        self._package_coupling_data_frame = coupling.package_coupling_dataframe(
             self._packages
         )
         self._logger.info("Analysed %d packages", len(self._packages))
@@ -98,15 +93,15 @@ class PlainJavaAnalyser(Analyser):
 
     def _write_results_for_projects(self, output_dir):
         self._logger.info("Writing project analysis results")
-        _write_graphml(
+        writer.write_graphml(
             os.path.join(output_dir, "project_dependencies.graphml"),
             self._project_graph,
         )
-        _write_graphml(
+        writer.write_graphml(
             os.path.join(output_dir, "cyclic_project_dependencies.graphml"),
             self._cycle_project_graph,
         )
-        _write_cycles_to_txt(
+        writer.write_cycles_to_txt(
             os.path.join(output_dir, "project_cycles.txt"), self._project_cycles
         )
         plot.plot_heatmap(
@@ -118,14 +113,14 @@ class PlainJavaAnalyser(Analyser):
 
     def _write_results_for_packages(self, output_dir):
         self._logger.info("Writing package analysis results")
-        _write_cycles_to_txt(
+        writer.write_cycles_to_txt(
             os.path.join(output_dir, "package_cycles.txt"), self._package_cycles
         )
-        _write_graphml(
+        writer.write_graphml(
             os.path.join(output_dir, "package_dependencies.graphml"),
             self._package_graph,
         )
-        _write_graphml(
+        writer.write_graphml(
             os.path.join(output_dir, "cyclic_package_dependencies.graphml"),
             self._cycle_package_graph,
         )
@@ -138,68 +133,13 @@ class PlainJavaAnalyser(Analyser):
 
     def _write_results_for_classes(self, output_dir):
         # Classes
-        _write_graphml(
+        writer.write_graphml(
             os.path.join(output_dir, "classdiagramm.graphml"), self._class_diagramm
         )
-        _write_cycles_to_txt(
+        writer.write_cycles_to_txt(
             os.path.join(output_dir, "class_cycles.txt"), self._class_clycles
         )
-        _write_graphml(
+        writer.write_graphml(
             os.path.join(output_dir, "cyclic_classes.graphml"),
             self._cycle_class_diagramm,
         )
-
-
-def _project_coupling_data_frame(projects):
-    proj_names = []
-    data = []
-    for project in reversed(projects):
-        proj_names.append(project.name)
-        proj_imports = [_to_package_import(imp) for imp in project.imports()]
-        proj_data = _calculate_project_coupling(projects, proj_imports)
-        data.append(proj_data)
-    return pd.DataFrame(data=data, index=proj_names, columns=list(reversed(proj_names)))
-
-
-def _calculate_project_coupling(projects, proj_imports):
-    proj_data = []
-    for other_project in projects:
-        other_project_packages = {
-            package.name for package in other_project.source_packages
-        }
-        proj_deps = sum(
-            [
-                proj_imports.count(other_package_package)
-                for other_package_package in other_project_packages
-            ]
-        )
-        proj_data.append(proj_deps)
-    return proj_data
-
-
-def _create_package_coupling_data_frame(packages):
-    names = [p.name for p in packages]
-    data = []
-    for package in reversed(packages):
-        package_imps = [_to_package_import(imp) for imp in package.imports()]
-        data.append([package_imps.count(pName) for pName in names])
-    data_frame = pd.DataFrame(data=data, index=list(reversed(names)), columns=names)
-    return data_frame
-
-
-def _to_package_import(import_):
-    if _CLASS_IMPORT_PATTERN.match(import_):
-        return re.split(r"\.[A-Z]", import_, maxsplit=1)[0]
-    return import_
-
-
-def _write_graphml(path, graph):
-    with open(path, "w") as output_file:
-        output_file.write(graph.serialize())
-
-
-def _write_cycles_to_txt(path, cycles):
-    with open(path, "w") as output_file:
-        for cycle in cycles:
-            cycle_list = _LIST_SEPARATOR.join(sorted(cycle))
-            output_file.write(cycle_list + "\n")

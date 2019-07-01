@@ -6,9 +6,10 @@ import os
 from sat.app.analyser import Analyser
 
 import sat.deps.parser.bundleparser as parser
+import sat.report.writer as writer
 from sat.deps.graph.bundlegraph import BundleGraph
 
-_OUTPUT_HEADER = [
+_CSV_OUTPUT_HEADER = [
     "Name",
     "Version",
     "Number of Dependencies",
@@ -17,8 +18,6 @@ _OUTPUT_HEADER = [
     "Required Bundles",
     "Path to Bundle",
 ]
-_CSV_SEPARATOR = "\t"
-_LIST_SEPARATOR = ", "
 
 
 class BundleAnalyser(Analyser):
@@ -50,46 +49,12 @@ class BundleAnalyser(Analyser):
 
     def write_results(self, output_dir):
         self._logger.info("Writing output to %s", str(output_dir))
-        _write_cycles_to_txt(
+        writer.write_cycles_to_txt(
             os.path.join(output_dir, "bundle_cycles.txt"), self._cycles
         )
-        _write_bundles_to_csv(os.path.join(output_dir, "bundles.csv"), self._bundles)
-        _write_graph_to_graphml(
+        writer.write_bundles_to_csv(
+            os.path.join(output_dir, "bundles.csv"), self._bundles, _CSV_OUTPUT_HEADER
+        )
+        writer.write_graphml(
             os.path.join(output_dir, "dependencies.graphml"), self._graph
         )
-
-
-def _write_cycles_to_txt(path, cycles):
-    with open(path, "w") as output_file:
-        for cycle in cycles:
-            cycle_list = _LIST_SEPARATOR.join(sorted([label for label in cycle]))
-            output_file.write(cycle_list + "\n")
-
-
-def _write_bundles_to_csv(path, bundles):
-    with open(path, "w") as output_file:
-        output_file.write(_CSV_SEPARATOR.join(_OUTPUT_HEADER) + "\n")
-        for bundle in sorted(
-            sorted(bundles, key=lambda x: x.name),
-            key=lambda x: x.num_dependencies,
-            reverse=True,
-        ):
-            output_file.write(
-                _CSV_SEPARATOR.join(
-                    [
-                        bundle.name,
-                        bundle.version,
-                        str(bundle.num_dependencies),
-                        _LIST_SEPARATOR.join(bundle.exported_packages),
-                        _LIST_SEPARATOR.join(bundle.imported_packages),
-                        _LIST_SEPARATOR.join(bundle.required_bundles),
-                        bundle.path,
-                    ]
-                )
-                + "\n"
-            )
-
-
-def _write_graph_to_graphml(path, graph):
-    with open(path, "w") as output_file:
-        output_file.write(graph.serialize())

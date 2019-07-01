@@ -5,7 +5,7 @@ import pandas as pd
 import sat.comp.repo.packagerepo as prepo
 
 import sat.report.plot as plot
-import sat.report.xls as xls
+import sat.report.writer as writer
 
 from sat.app.analyser import Analyser
 
@@ -65,7 +65,7 @@ class PackageComp(Analyser):
     #     return num_methods
 
     def write_results(self, output_dir):
-        xls.write_data_frame(
+        writer.write_dataframe_to_xls(
             self._analysis_result,
             "cognitive_complexity_per_package.xls",
             output_dir,

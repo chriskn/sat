@@ -4,7 +4,7 @@
 import pandas as pd
 
 import sat.report.plot as plot
-import sat.report.xls as xls
+import sat.report.writer as writer
 
 import sat.comp.repo.typerepo as repo
 
@@ -41,7 +41,7 @@ class MethodComp(Analyser):
         return self._analysis_result
 
     def write_results(self, output_dir):
-        xls.write_data_frame(
+        writer.write_dataframe_to_xls(
             self._analysis_result,
             "cognitive_complexity_per_method.xls",
             output_dir,

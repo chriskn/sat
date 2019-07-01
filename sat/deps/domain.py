@@ -16,6 +16,9 @@ class Project:
             imports.extend(package.imports())
         return imports
 
+    def __lt__(self, other):
+        return self.name < other.name
+
 
 class Bundle:
     def __init__(

@@ -7,7 +7,7 @@ import pandas as pd
 
 import sat.changes.changerepo as repo
 import sat.report.plot as plot
-import sat.report.xls as xls
+import sat.report.writer as writer
 from sat.app.analyser import Analyser
 
 
@@ -62,7 +62,7 @@ class FileChanges(Analyser):
         return lines_added, lines_removed
 
     def write_results(self, output_dir):
-        xls.write_data_frame(
+        writer.write_dataframe_to_xls(
             self._analysis_result,
             "changed_lines_per_file.xls",
             output_dir,

@@ -103,7 +103,7 @@ class FileChangesTest(unittest.TestCase):
         self.assertListEqual(lines_removed, [20, 20, 20, 0])
 
     @mock.patch("sat.report.plot.plot_stacked_barchart")
-    @mock.patch("sat.report.xls.write_data_frame")
+    @mock.patch("sat.report.writer.write_dataframe_to_xls")
     def test_write_results_calls_xls_writer_as_expected(self, writer, dummy_plot):
         # disable unused param. only mocked to avoid error
         # pylint: disable=W0613
@@ -120,7 +120,7 @@ class FileChangesTest(unittest.TestCase):
         )
 
     @mock.patch("sat.report.plot.plot_stacked_barchart")
-    @mock.patch("sat.report.xls.write_data_frame")
+    @mock.patch("sat.report.writer.write_dataframe_to_xls")
     def test_write_results_calls_plot_as_expected(self, dummy_writer, plot):
         # disable unused param. only mocked to avoid error
         # pylint: disable=W0613
@@ -141,7 +141,7 @@ class FileChangesTest(unittest.TestCase):
 
     @mock.patch("sat.changes.changerepo.changes")
     @mock.patch("sat.report.plot.plot_stacked_barchart")
-    @mock.patch("sat.report.xls.write_data_frame")
+    @mock.patch("sat.report.writer.write_dataframe_to_xls")
     def test_write_results_plots_expected_dataframe(
         self, dummy_writer, plot, change_repo
     ):

@@ -68,7 +68,7 @@ class TestClassComp(unittest.TestCase):
         self.assertEqual(len(result.columns), 4, "Columns with unexpected lengths.")
 
     @mock.patch("sat.report.plot.plot_barchart")
-    @mock.patch("sat.report.xls.write_data_frame")
+    @mock.patch("sat.report.writer.write_dataframe_to_xls")
     @mock.patch("sat.comp.repo.typerepo.types")
     def test_write_results_calls_write_data_frame(
         self, mock_type_repo, write_xls, plot_barchart
@@ -85,7 +85,7 @@ class TestClassComp(unittest.TestCase):
         )
 
     @mock.patch("sat.report.plot.plot_barchart")
-    @mock.patch("sat.report.xls.write_data_frame")
+    @mock.patch("sat.report.writer.write_dataframe_to_xls")
     @mock.patch("sat.comp.repo.typerepo.types")
     def test_write_results_calls_plot_barchart(
         self, mock_type_repo, write_xls, plot_barchart
@@ -106,7 +106,7 @@ class TestClassComp(unittest.TestCase):
         )
 
     @mock.patch("sat.report.plot.plot_barchart")
-    @mock.patch("sat.report.xls.write_data_frame")
+    @mock.patch("sat.report.writer.write_dataframe_to_xls")
     @mock.patch("sat.comp.repo.typerepo.types")
     def test_write_results_plots_expected_data(
         self, mock_type_repo, write_xls, plot_barchart

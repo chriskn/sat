@@ -11,7 +11,7 @@ import sat.scanner as scanner
 from sat.app.analyser import Analyser
 
 import sat.report.plot as plot
-import sat.report.xls as xls
+import sat.report.writer as writer
 
 
 class PackageChanges(Analyser):
@@ -79,7 +79,7 @@ class PackageChanges(Analyser):
         return norm_package_path
 
     def write_results(self, output_dir):
-        xls.write_data_frame(
+        writer.write_dataframe_to_xls(
             self._analysis_result,
             "changed_lines_per_package.xls",
             output_dir,
