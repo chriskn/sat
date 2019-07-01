@@ -8,11 +8,12 @@ import pytest
 from sat.deps.graph.packagegraph import PackageGraph
 from sat.deps.parser import projectparser
 import test_integration.deps.graph.graph_test_utils as graphtest
+import test_integration.int_test_utils as inttest
 
 
 class PackageGraphTest(unittest.TestCase):
     def setUp(self):
-        projects = projectparser.parse(graphtest.EXAMPLE_PROJECTS_LOCATION, [])
+        projects = projectparser.parse(inttest.EXAMPLE_PROJECTS_LOCATION, [])
         packages = []
         for project in projects:
             packages.extend(project.source_packages)

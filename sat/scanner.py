@@ -9,13 +9,13 @@ import itertools
 def find_projects(directory, ignored_path_segments):
     project_dirs = dict()
     for dirpath, _, files in os.walk(directory):
-        ignored = any(
-            ignored_segment in dirpath for ignored_segment in ignored_path_segments
-        )
-        if not ignored:
-            for file in files:
-                if file == ".classpath":
-                    path = os.path.normpath(dirpath)
+        for file in files:
+            if file == ".classpath":
+                path = os.path.normpath(dirpath)
+                ignored = any(
+                    ignored_segment in path for ignored_segment in ignored_path_segments
+                )
+                if not ignored:
                     name = path.split(os.sep)[-1]
                     project_dirs[path] = name
     return project_dirs

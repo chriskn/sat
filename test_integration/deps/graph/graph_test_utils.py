@@ -3,14 +3,10 @@
 
 import os
 import hashlib
-import sat.__main__ as main
 
 _CUR_DIR = os.path.dirname(os.path.abspath(__file__))
 _TEST_RESULTS_FOLDER = os.path.join(_CUR_DIR, "test_results")
-_ROOT_LOCATION = os.path.dirname(os.path.dirname(os.path.abspath(main.__file__)))
-
 REF_DATA_FOLDER = os.path.join(_CUR_DIR, "test_data")
-EXAMPLE_PROJECTS_LOCATION = os.path.join(_ROOT_LOCATION, "exampleprojects")
 
 
 def write_test_graph(sut, filename):

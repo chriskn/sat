@@ -1,21 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
-
-import sat.__main__ as main
 import unittest
 import sat.deps.parser.projectparser as parser
 
 import sat.deps.coupling as sut
-
-_ROOT_LOCATION = os.path.dirname(os.path.dirname(os.path.abspath(main.__file__)))
-EXAMPLE_PROJECTS_LOCATION = os.path.join(_ROOT_LOCATION, "exampleprojects")
+import test_integration.int_test_utils as inttest
 
 
 class TestPackageCoupling(unittest.TestCase):
     def setUp(self):
-        projects = parser.parse(EXAMPLE_PROJECTS_LOCATION, [])
+        projects = parser.parse(inttest.EXAMPLE_PROJECTS_LOCATION, [])
         self.packages = []
         for proj in projects:
             self.packages.extend(proj.source_packages)
