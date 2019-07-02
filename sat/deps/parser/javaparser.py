@@ -4,8 +4,6 @@
 import logging
 import os
 
-import javalang
-from javalang.parser import JavaSyntaxError
 from javalang.tree import (
     ClassDeclaration,
     ConstructorDeclaration,
@@ -15,22 +13,14 @@ from javalang.tree import (
     MethodDeclaration,
 )
 
+import sat.java as java
 from sat.deps.domain import Class, Declaration, Enum, Interface, Method, SourceFile
 
 _LOGGER = logging.getLogger("JavaParser")
 
 
 def parse_java_sourcefile(file, packagename=""):
-    try:
-        with open(file, "r", encoding="utf-8") as open_file:
-            file_content = open_file.read()
-            ast = javalang.parse.parse(file_content)
-    except FileNotFoundError as error:
-        _LOGGER.warning(str(error))
-        return None
-    except JavaSyntaxError:
-        _LOGGER.warning("Could not parse java file %s. Invalid syntax", file)
-        return None
+    ast = java.parse(file)
     package_imports = {imp.path for imp in getattr(ast, "imports")}
     types = getattr(ast, "types")
     concrete_classes = [
