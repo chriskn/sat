@@ -29,3 +29,20 @@ class PackageGraphTest(unittest.TestCase):
         self.assertEqual(
             graphtest.encrypt(sut.serialize()), graphtest.encrypt(exp_graphml)
         )
+
+    def test_cycle_projectgraph_looks_like_expected(self):
+        exp_empty_graphml = open(
+            os.path.join(graphtest.REF_DATA_FOLDER, "ref_cycle_projectgraph.graphml"),
+            "r",
+            encoding="utf-8",
+        ).read()
+
+        sut = ProjectGraph(self.projects)
+        cycles = sut.cycles()
+        sut.mark_cycles(cycles)
+        proj_cycle_graph = sut.cycle_graph(cycles)
+
+        self.assertEqual(
+            graphtest.encrypt(proj_cycle_graph.serialize()),
+            graphtest.encrypt(exp_empty_graphml),
+        )
