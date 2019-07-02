@@ -21,7 +21,6 @@ install:
   - pip install pytest
   - pip install pytest-cov
   - pip install codecov
-  - pip install coveralls
   - pip install -r requirements.txt
 
 script: pytest --ignore=test_integration
@@ -29,8 +28,8 @@ script: pytest --ignore=test_integration
 jobs:
   include:
   - <<: *windows_os
-    name: Integration test using Python 3.7.3 on Windows
-    script: coverage run --source=sat --branch -m pytest --cov-config=conf/.coveragerc
+    name: Run all tests and coverage with Python 3.7.3 on Windows
+    script: pytest --cov=sat --cov-report=term --cov-branch --cov-config=conf/.coveragerc
     after_success: codecov
 
   - stage: quality
