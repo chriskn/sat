@@ -14,7 +14,7 @@ def parse(file_):
             file_content = open_file.read()
             return javalang.parse.parse(file_content)
     except FileNotFoundError as error:
-        _LOGGER.warnng(str(error))
+        _LOGGER.warning(str(error))
         return None
     except JavaSyntaxError:
         _LOGGER.warning("Could not parse java file %s. Invalid syntax", file_)
