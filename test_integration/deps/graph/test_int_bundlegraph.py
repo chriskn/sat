@@ -1,19 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import unittest
 import os
+import unittest
+
 import pytest
 
-from sat.deps.graph.bundlegraph import BundleGraph
-from sat.deps.parser import bundleparser
 import test_integration.deps.graph.graph_test_utils as graphtest
 import test_integration.int_test_utils as inttest
+from sat.app.workspace.workspace import Workspace
+from sat.deps.graph.bundlegraph import BundleGraph
 
 
 class BundleGraphTest(unittest.TestCase):
     def setUp(self):
-        self.bundles = bundleparser.parse(inttest.EXAMPLE_PROJECTS_LOCATION, [])
+        self.bundles = Workspace(inttest.EXAMPLE_PROJECTS_LOCATION, []).bundles()
 
     @pytest.mark.graph
     def test_bundlegraph_looks_like_expected(self):
@@ -23,7 +24,7 @@ class BundleGraphTest(unittest.TestCase):
             encoding="utf-8",
         ).read()
 
-        sut = BundleGraph(self.bundles, [])
+        sut = BundleGraph(self.bundles)
         sut.mark_cycles(sut.cycles())
 
         self.assertEqual(

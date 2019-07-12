@@ -3,12 +3,10 @@
 
 import pandas as pd
 
-import sat.report.plot as plot
-import sat.report.writer as writer
+import sat.app.report.plot as plot
+import sat.app.report.writer as writer
 
-import sat.comp.repo.typerepo as repo
-
-from sat.app.analyser import Analyser
+from sat.app.execution.analyser import Analyser
 
 
 class MethodComp(Analyser):
@@ -16,14 +14,16 @@ class MethodComp(Analyser):
     def name():
         return "methods"
 
-    def __init__(self):
-        self._types = None
+    def __init__(self, workspace):
+        Analyser.__init__(self, workspace)
+        self._types = []
         self._analysis_result = None
 
-    def load_data(self, working_dir, ignored_path_segments):
-        self._types = repo.types(working_dir, ignored_path_segments)
+    def load_data(self):
+        for sfile in self._workspace.sourcefiles():
+            self._types.extend(sfile.types)
 
-    def analyse(self, ignored_path_segments):
+    def analyse(self):
         self._logger.info("Analysing Method Complexity.")
         data = []
         for type_ in self._types:
@@ -58,5 +58,4 @@ class MethodComp(Analyser):
 
     def _create_barchart_data(self):
         methods_with_comp = self._analysis_result.drop(columns=["Path"])
-        print(methods_with_comp)
         return methods_with_comp[methods_with_comp.Complexity > 0]

@@ -7,7 +7,7 @@ import unittest
 import mock
 from mock import Mock
 from mock import mock_open
-import sat.report.writer as sut
+import sat.app.report.writer as sut
 
 # no self use
 # pylint: disable=R0201

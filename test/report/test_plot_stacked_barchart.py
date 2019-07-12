@@ -6,17 +6,17 @@ import mock
 
 import pandas as pd
 
-import sat.report.plot as sut
+import sat.app.report.plot as sut
 
 
 class PlotStackedBarchartTest(unittest.TestCase):
-    @mock.patch("sat.report.plot._write_figure_and_reset")
+    @mock.patch("sat.app.report.plot._write_figure_and_reset")
     def test_plot_stacked_barchart_does_not_plot_if_dataframe_empty(self, mock_writer):
         sut.plot_stacked_barchart(pd.DataFrame(), "", "", "", "")
 
         self.assertFalse(mock_writer.called)
 
-    @mock.patch("sat.report.plot._write_figure_and_reset")
+    @mock.patch("sat.app.report.plot._write_figure_and_reset")
     def test_plot_stacked_barchart_does_plot(self, mock_writer):
         dummy_dataframe = pd.DataFrame(
             data=[
@@ -29,7 +29,7 @@ class PlotStackedBarchartTest(unittest.TestCase):
 
         self.assertTrue(mock_writer.called)
 
-    @mock.patch("sat.report.plot._write_figure_and_reset")
+    @mock.patch("sat.app.report.plot._write_figure_and_reset")
     def test_plot_stacked_barchart_does_plot_if_data_extends_max_limit(
         self, mock_writer
     ):

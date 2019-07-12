@@ -1,22 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# pylint: disable=too-few-public-methods
+
+# pylint:disable=R0903,R0913
+
+from sat.app.workspace.domain import Package as WPackage
+from sat.app.workspace.domain import Project as WProject
+from sat.app.workspace.domain import SourceFile as WSourcefile
 
 
-class Project:
-    def __init__(self, path, name, packages):
-        self.path = path
-        self.name = name
-        self.packages = packages
+class Project(WProject):
+    def __init__(self, abs_path, rel_path, name, packages):
+        WProject.__init__(self, abs_path, rel_path, name, packages)
         self.complexity = sum(package.complexity for package in packages)
 
 
-class Package:
-    def __init__(self, path, name, types):
-        self.path = path
-        self.name = name
+class Package(WPackage):
+    def __init__(self, abs_path, rel_path, name, sourcefiles):
+        WPackage.__init__(self, abs_path, rel_path, name, sourcefiles)
+        self.types = []
+        for sfile in sourcefiles:
+            self.types.extend(sfile.types)
+        self.complexity = sum(type_.complexity for type_ in self.types)
+
+
+class SourceFile(WSourcefile):
+    def __init__(self, abs_path, rel_path, name, types, ast=None):
+        WSourcefile.__init__(self, abs_path, rel_path, name, ast)
         self.types = types
-        self.complexity = sum(type_.complexity for type_ in types)
 
 
 class Type:

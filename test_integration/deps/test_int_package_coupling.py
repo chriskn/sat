@@ -2,18 +2,19 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-import sat.deps.parser.projectparser as parser
+
+import test_integration.int_test_utils as inttest
 
 import sat.deps.coupling as sut
-import test_integration.int_test_utils as inttest
+from sat.deps.depsworkspace import DepsWorkspace
 
 
 class TestPackageCoupling(unittest.TestCase):
     def setUp(self):
-        projects = parser.parse(inttest.EXAMPLE_PROJECTS_LOCATION, [])
+        projects = DepsWorkspace(inttest.EXAMPLE_PROJECTS_LOCATION, []).projects()
         self.packages = []
         for proj in projects:
-            self.packages.extend(proj.source_packages)
+            self.packages.extend(proj.packages)
         self.expected_index = [
             "my.dummy.project5.domain",
             "my.dummy.project5.domain",

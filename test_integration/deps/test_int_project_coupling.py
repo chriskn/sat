@@ -3,14 +3,16 @@
 
 import unittest
 
-import sat.deps.coupling as sut
-import sat.deps.parser.projectparser as parser
 import test_integration.int_test_utils as inttest
+
+import sat.deps.coupling as sut
+from sat.deps.depsworkspace import DepsWorkspace
 
 
 class TestProjectCoupling(unittest.TestCase):
     def setUp(self):
-        self.projects = parser.parse(inttest.EXAMPLE_PROJECTS_LOCATION, [])
+        workspace = DepsWorkspace(inttest.EXAMPLE_PROJECTS_LOCATION, [])
+        self.projects = workspace.projects()
         self.expected_index = [
             "my.dummy.project5",
             "my.dummy.project4",

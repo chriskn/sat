@@ -4,44 +4,35 @@
 import unittest
 
 import javalang
-import mock
 
 import sat.comp.parser.typeparser as sut
+from sat.app.workspace.domain import SourceFile
 
 
 class TypeParserTest(unittest.TestCase):
-    @mock.patch("sat.java.parse")
-    def test_parser_returns_empty_list_for_none_ast(self, java_parser):
-        java_parser.return_value = None
-        result = sut.parse("")
+    def test_parser_returns_empty_list_for_none_ast(self):
+        result = sut.parse(SourceFile("", "", "", [], ""))
         self.assertEqual(len(result), 0)
 
-    @mock.patch("sat.java.parse")
-    def test_parser_returns_class(self, java_parser):
+    def test_parser_returns_class(self):
         input_ast = javalang.parse.parse("package dummy; class Test {}")
-        java_parser.return_value = input_ast
-        result = sut.parse("")
+        result = sut.parse(SourceFile("", "", "", input_ast, ""))
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].name, "Test")
 
-    @mock.patch("sat.java.parse")
-    def test_parser_returns_enum(self, java_parser):
+    def test_parser_returns_enum(self):
         input_ast = javalang.parse.parse("package dummy; enum Test {}")
-        java_parser.return_value = input_ast
-        result = sut.parse("")
+        result = sut.parse(SourceFile("", "", "", input_ast, ""))
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].name, "Test")
 
-    @mock.patch("sat.java.parse")
-    def test_parser_returns_interface(self, java_parser):
+    def test_parser_returns_interface(self):
         input_ast = javalang.parse.parse("package dummy; interface Test {}")
-        java_parser.return_value = input_ast
-        result = sut.parse("")
+        result = sut.parse(SourceFile("", "", "", input_ast, ""))
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].name, "Test")
 
-    @mock.patch("sat.java.parse")
-    def test_parser_returns_nested_types(self, java_parser):
+    def test_parser_returns_nested_types(self):
         input_ast = javalang.parse.parse(
             """package dummy;
             class Class {
@@ -49,15 +40,13 @@ class TypeParserTest(unittest.TestCase):
                     enum IIEnum {
             }}}"""
         )
-        java_parser.return_value = input_ast
-        result = sut.parse("")
+        result = sut.parse(SourceFile("", "", "", input_ast, ""))
         self.assertEqual(len(result), 3)
         self.assertEqual(result[0].name, "Class")
         self.assertEqual(result[1].name, "IClass")
         self.assertEqual(result[2].name, "IIEnum")
 
-    @mock.patch("sat.java.parse")
-    def test_parser_returns_private_classes(self, java_parser):
+    def test_parser_returns_private_classes(self):
         input_ast = javalang.parse.parse(
             """package dummy;
             private class pClass1 {}
@@ -65,15 +54,13 @@ class TypeParserTest(unittest.TestCase):
             class Class {}
         """
         )
-        java_parser.return_value = input_ast
-        result = sut.parse("")
+        result = sut.parse(SourceFile("", "", "", input_ast, ""))
         self.assertEqual(len(result), 3)
         self.assertEqual(result[0].name, "pClass1")
         self.assertEqual(result[1].name, "pClass2")
         self.assertEqual(result[2].name, "Class")
 
-    @mock.patch("sat.java.parse")
-    def test_parser_parses_empty_methods(self, java_parser):
+    def test_parser_parses_empty_methods(self):
         input_ast = javalang.parse.parse(
             """package dummy;
             class Class {
@@ -82,8 +69,7 @@ class TypeParserTest(unittest.TestCase):
             }
         """
         )
-        java_parser.return_value = input_ast
-        result = sut.parse("")
+        result = sut.parse(SourceFile("", "", "", input_ast, ""))
         self.assertEqual(len(result), 1)
         methods = result[0].methods
         self.assertEqual(methods[0].name, "staticFoo")

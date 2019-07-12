@@ -1,82 +1,58 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 # Too few public methods, too many args, too many attributes
 # pylint: disable=R0903,R0913,R0902
 
+from sat.app.workspace.domain import Package as WPackage
+from sat.app.workspace.domain import Project as WProject
+from sat.app.workspace.domain import SourceFile as WSourceFile
 
-class Project:
-    def __init__(self, name, location, source_packages):
-        self.name = name
-        self.location = location
-        self.source_packages = source_packages
+
+class Project(WProject):
+    def __init__(self, abs_path, rel_path, name, packages):
+        WProject.__init__(self, abs_path, rel_path, name, packages)
 
     def imports(self):
         imports = []
-        for package in self.source_packages:
+        for package in self.packages:
             imports.extend(package.imports())
         return imports
 
-    def __lt__(self, other):
-        return self.name < other.name
 
-
-class Bundle:
-    def __init__(
-        self,
-        path,
-        name,
-        version,
-        exported_packages,
-        imported_packages,
-        required_bundles,
-        num_dependencies,
-    ):
-        self.path = path.strip(" ")
-        self.name = name.strip(" ")
-        self.version = version.strip(" ")
-        self.exported_packages = exported_packages
-        self.imported_packages = imported_packages
-        self.required_bundles = required_bundles
-        self.num_dependencies = num_dependencies
-
-    def __lt__(self, other):
-        return self.name < other.name
-
-
-class Package:
-    def __init__(self, name, path, sourcefiles):
-        self.name = name
-        self.path = path
-        self.sourcefiles = sourcefiles
+class Package(WPackage):
+    def __init__(self, abs_path, rel_path, name, sourcefiles):
+        WPackage.__init__(self, abs_path, rel_path, name, sourcefiles)
 
     def imports(self):
         imports = []
-        for source_file in self.sourcefiles:
-            for imp in source_file.imports:
+        for sourcefile in self.sourcefiles:
+            for imp in sourcefile.imports:
                 imports.append(imp)
         return imports
 
 
-class SourceFile:
+class SourceFile(WSourceFile):
     def __init__(
         self,
+        abs_path,
+        rel_path,
         name,
-        language,
         imports,
         concrete_classes,
         abstract_classes,
         interfaces,
         enums,
     ):
-        self.name = name
-        self.language = language
+        WSourceFile.__init__(self, abs_path, rel_path, name, ast=None)
         self.imports = imports
         self.concrete_classes = concrete_classes
         self.abstract_classes = abstract_classes
         self.interfaces = interfaces
         self.enums = enums
+        self.tles = self._top_level_elements()
 
-    def toplevelelements(self):
+    def _top_level_elements(self):
         tles = []
         tles.extend(self.concrete_classes)
         tles.extend(self.abstract_classes)
@@ -85,28 +61,30 @@ class SourceFile:
         return tles
 
 
-class Interface:
-    def __init__(self, name, fqn, methods, attributes, extends, modifiers):
-        self.name = name
+class ToplevelElement:
+    def __init__(self, stereotype, name, fqn, modifiers):
+        self.stereotype = stereotype
         self.fqn = fqn
+        self.name = name
+        self.modifiers = modifiers
+
+
+class Interface(ToplevelElement):
+    def __init__(self, name, fqn, methods, attributes, extends, modifiers):
+        ToplevelElement.__init__(self, "interface", name, fqn, modifiers)
         self.methods = methods
         self.attributes = attributes
         self.extends = extends
-        self.modifiers = modifiers
-        self.stereotype = "interface"
 
 
-class Enum:
+class Enum(ToplevelElement):
     def __init__(self, name, fqn, constants, modifiers):
-        self.name = name
-        self.fqn = fqn
-        self.constants = constants
-        self.modifiers = modifiers
+        ToplevelElement.__init__(self, "enum", name, fqn, modifiers)
         self.typename = "enum"
-        self.stereotype = "enum"
+        self.constants = constants
 
 
-class Class:
+class Class(ToplevelElement):
     def __init__(
         self,
         name,
@@ -118,14 +96,11 @@ class Class:
         modifiers,
         stereotype="",
     ):
-        self.name = name
-        self.fqn = fqn
+        ToplevelElement.__init__(self, stereotype, name, fqn, modifiers)
         self.methods = methods
         self.attributes = attributes
         self.implements = implements
         self.extends = extends
-        self.modifiers = modifiers
-        self.stereotype = stereotype
 
 
 class Method:

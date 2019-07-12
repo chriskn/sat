@@ -3,12 +3,10 @@
 
 import pandas as pd
 
-import sat.report.plot as plot
-import sat.report.writer as writer
+import sat.app.report.plot as plot
+import sat.app.report.writer as writer
 
-from sat.app.analyser import Analyser
-
-import sat.comp.repo.typerepo as repo
+from sat.app.execution.analyser import Analyser
 
 
 class ClassComp(Analyser):
@@ -16,14 +14,16 @@ class ClassComp(Analyser):
     def name():
         return "classes"
 
-    def __init__(self):
+    def __init__(self, workspace):
+        Analyser.__init__(self, workspace)
         self._analysis_result = None
-        self._types = None
+        self._types = []
 
-    def load_data(self, working_dir, ignored_path_segments):
-        self._types = repo.types(working_dir, ignored_path_segments)
+    def load_data(self):
+        for sfiles in self._workspace.sourcefiles():
+            self._types.extend(sfiles.types)
 
-    def analyse(self, ignored_path_segments):
+    def analyse(self):
         self._logger.info("Analysing Class Complexity.")
         data = []
         complexity_col = "Complexity"

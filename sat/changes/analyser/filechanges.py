@@ -5,10 +5,10 @@ import ntpath
 
 import pandas as pd
 
-import sat.changes.changerepo as repo
-import sat.report.plot as plot
-import sat.report.writer as writer
-from sat.app.analyser import Analyser
+import sat.app.report.plot as plot
+import sat.app.report.writer as writer
+
+from sat.app.execution.analyser import Analyser
 
 
 class FileChanges(Analyser):
@@ -19,31 +19,25 @@ class FileChanges(Analyser):
     def name():
         return "files"
 
-    def __init__(self, since):
-        self._since = since
-        self._changes = []
-        self._changes_per_file = []
-        self._working_dir = None
+    def __init__(self, workspace):
+        Analyser.__init__(self, workspace)
+        self._sourcefiles = []
         self._analysis_result = None
 
-    def load_data(self, working_dir, ignored_path_segments):
-        self._working_dir = working_dir
-        self._changes = repo.changes(working_dir, self._since)
+    def load_data(self):
+        self._sourcefiles = self._workspace.sourcefiles()
 
-    def analyse(self, ignored_path_segments):
+    def analyse(self):
         self._logger.info("Analysing file changes.")
         data = []
-        filepaths = {change.path for change in self._changes}
-        for filepath in filepaths:
-            file_name = _file_name(filepath)
-            lines_added, lines_removed = self._count_changed_lines(filepath)
+        for sourcefile in self._sourcefiles:
             data.append(
                 (
-                    filepath,
-                    file_name,
-                    lines_added + lines_removed,
-                    lines_added,
-                    lines_removed,
+                    sourcefile.abs_path,
+                    sourcefile.name,
+                    sourcefile.change.total_lines,
+                    sourcefile.change.lines_added,
+                    sourcefile.change.lines_removed,
                 )
             )
         dataframe = pd.DataFrame(data=data, columns=FileChanges._COLUMNS)
@@ -52,27 +46,19 @@ class FileChanges(Analyser):
         )
         return self._analysis_result
 
-    def _count_changed_lines(self, filepath):
-        lines_added = 0
-        lines_removed = 0
-        for change in self._changes:
-            if change.path == filepath:
-                lines_added += change.lines_added
-                lines_removed += change.lines_removed
-        return lines_added, lines_removed
-
     def write_results(self, output_dir):
         writer.write_dataframe_to_xls(
             self._analysis_result,
             "changed_lines_per_file.xls",
             output_dir,
-            "Changes since " + self._since,
+            "Changes since " + self._workspace.since,
         )
         barchart_data = self._create_barchart_data()
         plot.plot_stacked_barchart(
             barchart_data,
             "Number of changed lines",
-            "Number of changed lines for most changed files since " + self._since,
+            "Number of changed lines for most changed files since "
+            + self._workspace.since,
             output_dir,
             "most_changed_files.pdf",
         )

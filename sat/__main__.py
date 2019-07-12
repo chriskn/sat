@@ -8,8 +8,11 @@ import logging
 import os
 import sys
 
-from sat.app.analyserrepo import AnalyserRepo
-from sat.app import cli
+from sat.changes.changeexecuter import ChangeExecuter
+from sat.comp.compexecuter import CompExecuter
+from sat.deps.depsexecuter import DepsExecuter
+
+from sat.app.execution import cli
 
 _LOG_FORMAT = "%(asctime)s %(levelname)s %(name)s %(message)s"
 logging.basicConfig(
@@ -20,79 +23,34 @@ logging.basicConfig(
 )
 _OUTPUT_FOLDER_NAME = datetime.datetime.now().strftime("%d%m%y_%H-%M-%S")
 
-
-def run_deps_analysers(
-    analysernames, deps_analysers_by_name, workingdir, ignored_path_segments, outputdir
-):
-    for analyser_name in analysernames:
-        analyser = deps_analysers_by_name[analyser_name]()
-        analyser.load_data(workingdir, ignored_path_segments)
-        analyser.analyse(ignored_path_segments)
-        analyser.write_results(outputdir)
+_EXECUTERS = [DepsExecuter, ChangeExecuter, CompExecuter]
 
 
-def run_change_analysers(
-    analysernames,
-    change_analysers_by_name,
-    workingdir,
-    ignored_path_segments,
-    outputdir,
-    since,
-):
-    for analyser_name in analysernames:
-        analyser = change_analysers_by_name[analyser_name](since)
-        analyser.load_data(workingdir, ignored_path_segments)
-        analyser.analyse(ignored_path_segments)
-        analyser.write_results(outputdir)
-
-
-def run_comp_analysers(
-    analysernames, comp_analysers_by_name, workingdir, ignored_path_segments, outputdir
-):
-    for analyser_name in analysernames:
-        analyser = comp_analysers_by_name[analyser_name]()
-        analyser.load_data(workingdir, ignored_path_segments)
-        analyser.analyse(ignored_path_segments)
-        analyser.write_results(outputdir)
+def _init_executer(parsed_args, outputdir):
+    if parsed_args.executer == DepsExecuter.args().name:
+        return DepsExecuter(parsed_args.workingdir, parsed_args.ignored, outputdir)
+    if parsed_args.executer == ChangeExecuter.args().name:
+        return ChangeExecuter(
+            parsed_args.workingdir, parsed_args.ignored, outputdir, parsed_args.since
+        )
+    if parsed_args.executer == CompExecuter.args().name:
+        return CompExecuter(parsed_args.workingdir, parsed_args.ignored, outputdir)
+    return None
 
 
 if __name__ == "__main__":
-    logger = logging.getLogger("SAT")
+    cli.run_cli([executer.args() for executer in _EXECUTERS])
+    parsed_args = cli.parse()
 
-    deps_analysers = AnalyserRepo.deps_analyser_classes_by_name()
-    change_analysers = AnalyserRepo.change_analyser_classes_by_name()
-    comp_analysers = AnalyserRepo.comp_analyser_classes_by_name()
-
-    cli.run_cli(deps_analysers.keys(), change_analysers.keys(), comp_analysers)
-    workingdir, ignored_path_segments, analyser_group, analysers, outputbasedir, since = (
-        cli.parse()
-    )
-    outputdir = os.path.join(outputbasedir, "sat", _OUTPUT_FOLDER_NAME)
+    outputdir = os.path.join(parsed_args.outputdir, "sat", _OUTPUT_FOLDER_NAME)
     if not os.path.exists(outputdir):
         os.makedirs(outputdir)
 
-    logger.info(
-        "Ignoring directory paths containing one of the following strings %s",
-        ignored_path_segments,
-    )
-    logger.info("Using directory %s as working directory", workingdir)
-    logger.info("Using directory %s as output directory", outputdir)
-    logger.info("Running the following analysers: %s", ", ".join(analysers))
+    logger = logging.getLogger("SAT")
+    logger.info("Ignored paths %s", parsed_args.ignored)
+    logger.info("Using directory %s as working directory", parsed_args.workingdir)
+    logger.info("Using directory %s as output directory", parsed_args.outputdir)
+    logger.info("Running the following analysers: %s", ", ".join(parsed_args.analysers))
 
-    if analyser_group == "deps":
-        run_deps_analysers(
-            analysers, deps_analysers, workingdir, ignored_path_segments, outputdir
-        )
-    if analyser_group == "changes":
-        run_change_analysers(
-            analysers,
-            change_analysers,
-            workingdir,
-            ignored_path_segments,
-            outputdir,
-            since,
-        )
-    if analyser_group == "comp":
-        run_comp_analysers(
-            analysers, comp_analysers, workingdir, ignored_path_segments, outputdir
-        )
+    executer = _init_executer(parsed_args, outputdir)
+    executer.execute(parsed_args.analysers)

@@ -10,7 +10,7 @@ _LINES_CHANGED_PATTERN = re.compile(r"\d+\t\d+\t*")
 
 
 def parse_changes(workingdir, since):
-    changes_for_dir = []
+    changes_for_dir = dict()
     command = (
         'git log --numstat --oneline --shortstat --after="'
         + since
@@ -23,13 +23,13 @@ def parse_changes(workingdir, since):
         decoded = line.decode("utf-8")
         if _LINES_CHANGED_PATTERN.match(decoded):
             change = _parse_change(decoded)
-            changes_for_dir.append(change)
+            changes_for_dir[change.path] = change
     return changes_for_dir
 
 
 def _parse_change(decoded):
     split = decoded.split("\t")
-    path = os.path.normpath(split[2])
+    path = os.path.abspath(os.path.normpath(split[2]))
     lines_added = int(split[0])
     lines_removed = int(split[1])
     return Change(path, lines_added, lines_removed)
