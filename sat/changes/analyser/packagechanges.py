@@ -1,17 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
-import re
-
 import pandas as pd
 
-import sat.changes.changerepo as repo
-import sat.scanner as scanner
-from sat.app.analyser import Analyser
+from sat.app.execution.analyser import Analyser
 
-import sat.report.plot as plot
-import sat.report.writer as writer
+import sat.app.report.plot as plot
+import sat.app.report.writer as writer
 
 
 class PackageChanges(Analyser):
@@ -22,36 +17,25 @@ class PackageChanges(Analyser):
     def name():
         return "packages"
 
-    def __init__(self, since):
-        self._since = since
-        self._changes = []
+    def __init__(self, workspace):
+        Analyser.__init__(self, workspace)
         self._analysis_result = None
-        self._workingdir = None
-        self._relativepaths_for_package_paths = None
+        self._packages = []
 
-    def load_data(self, working_dir, ignored_path_segments):
-        self._workingdir = working_dir
-        self._changes = repo.changes(working_dir, self._since)
-        self._relativepaths_for_package_paths = scanner.find_packages(
-            self._workingdir, ignored_path_segments
-        )
+    def load_data(self):
+        self._packages = self._workspace.packages()
 
-    def analyse(self, ignored_path_segments):
+    def analyse(self):
         self._logger.info("Analysing package changes.")
         data = []
-        for (
-            full_package_path,
-            relative_package_path,
-        ) in self._relativepaths_for_package_paths.items():
-            name = relative_package_path.replace(os.sep, ".")
-            lines_added, lines_removed = self._count_changed_lines(full_package_path)
+        for package in self._packages:
             data.append(
                 (
-                    relative_package_path,
-                    name,
-                    lines_added + lines_removed,
-                    lines_added,
-                    lines_removed,
+                    package.abs_path,
+                    package.name,
+                    package.total_lines,
+                    package.lines_added,
+                    package.lines_removed,
                 )
             )
         dataframe = pd.DataFrame(data=data, columns=PackageChanges._COLUMNS)
@@ -60,35 +44,17 @@ class PackageChanges(Analyser):
         )
         return self._analysis_result
 
-    def _count_changed_lines(self, full_package_path):
-        lines_added = 0
-        lines_removed = 0
-        for change in self._changes:
-            change_directory = os.path.normpath(os.path.dirname(change.path))
-            norm_package_path = self._norm_path(full_package_path)
-            if change_directory.endswith(norm_package_path):
-                lines_added += change.lines_added
-                lines_removed += change.lines_removed
-        return lines_added, lines_removed
-
-    def _norm_path(self, full_package_path):
-        norm_package_path = full_package_path.replace(self._workingdir, "")
-        rel_pattern = "[.]+" + re.escape(os.sep)
-        if re.match(rel_pattern, norm_package_path):
-            norm_package_path = re.sub(rel_pattern, "", norm_package_path)
-        return norm_package_path
-
     def write_results(self, output_dir):
         writer.write_dataframe_to_xls(
             self._analysis_result,
             "changed_lines_per_package.xls",
             output_dir,
-            "Changes since " + self._since,
+            "Changes since " + self._workspace.since,
         )
         tm_data = self._create_tm_data()
         plot.plot_treemap(
             tm_data,
-            "Number of changed lines per packag since " + self._since,
+            "Number of changed lines per packag since " + self._workspace.since,
             output_dir,
             "changed_lines_per_package.pdf",
             "changes:",

@@ -23,7 +23,7 @@ class ProjectGraph(Graph):
     def _add_edges_for_project(self, project, projects, max_numdeps):
         project_imports = self._collect_imports(project)
         for other_project in projects:
-            for other_package in other_project.source_packages:
+            for other_package in other_project.packages:
                 is_imported_by_project = other_package.name in project_imports
                 if is_imported_by_project:
                     other_not_yet_added = other_package.name not in self._id_for_name

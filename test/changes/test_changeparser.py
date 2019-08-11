@@ -19,4 +19,4 @@ class TestChangeParser(unittest.TestCase):
 
         resulting_changes = sut.parse_changes("", "")
 
-        self.assertEqual(resulting_changes, [])
+        self.assertEqual(resulting_changes, {})

@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os
-
 from javalang.tree import (
     ClassDeclaration,
     ConstructorDeclaration,
@@ -10,10 +8,19 @@ from javalang.tree import (
     MethodDeclaration,
 )
 
-import sat.java as java
-
 from sat.comp.domain import Method, Type
 import sat.comp.compcalculator as comp
+
+
+def parse(sourcefile):
+    parsed_types = []
+    ast = sourcefile.ast
+    if ast:
+        types = _collect_types(ast, list())
+        for ast_type in types:
+            parsed_type = _parse_type(ast_type, sourcefile.abs_path)
+            parsed_types.append(parsed_type)
+    return parsed_types
 
 
 def is_method(body_element):
@@ -22,17 +29,6 @@ def is_method(body_element):
 
 def is_type(type_):
     return isinstance(type_, (ClassDeclaration, InterfaceDeclaration, EnumDeclaration))
-
-
-def parse(java_file):
-    parsed_types = []
-    ast = java.parse(java_file)
-    if ast:
-        types = _collect_types(ast, list())
-        for ast_type in types:
-            parsed_type = _parse_type(ast_type, java_file)
-            parsed_types.append(parsed_type)
-    return parsed_types
 
 
 def _collect_types(node, types):
@@ -46,9 +42,8 @@ def _collect_types(node, types):
     return types
 
 
-def _parse_type(ast_type, java_file):
+def _parse_type(ast_type, path):
     analysed_methods = _parse_methods(ast_type)
-    path = os.path.normpath(java_file)
     parsed_type = Type(path, ast_type.name, analysed_methods)
     return parsed_type
 

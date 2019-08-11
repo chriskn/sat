@@ -8,11 +8,11 @@ from mock import Mock
 
 import pandas as pd
 
-import sat.report.plot as sut
+import sat.app.report.plot as sut
 
 
 class PlotHeatmapTest(unittest.TestCase):
-    @mock.patch("sat.report.plot._write_figure_and_reset")
+    @mock.patch("sat.app.report.plot._write_figure_and_reset")
     def test_plot_heatmap_does_not_plot_if_dataframe_empty(self, mock_writer):
         sut.plot_heatmap(pd.DataFrame(), "", "", "")
 

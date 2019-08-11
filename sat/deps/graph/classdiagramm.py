@@ -166,7 +166,7 @@ def _collect_top_level_elements(packages):
     top_level_elements = []
     for package in packages:
         for sourcefile in package.sourcefiles:
-            tles_for_file = sourcefile.toplevelelements()
+            tles_for_file = sourcefile.tles
             imports_for_fqn.update(
                 {tle.fqn: sourcefile.imports for tle in tles_for_file}
             )

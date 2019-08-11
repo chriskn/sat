@@ -2,12 +2,10 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 
-import sat.comp.repo.packagerepo as prepo
+import sat.app.report.plot as plot
+import sat.app.report.writer as writer
 
-import sat.report.plot as plot
-import sat.report.writer as writer
-
-from sat.app.analyser import Analyser
+from sat.app.execution.analyser import Analyser
 
 _COLUMNS = [
     "Package",
@@ -23,14 +21,15 @@ class PackageComp(Analyser):
     def name():
         return "packages"
 
-    def __init__(self):
+    def __init__(self, workspace):
+        Analyser.__init__(self, workspace)
         self._packages = None
         self._analysis_result = None
 
-    def load_data(self, working_dir, ignored_path_segments):
-        self._packages = prepo.packages(working_dir, ignored_path_segments)
+    def load_data(self):
+        self._packages = self._workspace.packages()
 
-    def analyse(self, ignored_path_segments):
+    def analyse(self):
         self._logger.info("Analysing Package Complexity.")
         data = []
         for package in self._packages:
@@ -48,7 +47,7 @@ class PackageComp(Analyser):
                     package.complexity,
                     av_type_comp,
                     av_method_comp,
-                    package.path,
+                    package.abs_path,
                 )
             )
         package_dataframe = pd.DataFrame(data, columns=_COLUMNS)
@@ -56,13 +55,6 @@ class PackageComp(Analyser):
             _COLUMNS[1], ascending=False
         )
         return self._analysis_result
-
-    # def _count_methods(self, package):
-    #     num_methods = 0
-    #     [num_methods += len(type_.methods) for type_ in package.types]
-    #     for type_ in package.types:
-    #         num_methods += len(type_.methods)
-    #     return num_methods
 
     def write_results(self, output_dir):
         writer.write_dataframe_to_xls(
