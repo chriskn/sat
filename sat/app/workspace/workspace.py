@@ -43,29 +43,36 @@ class Workspace:
         )
         return bundles
 
-    def packages(self, sourcefolder=None):
+    def packages(self, sourcefolder=None, proj_name=""):
         directory = sourcefolder if sourcefolder else self.workspace_dir
         abs_dir = os.path.abspath(os.path.normpath(directory))
-        parsed_packages = self._packages.get(abs_dir)
-        if parsed_packages:
-            return parsed_packages
+        packages = []
         if sourcefolder:
             package_paths = scanner.find_packages_for_sourcefolder(
                 abs_dir, self.ignored_path_segments
             )
-            return [
-                self.create_package(
-                    path, os.path.relpath(os.path.abspath(path), abs_dir)
-                )
-                for path in package_paths
-            ]
+            for path in package_paths:
+                if path in self._packages:
+                    packages.append(self._packages[path])
+                else:
+                    new_package = self.create_package(
+                        path, os.path.relpath(os.path.abspath(path), abs_dir), proj_name
+                    )
+                    packages.append(new_package)
+                    self._packages[path] = new_package
+            self._packages[abs_dir] = packages
+            return packages
         rel_path_for_abs_path = scanner.find_packages(
             self.workspace_dir, self.ignored_path_segments
         )
-        return [
-            self.create_package(abs_path, rel_path)
-            for abs_path, rel_path in rel_path_for_abs_path.items()
-        ]
+        for abs_path, rel_path in rel_path_for_abs_path.items():
+            if abs_path in self._packages:
+                packages.append(self._packages[abs_path])
+            else:
+                new_package = self.create_package(abs_path, rel_path, proj_name)
+                self._packages[abs_path] = new_package
+                packages.append(new_package)
+        return packages
 
     def sourcefiles(self, directory=None, packagename=""):
         abs_dir = directory if directory else self.workspace_dir
@@ -85,20 +92,22 @@ class Workspace:
         sourcefolders = scanner.find_sourcefolders_for_project(abs_proj_path)
         packages = []
         for sourcefolder in sourcefolders:
-            packages.extend(self.packages(sourcefolder))
+            packages.extend(self.packages(sourcefolder, name))
         return Project(abs_proj_path, rel_proj_path, name, packages)
 
-    def create_package(self, abs_path, rel_path):
+    def create_package(self, abs_path, rel_path, proj_name=""):
         name = rel_path.replace(os.sep, ".")
         sourcefiles = self.sourcefiles(abs_path, name)
-        return Package(abs_path, rel_path, name, sourcefiles)
+        return Package(abs_path, rel_path, name, sourcefiles, proj_name)
 
-    def create_sourcefile(self, java_file_path, abs_dir, packagename=""):
+    def create_sourcefile(self, java_file_path, abs_dir, packagename="", parse=True):
         # pylint:disable=R0201
         abs_source_path = os.path.abspath(java_file_path)
         rel_source_path = os.path.relpath(abs_source_path, abs_dir)
         filename = os.path.basename(abs_source_path)
-        ast = java.parse(abs_source_path)
+        ast = None
+        if parse:
+            ast = java.parse(abs_source_path)
         return SourceFile(abs_source_path, rel_source_path, filename, ast, packagename)
 
     def create_bundle(self, bundle_path):

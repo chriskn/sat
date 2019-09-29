@@ -42,6 +42,27 @@ def package_coupling_dataframe(packages):
     return data_frame
 
 
+def num_packages_importing_package(all_packages, package_to_analyse):
+    num_packages_importing_package = 0
+    for package in all_packages:
+        package_imports_for_package = {
+            _to_package_import(imp) for imp in package.imports()
+        }
+        if package_to_analyse.name in package_imports_for_package:
+            num_packages_importing_package += 1
+    return num_packages_importing_package
+
+
+def num_packages_imported_by_package(package_to_analyse):
+    return len(
+        {
+            _to_package_import(imp)
+            for imp in package_to_analyse.imports()
+            if _to_package_import(imp) is not package_to_analyse.name
+        }
+    )
+
+
 def _to_package_import(import_):
     if _CLASS_IMPORT_PATTERN.match(import_):
         return re.split(r"\.[A-Z]", import_, maxsplit=1)[0]

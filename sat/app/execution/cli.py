@@ -8,31 +8,28 @@ from argparse import RawTextHelpFormatter
 
 _DEFAULT_IGNORED_PATH_SEGMENTS = ["bin", "target", "examples", "test"]
 _VERSION = "%(prog)s 0.1.0"
-_PARENT_PARSER = argparse.ArgumentParser(formatter_class=RawTextHelpFormatter)
 
 
 def run_cli(executer_args):
-    init_parent_parser()
-    executers = _PARENT_PARSER.add_subparsers(
+    parent_parser = argparse.ArgumentParser(formatter_class=RawTextHelpFormatter)
+    _add_common_args(parent_parser)
+    executers = parent_parser.add_subparsers(
         dest="executer", metavar="executer", required=True
     )
     for args in executer_args:
         _add_executer(executers, args)
-
-    # _add_deps_analysers(analyser_types, deps_analysers)
-    # _add_change_analysers(analyser_types, change_analysers)
-    # _add_comp_analysers(analyser_types, loc_analysers)
+    return parent_parser.parse_args()
 
 
-def init_parent_parser():
-    _PARENT_PARSER.add_argument(
+def _add_common_args(parser):
+    parser.add_argument(
         "-w",
         dest="workingdir",
         metavar="workingdir",
         default=os.getcwd(),
         help="Root folder for recursive analysers. Default is script location",
     )
-    _PARENT_PARSER.add_argument(
+    parser.add_argument(
         "-i",
         dest="ignored",
         metavar="ignored path segments",
@@ -42,14 +39,14 @@ def init_parent_parser():
         + ", ".join(_DEFAULT_IGNORED_PATH_SEGMENTS)
         + ". Provide empty list to include all paths",
     )
-    _PARENT_PARSER.add_argument(
+    parser.add_argument(
         "-o",
         dest="outputdir",
         metavar="outputdir",
         default=os.getcwd(),
         help="Root folder for analysers results. Default is script location",
     )
-    _PARENT_PARSER.add_argument("-v", "--version", action="version", version=_VERSION)
+    parser.add_argument("-v", "--version", action="version", version=_VERSION)
 
 
 def _add_executer(executers, executer_args):
@@ -77,7 +74,3 @@ def _add_analyser_arg(group, analyser_names):
         required=True,
         help="List of analysers %s" % analyser_names,
     )
-
-
-def parse():
-    return _PARENT_PARSER.parse_args()

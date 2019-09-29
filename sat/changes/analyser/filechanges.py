@@ -4,7 +4,7 @@
 import ntpath
 
 import pandas as pd
-
+import os
 import sat.app.report.plot as plot
 import sat.app.report.writer as writer
 
@@ -13,7 +13,17 @@ from sat.app.execution.analyser import Analyser
 
 class FileChanges(Analyser):
 
-    _COLUMNS = ["Path", "File", "Total changes", "Lines added", "Lines removed"]
+    _COLUMNS = [
+        "Path",
+        "File",
+        "Number of lines",
+        "Changed Lines",
+        "Lines added",
+        "Lines removed",
+        "Number of contributers",
+        "Number of contributions",
+        "Number of fixes",
+    ]
 
     @staticmethod
     def name():
@@ -29,20 +39,24 @@ class FileChanges(Analyser):
 
     def analyse(self):
         self._logger.info("Analysing file changes.")
-        data = []
-        for sourcefile in self._sourcefiles:
-            data.append(
-                (
-                    sourcefile.abs_path,
-                    sourcefile.name,
-                    sourcefile.change.total_lines,
-                    sourcefile.change.lines_added,
-                    sourcefile.change.lines_removed,
-                )
+        data = [
+            (
+                sourcefile.abs_path,
+                sourcefile.name,
+                sum(1 for line in open(sourcefile.abs_path)),
+                sourcefile.changes_total,
+                sourcefile.lines_added,
+                sourcefile.lines_removed,
+                sourcefile.num_contributer,
+                len(sourcefile.changes),
+                sourcefile.num_fixes,
             )
+            for sourcefile in self._sourcefiles
+            if sourcefile.changes_total > 0 and os.path.isfile(sourcefile.abs_path)
+        ]
         dataframe = pd.DataFrame(data=data, columns=FileChanges._COLUMNS)
         self._analysis_result = dataframe.sort_values(
-            FileChanges._COLUMNS[2], ascending=False
+            FileChanges._COLUMNS[3], ascending=False
         )
         return self._analysis_result
 
@@ -52,6 +66,9 @@ class FileChanges(Analyser):
             "changed_lines_per_file.xls",
             output_dir,
             "Changes since " + self._workspace.since,
+        )
+        writer.write_dataframe_to_csv(
+            self._analysis_result, "changed_lines_per_file.csv", output_dir
         )
         barchart_data = self._create_barchart_data()
         plot.plot_stacked_barchart(

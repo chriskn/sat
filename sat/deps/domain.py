@@ -23,6 +23,12 @@ class Project(WProject):
 class Package(WPackage):
     def __init__(self, abs_path, rel_path, name, sourcefiles):
         WPackage.__init__(self, abs_path, rel_path, name, sourcefiles)
+        self.num_concrete_classes = sum(
+            [len(sf.concrete_classes) for sf in sourcefiles]
+        )
+        self.num_abstract_classes = sum(
+            [len(sf.abstract_classes) + len(sf.interfaces) for sf in sourcefiles]
+        )
 
     def imports(self):
         imports = []

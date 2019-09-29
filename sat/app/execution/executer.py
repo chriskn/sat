@@ -36,7 +36,7 @@ class ExecuterArgs:
         self.name = name
         self.analyser_names = analyser_names
         self.description = description
-        self.options = options
+        self.options = options if options else []
 
 
 class Option:

@@ -29,18 +29,17 @@ _EXECUTERS = [DepsExecuter, ChangeExecuter, CompExecuter]
 def _init_executer(parsed_args, outputdir):
     if parsed_args.executer == DepsExecuter.args().name:
         return DepsExecuter(parsed_args.workingdir, parsed_args.ignored, outputdir)
+    if parsed_args.executer == CompExecuter.args().name:
+        return CompExecuter(parsed_args.workingdir, parsed_args.ignored, outputdir)
     if parsed_args.executer == ChangeExecuter.args().name:
         return ChangeExecuter(
             parsed_args.workingdir, parsed_args.ignored, outputdir, parsed_args.since
         )
-    if parsed_args.executer == CompExecuter.args().name:
-        return CompExecuter(parsed_args.workingdir, parsed_args.ignored, outputdir)
     return None
 
 
 if __name__ == "__main__":
-    cli.run_cli([executer.args() for executer in _EXECUTERS])
-    parsed_args = cli.parse()
+    parsed_args = cli.run_cli([executer.args() for executer in _EXECUTERS])
 
     outputdir = os.path.join(parsed_args.outputdir, "sat", _OUTPUT_FOLDER_NAME)
     if not os.path.exists(outputdir):

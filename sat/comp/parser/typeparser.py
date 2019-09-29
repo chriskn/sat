@@ -8,8 +8,9 @@ from javalang.tree import (
     MethodDeclaration,
 )
 
-from sat.comp.domain import Method, Type
+from sat.comp.domain import Method, TopLevelElement, TopLevelType
 import sat.comp.compcalculator as comp
+import sat.comp.statementcounter as counter
 
 
 def parse(sourcefile):
@@ -44,8 +45,23 @@ def _collect_types(node, types):
 
 def _parse_type(ast_type, path):
     analysed_methods = _parse_methods(ast_type)
-    parsed_type = Type(path, ast_type.name, analysed_methods)
+    top_level_type = _top_level_type(ast_type)
+    parsed_type = TopLevelElement(path, top_level_type, ast_type.name, analysed_methods)
     return parsed_type
+
+
+def _top_level_type(ast_type):
+    if isinstance(ast_type, ClassDeclaration):
+        if "abstract" in ast_type.modifiers:
+            return TopLevelType.ABSTRACT_CLASS
+        else:
+            return TopLevelType.CLASS
+    elif isinstance(ast_type, InterfaceDeclaration):
+        return TopLevelType.INTERFACE
+    elif isinstance(ast_type, EnumDeclaration):
+        return TopLevelType.ENUM
+    else:
+        return None
 
 
 def _parse_methods(ast_type):
@@ -58,5 +74,6 @@ def _analyse_method(method):
     name = method.name
     body = method.body
     complexity = comp.complexity(body) if body else 0
-    comp_method = Method(name, complexity)
+    num_statements = counter.num_statements(body) if body else 0
+    comp_method = Method(name, complexity, num_statements)
     return comp_method

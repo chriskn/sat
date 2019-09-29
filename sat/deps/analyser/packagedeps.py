@@ -24,6 +24,8 @@ class PackageDepsAnalyser(Analyser):
         self._package_cycles = []
         self._cycle_package_graph = None
         self._package_coupling_data_frame = None
+        self._number_of_abstract_classes = None
+        self._number_of_concrete_classes = None
         self._class_diagramm = None
         self._class_clycles = []
         self._cycle_class_diagramm = None
@@ -34,14 +36,22 @@ class PackageDepsAnalyser(Analyser):
 
     def analyse(self):
         self.graph_analysis()
-        self.coupling_analysis()
-        self._logger.info("Analysed %d packages", len(self._packages))
-
-    def coupling_analysis(self):
-        self._logger.info("Creating package coupling map")
         self._package_coupling_data_frame = coupling.package_coupling_dataframe(
             self._packages
         )
+        data = []
+        for package in self._packages:
+            blub = coupling.num_packages_importing_package(self._packages, package)
+            blub1 = coupling.num_packages_imported_by_package(package)
+            data.append(
+                (
+                    package.abs_path,
+                    package.name,
+                    package.num_concrete_classes,
+                    package.num_abstract_classes,
+                )
+            )
+        self._logger.info("Analysed %d packages", len(self._packages))
 
     def graph_analysis(self):
         self._logger.info("Creating package dependency graph")

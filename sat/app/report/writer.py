@@ -9,11 +9,15 @@ _LIST_SEPARATOR = ", "
 
 
 def write_dataframe_to_xls(data, filename, outputdir, sheetname):
-    # pylint:disable=E0110
     filepath = os.path.join(outputdir, filename)
     writer = pd.ExcelWriter(filepath)
     data.to_excel(writer, sheetname, index=False)
     writer.save()
+
+
+def write_dataframe_to_csv(data, filename, outputdir):
+    filepath = os.path.join(outputdir, filename)
+    data.to_csv(filepath, index=False, sep=";", decimal=",")
 
 
 def write_graphml(path, graph):

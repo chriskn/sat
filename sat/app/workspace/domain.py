@@ -21,9 +21,10 @@ class Project(Identifiable):
 
 
 class Package(Identifiable):
-    def __init__(self, abs_path, rel_path, name, sourcefiles):
+    def __init__(self, abs_path, rel_path, name, sourcefiles, proj_name=""):
         Identifiable.__init__(self, abs_path, rel_path, name)
         self.sourcefiles = sourcefiles
+        self.proj_name = proj_name
 
 
 class SourceFile(Identifiable):

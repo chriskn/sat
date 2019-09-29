@@ -16,13 +16,14 @@ class CompWorkspace(Workspace):
             w_project.abs_path, w_project.rel_path, w_project.name, w_project.packages
         )
 
-    def create_package(self, abs_path, rel_path):
-        w_package = super().create_package(abs_path, rel_path)
+    def create_package(self, abs_path, rel_path, proj_name):
+        w_package = super().create_package(abs_path, rel_path, proj_name)
         return Package(
             w_package.abs_path,
             w_package.rel_path,
             w_package.name,
             w_package.sourcefiles,
+            w_package.proj_name,
         )
 
     def create_sourcefile(self, java_file_path, abs_dir, packagename=""):

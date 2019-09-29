@@ -11,7 +11,14 @@ import sat.app.report.writer as writer
 
 class PackageChanges(Analyser):
 
-    _COLUMNS = ["Path", "Package", "Lines changed", "Lines added", "Lines removed"]
+    _COLUMNS = [
+        "Path",
+        "Package",
+        "Total changes",
+        "Lines added",
+        "Lines removed",
+        "Number of contributers",
+    ]
 
     @staticmethod
     def name():
@@ -27,17 +34,18 @@ class PackageChanges(Analyser):
 
     def analyse(self):
         self._logger.info("Analysing package changes.")
-        data = []
-        for package in self._packages:
-            data.append(
-                (
-                    package.abs_path,
-                    package.name,
-                    package.total_lines,
-                    package.lines_added,
-                    package.lines_removed,
-                )
+        data = [
+            (
+                package.abs_path,
+                package.name,
+                package.changes_total,
+                package.lines_added,
+                package.lines_removed,
+                package.num_contributer,
             )
+            for package in self._packages
+            if package.changes_total > 0
+        ]
         dataframe = pd.DataFrame(data=data, columns=PackageChanges._COLUMNS)
         self._analysis_result = dataframe.sort_values(
             PackageChanges._COLUMNS[2], ascending=False

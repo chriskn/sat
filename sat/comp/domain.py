@@ -6,6 +6,7 @@
 from sat.app.workspace.domain import Package as WPackage
 from sat.app.workspace.domain import Project as WProject
 from sat.app.workspace.domain import SourceFile as WSourcefile
+from enum import Enum
 
 
 class Project(WProject):
@@ -15,8 +16,8 @@ class Project(WProject):
 
 
 class Package(WPackage):
-    def __init__(self, abs_path, rel_path, name, sourcefiles):
-        WPackage.__init__(self, abs_path, rel_path, name, sourcefiles)
+    def __init__(self, abs_path, rel_path, name, sourcefiles, proj_name):
+        WPackage.__init__(self, abs_path, rel_path, name, sourcefiles, proj_name)
         self.types = []
         for sfile in sourcefiles:
             self.types.extend(sfile.types)
@@ -29,15 +30,25 @@ class SourceFile(WSourcefile):
         self.types = types
 
 
-class Type:
-    def __init__(self, path, name, methods):
+class TopLevelType(Enum):
+    CLASS = 1
+    ABSTRACT_CLASS = 2
+    INTERFACE = 3
+    ENUM = 4
+
+
+class TopLevelElement:
+    def __init__(self, path, top_level_type, name, methods):
         self.path = path
+        self.type = top_level_type
         self.name = name
         self.methods = methods
         self.complexity = sum(method.complexity for method in methods)
+        self.num_statements = sum(method.num_statements for method in methods)
 
 
 class Method:
-    def __init__(self, name, complexity):
+    def __init__(self, name, complexity, num_statements):
         self.name = name
         self.complexity = complexity
+        self.num_statements = num_statements
