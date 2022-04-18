@@ -12,3 +12,8 @@ Sat (Software analysis toolbox)
 --------------------------------
 
 Playground for analysing java projects top down. 
+
+
+.. image:: https://api.codacy.com/project/badge/Grade/ab2a7830017f4f51a1c7fec1f26af878
+   :alt: Codacy Badge
+   :target: https://app.codacy.com/app/chriskn/sat?utm_source=github.com&utm_medium=referral&utm_content=chriskn/sat&utm_campaign=Badge_Grade_Settings
